@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useRef, useCallback } from "react";
+import Reveal from "../components/Reveal";
 
 const ROLES = ["AI Researcher","Full-Stack Engineer","Cybersecurity Specialist","QA Automation Expert","Crisis Engineer","Flutter Developer"];
 
@@ -594,11 +595,13 @@ export default function Portfolio() {
 
             {/* ABOUT */}
             <section id="about" className="section" style={{ display: activeSection === "about" ? "block" : "none", opacity: activeSection === "about" ? 1 : 0 }}>
-              <div className="stats-grid">
-                {STATS.map((s) => (
-                  <AnimatedCounter key={s.label} {...s} start={animateStats} />
-                ))}
-              </div>
+              <Reveal delay={0}>
+                <div className="stats-grid">
+                  {STATS.map((s) => (
+                    <AnimatedCounter key={s.label} {...s} start={animateStats} />
+                  ))}
+                </div>
+              </Reveal>
 
               <div className="summary-card">
                 <div className="card-label">// Professional summary</div>
