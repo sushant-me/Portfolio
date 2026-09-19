@@ -16,7 +16,7 @@ const SECTIONS = [
 ];
 
 const STATS = [
-  { value: 1, suffix: "", label: "Patch merged into google/go-github" },
+  { value: 1, suffix: "", label: "Security patch merged into google/go-github" },
   { value: 5, suffix: "", label: "Memory-safety issues filed in google/s2geometry" },
   { value: 116, suffix: "", label: "Flags on the HackingHub Q3 2026 board — rank #1" },
   { value: 2, suffix: "", label: "IEEE papers accepted" },
@@ -661,7 +661,7 @@ export default function Portfolio() {
               <div className="honors-grid">
                 {[
                   { title: "Rank #1 — HackingHub Q3 2026 global leaderboard", desc: "116 flags and 11,860 XP, with 2 silver and 1 bronze award; the next-ranked account holds 97 flags. Public leaderboard API." },
-                  { title: "Patch merged into google/go-github", desc: "PR #4556: release-asset uploads are rejected when the upload URL's host differs from the configured upload host. Approved by the maintainer with the full CI matrix green." },
+                  { title: "Security patch authored, merged, then generalised into google/go-github", desc: "My PR #4556 stopped a release-asset upload being sent to an off-host URL. The maintainer merged it, then replaced it the next day with the broader PR #4564 — \"credentials are sent only to configured origins\" — which is what master implements today and which carries the commit \"Address feedback from sushant-me\"." },
                   { title: "Five memory-safety issues in google/s2geometry", desc: "A NULL dereference on the library's documented traversal path, an out-of-bounds read, a 16 GiB allocation from a 5-byte header, and a 2.4 GiB allocation reachable from a 28-byte input. Two hardening pull requests are under review by the maintainer." },
                   { title: "An OSS-Fuzz harness that was testing nothing", desc: "google/libphonenumber's as-you-type formatter asserted 0.00% line coverage of the code it targeted because it never generated valid input; the corrected harness reaches 93%." },
                   { title: "Two-time Hult Prize 1st Runner-Up", desc: "Recognized consecutive years (2024 & 2025) for social entrepreneurship and business models addressing global challenges." },
