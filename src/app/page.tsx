@@ -16,22 +16,31 @@ const SECTIONS = [
 ];
 
 const STATS = [
-  { value: 54000, suffix: "+", label: "Applicants outcompeted globally" },
-  { value: 20, suffix: "+", label: "Professional certifications" },
-  { value: 8, suffix: "", label: "Research papers & preprints" },
-  { value: 15, suffix: "+", label: "GitHub repositories" },
-  { value: 4, suffix: "+", label: "Hackathon wins & finals" },
-  { value: 3, suffix: "", label: "Internships completed" },
+  { value: 1, suffix: "", label: "Patch merged into google/go-github" },
+  { value: 5, suffix: "", label: "Memory-safety issues filed in google/s2geometry" },
+  { value: 116, suffix: "", label: "Flags on the HackingHub Q3 2026 board — rank #1" },
+  { value: 2, suffix: "", label: "IEEE papers accepted" },
+  { value: 2, suffix: "", label: "Years as a full-time AI engineer" },
+  { value: 3, suffix: "", label: "Security tools released and CI-tested" },
 ];
 
 
 const EXPERIENCE = [
   {
+    role: "AI Engineer",
+    company: "Atmos SoftTech Pvt. Ltd.",
+    location: "Birgunj, Nepal",
+    period: "Mar 2024 – Mar 2026",
+    desc: "Two years full-time designing, developing and deploying AI-based systems and machine-learning models in production. Built and maintained full-stack web applications end to end, and engineered autonomous agent pipelines — tool-calling, multi-step task orchestration, retrieval over private local data, and offline-first inference where sending data to a cloud API was not acceptable. Conduct and performance rated highly satisfactory in the company's signed experience letter.",
+    tags: ["Production ML", "Autonomous agents", "Full-stack", "Offline inference"],
+    color: "#22c55e",
+  },
+  {
     role: "Autonomous AI Intern — Capstone",
     company: "Next AI",
     location: "Kathmandu, Nepal",
     period: "2026",
-    desc: "Completed capstone project at an AI studio building vertical intelligence systems. Worked on capability-first AI infrastructure, agent runtimes, and human-in-the-command architectures for emerging Asian markets. Built autonomous agent pipelines with RAG and LangChain integration.",
+    desc: "Capstone at an AI studio working on agent runtimes and human-in-the-command architectures for emerging Asian markets, building autonomous agent pipelines with RAG and LangChain.",
     tags: ["AI agents", "RAG", "LangChain", "Capstone"],
     color: "#3b82f6",
   },
@@ -64,21 +73,50 @@ const EXPERIENCE = [
   },
 ];
 
-const RESEARCH = [
+type Research = {
+  title: string;
+  venue: string;
+  venueType: "conference" | "preprint";
+  desc: string;
+  tags: string[];
+  color: string;
+  /** Public link rendered as "Read Paper" — optional, because an accepted paper
+   *  whose PDF is not public yet has nothing honest to point at. */
+  file?: string;
+};
+
+const RESEARCH: Research[] = [
   {
-    title: "LLM Agent Firewall: Real-Time Detection & Neutralization",
-    venue: "IEEE Cyber-AI 2026",
+    title: "PREBAS: Preemptive Bandwidth Scaling for WebRTC in LEO Satellite Networks",
+    venue: "2026 IEEE RTC — Chicago, USA",
     venueType: "conference",
-    desc: "Developed an offline, sub-millisecond (0.96ms latency) inspection layer to secure inter-agent trust boundaries in multi-agent pipelines. Achieved 100% containment of overt prompt injections. Accepted for oral presentation at the 2nd IEEE International Conference on Cybersecurity and AI-Based Systems in Bucharest, Romania.",
-    tags: ["AI security", "Multi-agent", "Prompt injection"],
+    desc: "Accepted. Predictive bandwidth scaling for real-time WebRTC video over low-Earth-orbit links, where round-trip times and handover gaps break conventional congestion control. A lightweight neural predictor scales the send rate ahead of the link degradation instead of reacting to it, evaluated against reactive baselines over emulated LEO conditions.",
+    tags: ["5G NTN", "LEO satellite", "Neural prediction"],
+    color: "#a855f7",
+  },
+  {
+    title: "Edge-Native Semantic Firewall for Autonomous LLM Agents",
+    venue: "IEEE — accepted, camera-ready in progress, to be presented at NCIT",
+    venueType: "conference",
+    desc: "Accepted. A structured Chain-of-Thought verification framework that asks whether a small, locally served model can enforce policy for an agent that executes actions rather than proposing them. 600 policy scenarios per condition on Phi-3-mini (3.8B, 4-bit) on one consumer laptop inside a 4.2 GiB VRAM budget, with no cloud inference. The result contradicted our hypothesis: constraining output to JSON without a reasoning field was the least safe of the three arms (46.2% unsafe accepts versus 17.2% unconstrained), while a mandated reasoning field cut false accepts of irreversible hard-denial commands from 71 to 6. The residual failures are reported rather than rounded away.",
+    tags: ["AI security", "Agent safety", "Local inference", "Evaluation"],
     color: "#3b82f6",
-    file: "/images/llm_firewall_IEEE_format.pdf",
+    file: "https://github.com/sushant-me/Edge-Native_Semantic_Firewall_",
+  },
+  {
+    title: "MCP tool shadowing in Google's agent frameworks",
+    venue: "Open pull requests — adk-go, adk-java, adk-python",
+    venueType: "conference",
+    desc: "Fixes and reports for framework-reserved tool names that a server-supplied MCP tool can occupy, bypassing the duplicate-name guard: an in-model built-in such as google_search, or the terminal tool set_model_response. Reproduced in Go and Java against the real frameworks, with the reserved sets corrected against each port rather than copied between them.",
+    tags: ["MCP", "Agent security", "Tool boundaries"],
+    color: "#22c55e",
+    file: "https://github.com/google/adk-go/pull/1606",
   },
   {
     title: "EmbodiedOS: Offline-First Robotic OS with RAG Memory",
     venue: "Preprint 2026",
     venueType: "preprint",
-    desc: "Engineered a fully offline robotic OS eliminating cloud dependency. Utilizes C++ hardware control and local LLMs to causally improve manipulation tasks by +42.5% in simulated environments. Features RAG-based episodic memory for continuous learning.",
+    desc: "Engineered a fully offline robotic OS eliminating cloud dependency. Utilizes C++ hardware control and local LLMs for manipulation tasks, with RAG-based episodic memory for continuous learning. Everything runs with no network connection at all.",
     tags: ["Robotics", "Embodied AI", "RAG"],
     color: "#ef4444",
     file: "/images/EmbodiedOS_Research_Report.pdf",
@@ -105,7 +143,7 @@ const RESEARCH = [
     title: "Nepal as a Green Data Center Hub of South Asia",
     venue: "Preprint 2026",
     venueType: "preprint",
-    desc: "Strategic evaluation projecting up to 40% cooling cost reduction by leveraging Nepal's high-altitude climate and abundant hydropower for sustainable South Asian data infrastructure. Analyzed topological and energy-infrastructure advantages.",
+    desc: "Strategic evaluation of Nepal's high-altitude climate and hydropower for sustainable South Asian data infrastructure, analysing the topological, climatic and energy-infrastructure case.",
     tags: ["Sustainability", "Infrastructure", "Hydropower"],
     color: "#f59e0b",
     file: "/images/Article on Feasiblity of Nepal as Data Center Hub.pdf",
@@ -114,7 +152,7 @@ const RESEARCH = [
     title: "Project Swayam: The Unbreakable Municipality",
     venue: "Conference 2026",
     venueType: "conference",
-    desc: "Building Nepal's first fully offline, sovereign AI governance system. Integrates a quantized Local Brain and deterministic Gatekeeper intercepting data-extraction attacks at 16.2ms latency. Presented at Municipal AI Governance Conference.",
+    desc: "A fully offline, sovereign AI governance stack: a quantized local model for assistance behind a deterministic gatekeeper that blocks data-extraction attempts. Presented at the Municipal AI Governance Conference 2026.",
     tags: ["Edge AI", "Governance", "Sovereignty"],
     color: "#3b82f6",
     file: "/images/Project_Swayam_IEEE_Conference_Paper.pdf",
@@ -606,22 +644,30 @@ export default function Portfolio() {
               <div className="summary-card">
                 <div className="card-label">// Professional summary</div>
                 <p className="summary-text">
-                  Elite computer engineering student with a rare multidisciplinary command of Artificial Intelligence, Cybersecurity, and Full-Stack Systems. 
-                  Recognized as a Global Finalist in the Aspire Leaders Program with Harvard Business School faculty training, and unprecedented two-time Hult Prize 1st Runner-Up (2024 & 2025). 
-                  Proven ability to engineer offline-first financial systems, private local AI agents, and crisis-engineering technologies. 
-                  Published researcher in multi-agent system security, satellite telecommunications, and causal AI architectures. 
-                  Holder of 20+ professional certifications from Google, IBM, Meta, Stanford, and DeepLearning.AI.
+                  AI security engineer working on the failure mode where an autonomous agent does something a human would have blocked.
+                  A patch of mine is merged into google/go-github; five memory-safety issues I filed against google/s2geometry are open, including a 2.4 GiB allocation reachable from a 28-byte input, with standalone reproducers for each.
+                  Two IEEE papers accepted — one on local policy verification for agents, one on predictive bandwidth scaling for WebRTC over LEO satellite links.
+                  Ranked #1 on the HackingHub Q3 2026 global leaderboard (116 flags, 11,860 XP).
+                  Two years as a full-time AI engineer at Atmos SoftTech, building production ML systems, full-stack products and offline-first agent pipelines.
+                </p>
+                <p className="summary-text" style={{ marginTop: 12 }}>
+                  I would rather be checked than believed: every claim on this page is re-checked weekly against its public source by a script anyone can run —{" "}
+                  <a href="https://github.com/sushant-me/reputation" target="_blank" rel="noopener noreferrer" style={{ color: "#3b82f6" }}>
+                    github.com/sushant-me/reputation
+                  </a>.
                 </p>
               </div>
 
               <div className="honors-grid">
                 {[
-                  { title: "Aspire Leaders Program Finalist", desc: "Selected as one of ~10,000 finalists from 54,000+ applicants worldwide. Completed leadership training co-created by Harvard Business School faculty." },
-                  { title: "Two-Time Hult Prize 1st Runner-Up", desc: "Recognized consecutive years (2024 & 2025) for social entrepreneurship and innovative business models solving complex global challenges." },
-                  { title: "Bagmati Province Hackathon 2026 — Runner-Up", desc: "Runner-up at the provincial-level hackathon, demonstrating rapid prototyping and crisis-engineering capabilities under extreme pressure." },
-                  { title: "Top 10% Global Performer", desc: "Consistently ranked in the top 10% of learners for practical assessments in cybersecurity and deep learning across global Coursera cohorts." },
-                  { title: "NEC IT Club — Joint Secretary", desc: "Spearheaded logistics, executive administration, and student engagement for massive tech events and hackathons at Nepal Engineering College." },
-                  { title: "Pulchowk Hardware Competition", desc: "Competitor and active participant pushing the boundaries of rapid systems engineering and hardware prototyping." },
+                  { title: "Rank #1 — HackingHub Q3 2026 global leaderboard", desc: "116 flags and 11,860 XP, with 2 silver and 1 bronze award; the next-ranked account holds 97 flags. Public leaderboard API." },
+                  { title: "Patch merged into google/go-github", desc: "PR #4556: release-asset uploads are rejected when the upload URL's host differs from the configured upload host. Approved by the maintainer with the full CI matrix green." },
+                  { title: "Five memory-safety issues in google/s2geometry", desc: "A NULL dereference on the library's documented traversal path, an out-of-bounds read, a 16 GiB allocation from a 5-byte header, and a 2.4 GiB allocation reachable from a 28-byte input. Two hardening pull requests are under review by the maintainer." },
+                  { title: "An OSS-Fuzz harness that was testing nothing", desc: "google/libphonenumber's as-you-type formatter asserted 0.00% line coverage of the code it targeted because it never generated valid input; the corrected harness reaches 93%." },
+                  { title: "Two-time Hult Prize 1st Runner-Up", desc: "Recognized consecutive years (2024 & 2025) for social entrepreneurship and business models addressing global challenges." },
+                  { title: "Aspire Leaders Program — Global Finalist (2025)", desc: "Selected as one of roughly 10,000 finalists from 54,000+ applicants worldwide, completing leadership training co-created by Harvard Business School faculty." },
+                  { title: "NEC IT Club — Joint Secretary (2024–2025)", desc: "Logistics, executive administration and student engagement for department-level technical events and hackathons at Nepal Engineering College." },
+                  { title: "Direct-to-device LEO satellite communication — Space Con 2026", desc: "Poster on 5G non-terrestrial-network connectivity from ordinary smartphones to LEO satellites, sized for Nepal's terrain." },
                 ].map((h) => (
                   <div key={h.title} className="honor-card">
                     <div className="honor-header">
