@@ -177,6 +177,37 @@ const RESEARCH: Research[] = [
   },
 ];
 
+const ADVISORIES = [
+  {
+    id: "GHSA-qwvv-fcmm-r3j2", severity: "high", color: "#ef4444",
+    title: "an authorization bypass in my own policy gate",
+    tool: "policygate", fixed: "v0.1.1",
+    desc: "A glob deny rule could be stepped around with a newline in the matched value, so the call fell through to a broader allow and proceeded with no human in the loop. The matched value is attacker-influenced: tool names come from the MCP server being gated.",
+    url: "https://github.com/sushant-me/policygate/security/advisories/GHSA-qwvv-fcmm-r3j2",
+  },
+  {
+    id: "GHSA-wcqw-86xv-w95q", severity: "medium", color: "#f59e0b",
+    title: "a scanner a hostile server could kill before it reported",
+    tool: "mcp-nameguard", fixed: "v0.4.8",
+    desc: "Replies were read without a bound, so a server returning one enormous body or line could exhaust memory and kill the scan. The tool exists to inspect servers it does not trust, so dying on the reply fails open against the exact adversary it was pointed at.",
+    url: "https://github.com/sushant-me/mcp-nameguard/security/advisories/GHSA-wcqw-86xv-w95q",
+  },
+  {
+    id: "GHSA-mffv-hhg5-mm33", severity: "medium", color: "#f59e0b",
+    title: "a masker that deleted the word a rule matched on",
+    tool: "agentbound", fixed: "v0.1.12",
+    desc: "The masker blanked any string that was the whole right-hand side of an assignment, so a one-line message constant became empty and a duplicate-registration rule reported nothing. A false negative in a detector, which its own documentation calls worse than the false positive being fixed.",
+    url: "https://github.com/sushant-me/agentbound/security/advisories/GHSA-mffv-hhg5-mm33",
+  },
+  {
+    id: "GHSA-62f4-h552-54wc", severity: "medium", color: "#f59e0b",
+    title: "16 of 256 variation selectors covered",
+    tool: "mcpaudit", fixed: "v0.1.2",
+    desc: "The invisible-character ranges covered U+FE00..U+FE0F and called it \"variation selectors\". The supplement is the same channel, and a payload hidden in it survived both the scan and the helper meant to show a reviewer what the text really contains.",
+    url: "https://github.com/sushant-me/mcpaudit/security/advisories/GHSA-62f4-h552-54wc",
+  },
+];
+
 const PROJECTS = [
   {
     name: "Annapurna Guide",
@@ -747,6 +778,26 @@ export default function Portfolio() {
                   </svg>
                   View All 15+ Repositories on GitHub
                 </a>
+              </div>
+              <div className="card-label" style={{ marginTop: "40px" }}>// Published security advisories — CVE IDs requested</div>
+              <div className="experience-list">
+                {ADVISORIES.map((a) => (
+                  <div key={a.id} className="exp-card" style={{ "--accent": a.color } as React.CSSProperties}>
+                    <div className="exp-accent" />
+                    <div className="exp-header">
+                      <div>
+                        <div className="exp-role">{a.id} — {a.title}</div>
+                        <div className="exp-company">{a.tool} · fixed in {a.fixed}</div>
+                      </div>
+                      <span className="exp-period">{a.severity}</span>
+                    </div>
+                    <p className="exp-desc">{a.desc}</p>
+                    <div className="tag-row">
+                      <a className="tag" href={a.url} target="_blank" rel="noopener noreferrer" style={{ color: a.color, background: `${a.color}18` }}>read the advisory</a>
+                      <span className="tag" style={{ color: a.color, background: `${a.color}18` }}>reproduction + regression test</span>
+                    </div>
+                  </div>
+                ))}
               </div>
             </section>
 
