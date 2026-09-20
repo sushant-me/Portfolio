@@ -38,7 +38,7 @@ const EXPERIENCE = [
   {
     role: "Autonomous AI Intern — Capstone",
     company: "Next AI",
-    location: "Kathmandu, Nepal",
+    location: "Bhaktapur, Nepal",
     period: "2026",
     desc: "Capstone at an AI studio working on agent runtimes and human-in-the-command architectures for emerging Asian markets, building autonomous agent pipelines with RAG and LangChain.",
     tags: ["AI agents", "RAG", "LangChain", "Capstone"],
@@ -56,7 +56,7 @@ const EXPERIENCE = [
   {
     role: "Cybersecurity & AI Intern",
     company: "Eminence Ways Pvt. Ltd.",
-    location: "Kathmandu, Nepal",
+    location: "Bhaktapur, Nepal",
     period: "2025 – 2026",
     desc: "Leading cybersecurity company in Nepal since 2013. Conducted penetration testing, vulnerability assessments, and security audits for enterprise clients across Asia, Europe, Australia, and the USA. Discovered critical CVE vulnerabilities and delivered structured remediation reports.",
     tags: ["Pentesting", "SIEM", "Network security", "OWASP"],
@@ -860,7 +860,7 @@ export default function Portfolio() {
 
           {/* FOOTER */}
           <footer className="portfolio-footer">
-            <p>Built with <span style={{ color: ambientColor }}>Next.js</span> &mdash; Sushant Poudel &mdash; Kathmandu, Nepal &mdash; 2026</p>
+            <p>Built with <span style={{ color: ambientColor }}>Next.js</span> &mdash; Sushant Poudel &mdash; Bhaktapur, Nepal &mdash; 2026</p>
             <div className="footer-links">
               <a href="https://github.com/sushant-me" target="_blank" rel="noopener noreferrer">GitHub</a>
               <a href="https://linkedin.com/in/sushant-poudel2028" target="_blank" rel="noopener noreferrer">LinkedIn</a>
