@@ -11,6 +11,7 @@ import SectionParallax from "../components/SectionParallax";
 import HorizontalScroller from "../components/HorizontalScroller";
 import VelocityFx from "../components/VelocityFx";
 import ScrollDock from "../components/ScrollDock";
+import HeroLandscape from "../components/HeroLandscape";
 import { useTilt } from "../components/useTilt";
 import { useInView } from "../components/useInView";
 import { useScrollProgress } from "../components/useScrollProgress";
@@ -846,6 +847,7 @@ function PortfolioBody() {
               the camera. */}
           <div className="hero-pin" ref={heroRef}>
           <header className="hero">
+            <HeroLandscape />
             <div className="hero-scrub">
             <div className="hero-badge" style={{ opacity: loaded ? 1 : 0, transform: loaded ? "translateY(0)" : "translateY(12px)" }}>
               <span className="pulse-dot" />
@@ -2273,6 +2275,8 @@ function PortfolioBody() {
         /* Fades to zero at the same moment the pin releases (p = 1), so there is
            no stretch of empty viewport between the hero and the first section. */
         .hero-scrub {
+          position: relative;
+          z-index: 2;
           transform: translate3d(0, calc(var(--p, 0) * -140px), 0)
             scale(calc(1 - var(--p, 0) * 0.2));
           opacity: calc(1 - var(--p, 0) * 1.02);
@@ -2710,6 +2714,7 @@ function PortfolioBody() {
         html[data-motion="off"] .hero-pin { height: auto; }
         html[data-motion="off"] .hero-pin .hero { position: static; min-height: 0; }
         html[data-motion="off"] .hero-scrub { transform: none; opacity: 1; }
+        html[data-motion="off"] .landscape > * { transform: none !important; }
         html[data-motion="off"] .hscroll { height: auto !important; }
         html[data-motion="off"] .hscroll-sticky {
           position: static;
@@ -2738,6 +2743,130 @@ function PortfolioBody() {
         html[data-motion="off"] .timeline { padding-left: 0; }
         html[data-motion="off"] .timeline::after { transform: scaleY(1); }
         html[data-motion="off"] .skill-fill { transform: scaleX(1); }
+
+        /* ══════════════════════════════════════════════════════════════
+           HERO WORLD — a layered Himalayan night
+           Only the shapes are SVG; sky, moon, water and scrim are CSS
+           gradients, which cost nothing to composite where an SVG layer costs
+           a full-viewport texture. Each band is sized to its own content.
+           ══════════════════════════════════════════════════════════════ */
+        .landscape {
+          position: absolute;
+          inset: 0;
+          z-index: 0;
+          overflow: hidden;
+          will-change: transform;
+        }
+
+        /* Full-bleed: the scene spans the viewport while the hero copy stays in
+           the readable content column. Inside the 1040px wrapper, an absolute
+           inset:0 box would be a panel with edges, which is what this avoids. */
+        .landscape {
+          left: 50%;
+          right: auto;
+          margin-left: -50vw;
+          width: 100vw;
+        }
+
+        .landscape > * {
+          position: absolute;
+          left: 0;
+          width: 100%;
+          pointer-events: none;
+        }
+
+        /* The sky keeps alpha on purpose: the WebGL scene behind it stays
+           faintly readable as a starfield with the wireframe core hanging above
+           the ridgeline like a digital moon. */
+        .l-sky {
+          top: 0;
+          bottom: 0;
+          background: linear-gradient(
+            180deg,
+            rgba(5, 7, 15, 0.52) 0%,
+            rgba(11, 18, 48, 0.64) 26%,
+            rgba(29, 35, 82, 0.82) 46%,
+            rgba(74, 44, 94, 0.9) 60%,
+            rgba(147, 70, 90, 0.92) 70%,
+            rgba(201, 113, 63, 0.9) 78%,
+            rgba(120, 54, 60, 0.74) 88%,
+            rgba(20, 16, 30, 0.86) 100%
+          );
+        }
+
+        /* A focused warm glow where the sun would sit behind the range. A radial
+           gradient rather than a blurred shape: a filter here would be
+           re-rastered every time the layer moves. */
+        .l-glow {
+          bottom: 22vh;
+          height: 44vh;
+          background: radial-gradient(
+            120% 100% at 30% 100%,
+            rgba(255, 176, 98, 0.42) 0%,
+            rgba(255, 122, 82, 0.18) 42%,
+            rgba(255, 122, 82, 0) 72%
+          );
+        }
+
+        .l-moon {
+          top: 2%;
+          left: 54%;
+          height: 54vh;
+          border-radius: 50%;
+          background: radial-gradient(
+            circle,
+            rgba(255, 236, 205, 0.9) 0%,
+            rgba(255, 217, 168, 0.34) 15%,
+            rgba(232, 160, 106, 0.1) 42%,
+            rgba(232, 160, 106, 0) 70%
+          );
+          will-change: transform;
+        }
+
+        .l-water {
+          bottom: 0;
+          height: 34vh;
+          background: linear-gradient(
+            180deg,
+            rgba(64, 38, 77, 0.92) 0%,
+            rgba(27, 31, 69, 0.96) 26%,
+            rgba(10, 15, 36, 0.98) 68%,
+            #060912 100%
+          );
+        }
+
+        .l-svg { bottom: 0; }
+        .l-far { height: 74vh; }
+        .l-mid { height: 66vh; }
+        .l-near { height: 54vh; }
+        .l-grass-a { height: 30vh; }
+        .l-grass-b { height: 23vh; }
+
+        /* Legibility scrim over the whole scene. */
+        .l-scrim {
+          top: 0;
+          bottom: 0;
+          background: linear-gradient(
+            180deg,
+            rgba(5, 7, 15, 0.74) 0%,
+            rgba(5, 7, 15, 0.12) 32%,
+            rgba(5, 7, 15, 0.08) 58%,
+            rgba(5, 7, 15, 0.44) 100%
+          );
+        }
+
+        /* ── the parallax separation ──
+           Every plane reads the same --p with its own multiplier: the far ridge
+           barely moves, the near grass travels furthest. Translating downward
+           can never open a gap at the bottom of a bottom-anchored band, which
+           is why the near layers go down and only the moon rises. */
+        .l-moon { transform: translate3d(0, calc(var(--p, 0) * -74px), 0); }
+        .l-far { transform: translate3d(0, calc(var(--p, 0) * 16px), 0); }
+        .l-water { transform: translate3d(0, calc(var(--p, 0) * 66px), 0); }
+        .l-mid { transform: translate3d(0, calc(var(--p, 0) * 46px), 0); }
+        .l-near { transform: translate3d(0, calc(var(--p, 0) * 100px), 0); }
+        .l-grass-a { transform: translate3d(0, calc(var(--p, 0) * 156px), 0); }
+        .l-grass-b { transform: translate3d(0, calc(var(--p, 0) * 220px), 0); }
 
         @media (max-width: 1100px) {
           .section-rail { display: none; }
