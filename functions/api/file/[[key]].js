@@ -31,8 +31,13 @@ export async function onRequestGet({ params, env }) {
     headers: {
       "content-type": type,
       "content-disposition": `${inline ? "inline" : "attachment"}; filename="${name.replace(/"/g, "")}"`,
-      // Keys are immutable once written, so this is safe to cache hard.
-      "cache-control": "public, max-age=31536000, immutable",
+      // Deliberately short. An immutable year-long cache means a file deleted
+      // from the admin panel keeps being served from Cloudflare's edge — which
+      // defeats deleting it. Five minutes still caches repeat views in a visit
+      // and lets a delete take effect promptly. Purging on delete would need an
+      // API token; this does not.
+      "cache-control": "public, max-age=300",
+      etag: `"${key.length}-${(metadata && metadata.size) || 0}"`,
     },
   });
 }

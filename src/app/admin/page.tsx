@@ -141,14 +141,20 @@ export default function AdminPage() {
           body: JSON.stringify({ key: file.key }),
         });
         const data = await res.json();
-        if (!res.ok) say(data.error || "delete failed", true);
-        else say(`deleted ${file.name}`);
+        if (!res.ok) {
+          say(data.error || "delete failed", true);
+          return;
+        }
+        // Drop it locally rather than re-listing: a KV list is eventually
+        // consistent, so an immediate refresh can still show the file for up to
+        // about a minute and look like the delete failed.
+        setFiles((current) => current.filter((f) => f.key !== file.key));
+        say(`deleted ${file.name}`);
       } catch {
         say("delete failed", true);
       }
-      refresh();
     },
-    [token, say, refresh]
+    [token, say]
   );
 
   const copy = useCallback(
