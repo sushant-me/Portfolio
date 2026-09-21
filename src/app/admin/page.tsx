@@ -104,8 +104,9 @@ export default function AdminPage() {
         return;
       }
       setBusy(true);
-      let done = 0;
       const failures: string[] = [];
+      const created: MediaFile[] = [];
+
       for (const file of chosen) {
         say(`uploading ${file.name} …`);
         const body = new FormData();
@@ -117,18 +118,40 @@ export default function AdminPage() {
             body,
           });
           const data = await res.json();
-          if (res.ok) done++;
-          else failures.push(`${file.name}: ${data.error || res.status}`);
-        } catch {
-          failures.push(`${file.name}: network error`);
+          if (res.ok) {
+            created.push({
+              key: data.key,
+              name: data.name,
+              type: data.type,
+              size: data.size,
+              uploaded: new Date().toISOString(),
+              url: data.url,
+            });
+          } else {
+            failures.push(`${file.name}: ${data.error || res.status}`);
+          }
+        } catch (err) {
+          failures.push(`${file.name}: ${err instanceof Error ? err.message : "network error"}`);
         }
       }
+
+      // Insert what was created instead of re-listing: a KV list is eventually
+      // consistent, so re-listing right after an upload can return the old set
+      // and make a successful upload look like it failed. Equally important, the
+      // result message must not be overwritten by a refresh — that is what hid
+      // the real error the first time this was tested against production.
+      if (created.length) setFiles((current) => [...created, ...current]);
       setBusy(false);
-      if (failures.length) say(`uploaded ${done}, failed ${failures.length}\n${failures.join("\n")}`, true);
-      else say(`uploaded ${done} file${done === 1 ? "" : "s"}`);
-      refresh();
+      if (failures.length) {
+        say(
+          `uploaded ${created.length}, failed ${failures.length}\n${failures.join("\n")}`,
+          true
+        );
+      } else {
+        say(`uploaded ${created.length} file${created.length === 1 ? "" : "s"}`);
+      }
     },
-    [token, say, refresh]
+    [token, say]
   );
 
   const remove = useCallback(
