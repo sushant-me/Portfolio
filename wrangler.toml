@@ -1,0 +1,17 @@
+# Cloudflare Pages configuration.
+#
+# The KV namespace below stores media uploaded through /admin. Stating the
+# binding here means the Pages build wires it up on every deploy, so the binding
+# cannot drift from what the code expects.
+#
+# NOTE: ADMIN_TOKEN is deliberately NOT here. This repository is public, so the
+# admin key is set as an encrypted variable on the Pages project instead
+# (Settings -> Variables and secrets -> Add).
+
+name = "portfolio"
+pages_build_output_dir = "out"
+compatibility_date = "2026-09-01"
+
+[[kv_namespaces]]
+binding = "MEDIA"
+id = "0002132563014feeb9a9fe25294b3502"
