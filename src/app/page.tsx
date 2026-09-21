@@ -1095,6 +1095,7 @@ function PortfolioBody() {
             <p>Built with <span style={{ color: ambientColor }}>Next.js</span> &mdash; Sushant Poudel &mdash; Bhaktapur, Nepal &mdash; 2026</p>
             <div className="footer-links">
               <a href="/writing">Writing</a>
+              <a href="/publications">Publications</a>
               <a href="https://github.com/sushant-me" target="_blank" rel="noopener noreferrer">GitHub</a>
               <a href="https://linkedin.com/in/sushant-poudel2028" target="_blank" rel="noopener noreferrer">LinkedIn</a>
               <a href="mailto:sushant.poudel2028@gmail.com">Email</a>
