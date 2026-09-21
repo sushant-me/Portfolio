@@ -2699,6 +2699,9 @@ function PortfolioBody() {
         html[data-motion="off"] .hero-avatar::before,
         html[data-motion="off"] .hero-avatar::after,
         html[data-motion="off"] .particle,
+        html[data-motion="off"] .river-flow,
+        html[data-motion="off"] .bird,
+        html[data-motion="off"] .bird-wings,
         html[data-motion="off"] .glow-orb {
           animation: none;
         }
@@ -2838,9 +2841,58 @@ function PortfolioBody() {
         .l-svg { bottom: 0; }
         .l-far { height: 74vh; }
         .l-mid { height: 66vh; }
+        .l-river { height: 74vh; }
+        .l-river-lower { height: 56vh; }
         .l-near { height: 54vh; }
         .l-grass-a { height: 30vh; }
         .l-grass-b { height: 23vh; }
+
+        /* ── the river runs ──
+           Dashes travelling along the centreline read as current. Two rhythms
+           at different speeds give the surface some texture instead of one
+           conveyor belt. Animating stroke-dashoffset keeps it off the layout
+           and off the transform channel, so it never fights the parallax. */
+        .river-flow { animation: riverFlow 3.4s linear infinite; }
+        .river-flow-glint { animation-duration: 2.2s; }
+
+        @keyframes riverFlow {
+          to { stroke-dashoffset: -460; }
+        }
+
+        /* ── the flock ──
+           Birds live in the sky plane, so a ridge in front of them occludes
+           them exactly as terrain would. Each has its own altitude, size,
+           duration, offset and flap rate. */
+        .birds {
+          top: 0;
+          bottom: 0;
+          pointer-events: none;
+          will-change: transform;
+        }
+
+        .bird {
+          position: absolute;
+          display: block;
+          animation-name: birdCross;
+          animation-timing-function: linear;
+          animation-iteration-count: infinite;
+          will-change: transform;
+        }
+
+        @keyframes birdCross {
+          from { transform: translate3d(0, 0, 0); }
+          to { transform: translate3d(122vw, calc(var(--bob, 2vh) * -1), 0); }
+        }
+
+        .bird-wings {
+          animation: birdFlap 0.46s ease-in-out infinite alternate;
+          transform-origin: 50% 64%;
+        }
+
+        @keyframes birdFlap {
+          from { transform: scaleY(0.4); }
+          to { transform: scaleY(1); }
+        }
 
         /* Legibility scrim over the whole scene. */
         .l-scrim {
@@ -2862,8 +2914,11 @@ function PortfolioBody() {
            is why the near layers go down and only the moon rises. */
         .l-moon { transform: translate3d(0, calc(var(--p, 0) * -74px), 0); }
         .l-far { transform: translate3d(0, calc(var(--p, 0) * 16px), 0); }
+        .birds { transform: translate3d(0, calc(var(--p, 0) * -34px), 0); }
         .l-water { transform: translate3d(0, calc(var(--p, 0) * 66px), 0); }
         .l-mid { transform: translate3d(0, calc(var(--p, 0) * 46px), 0); }
+        .l-river { transform: translate3d(0, calc(var(--p, 0) * 80px), 0); }
+        .l-river-lower { transform: translate3d(0, calc(var(--p, 0) * 92px), 0); }
         .l-near { transform: translate3d(0, calc(var(--p, 0) * 100px), 0); }
         .l-grass-a { transform: translate3d(0, calc(var(--p, 0) * 156px), 0); }
         .l-grass-b { transform: translate3d(0, calc(var(--p, 0) * 220px), 0); }

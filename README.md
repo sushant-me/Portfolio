@@ -89,3 +89,44 @@ python3 scripts/optimize-images.py
 Total cold page weight after optimisation: ~3.7 MB, most of it the lazily loaded
 three.js chunk.
 
+### Admin panel (media uploads)
+
+`/admin` uploads images, documents and files. Uploads are stored in a Cloudflare
+KV namespace and served back at `/api/file/<key>`, so anything uploaded can be
+linked from anywhere on the site. The endpoints are Pages Functions in
+`functions/api/`:
+
+| Route | Method | Auth | Purpose |
+|---|---|---|---|
+| `/api/upload` | POST | `x-admin-token` | multipart form, field `file`, up to 24 MB |
+| `/api/list` | GET | `x-admin-token` | every upload with its metadata |
+| `/api/delete` | POST | `x-admin-token` | body `{ key }`, restricted to `uploads/` |
+| `/api/file/<key>` | GET | public | serves the file with its stored content type |
+
+**Run it locally** — this exercises the real Pages runtime with a simulated KV
+namespace, so nothing touches your Cloudflare account:
+
+```bash
+npm run build
+npx wrangler pages dev out --kv MEDIA --binding ADMIN_TOKEN=your-dev-key
+# then open http://localhost:8788/admin
+```
+
+**Turn it on in production** (three steps, all in the Cloudflare dashboard):
+
+1. **Workers & Pages → KV → Create namespace**, name it `portfolio-media`.
+2. **Workers & Pages → the `portfolio` project → Settings → Functions → KV
+   namespace bindings** → add binding `MEDIA` → select that namespace.
+3. Same page → **Environment variables** → add `ADMIN_TOKEN`, marked encrypted.
+4. Redeploy (any push, or *Retry deployment*).
+
+Then open `/admin` on the live site, paste the token, and upload. Until `MEDIA`
+and `ADMIN_TOKEN` are both configured the API answers `503` and the panel says
+so in plain words — the public site is unaffected either way.
+
+Note on storage: KV values cap at 25 MiB, which is why uploads are limited to
+24 MB each. Cloudflare R2 would be the better home for large binaries, but it
+requires a subscription on this account (verified: the R2 page redirects to a
+plan signup), so KV is the free path that works today.
+
+

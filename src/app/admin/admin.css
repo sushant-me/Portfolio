@@ -1,0 +1,228 @@
+/* Admin panel — standalone styles. Deliberately not part of the site's own
+   stylesheet: this page is a private tool, not part of the portfolio. */
+
+.adm {
+  min-height: 100vh;
+  background: #08090f;
+  color: #eef1f7;
+  font-family: var(--font-geist-sans), system-ui, -apple-system, Segoe UI, Roboto,
+    sans-serif;
+  padding: 34px 22px 90px;
+}
+
+.adm-wrap {
+  max-width: 1080px;
+  margin: 0 auto;
+}
+
+.adm h1 {
+  font-size: 24px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  margin: 0 0 4px;
+}
+
+.adm .sub {
+  color: #8d97ad;
+  font-size: 13px;
+  margin: 0 0 26px;
+}
+
+.adm .sub code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  color: #b9c6de;
+}
+
+.adm-card {
+  background: #0f1119;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 14px;
+  padding: 18px;
+  margin-bottom: 18px;
+}
+
+.adm-row {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.adm input[type="password"],
+.adm input[type="text"],
+.adm input[type="search"] {
+  flex: 1 1 260px;
+  background: #0a0c14;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 9px;
+  color: #eef1f7;
+  padding: 10px 12px;
+  font-size: 13px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+
+.adm input:focus-visible,
+.adm button:focus-visible,
+.adm .drop:focus-visible {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
+}
+
+.adm button {
+  background: #1a2032;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #eef1f7;
+  border-radius: 9px;
+  padding: 10px 15px;
+  font-size: 13px;
+  cursor: pointer;
+  transition: border-color 0.2s ease, background 0.2s ease, transform 0.15s ease;
+}
+
+.adm button:hover:not(:disabled) {
+  border-color: #3b82f6;
+  transform: translateY(-1px);
+}
+
+.adm button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.adm button.primary {
+  background: #1d4ed8;
+  border-color: #2563eb;
+}
+
+.adm button.danger:hover:not(:disabled) {
+  border-color: #ef4444;
+  color: #fecaca;
+}
+
+.adm .drop {
+  border: 1.5px dashed rgba(255, 255, 255, 0.16);
+  border-radius: 14px;
+  padding: 38px 20px;
+  text-align: center;
+  cursor: pointer;
+  transition: border-color 0.2s ease, background 0.2s ease;
+}
+
+.adm .drop.over {
+  border-color: #3b82f6;
+  background: rgba(59, 130, 246, 0.07);
+}
+
+.adm .drop strong {
+  display: block;
+  font-size: 15px;
+  margin-bottom: 6px;
+}
+
+.adm .drop span {
+  color: #8d97ad;
+  font-size: 12.5px;
+}
+
+.adm .status {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 12px;
+  color: #8d97ad;
+  margin-top: 12px;
+  min-height: 16px;
+  white-space: pre-wrap;
+}
+
+.adm .status.error {
+  color: #fca5a5;
+}
+
+.adm .grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+  gap: 14px;
+  margin-top: 6px;
+}
+
+.adm .file {
+  background: #0a0c14;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.adm .thumb {
+  height: 132px;
+  background: #05060b;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.adm .thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.adm .thumb .ext {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 20px;
+  letter-spacing: 0.08em;
+  color: #6b7691;
+  text-transform: uppercase;
+}
+
+.adm .meta {
+  padding: 11px 12px 13px;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.adm .fname {
+  font-size: 12.5px;
+  word-break: break-all;
+  line-height: 1.35;
+}
+
+.adm .fsize {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 11px;
+  color: #8d97ad;
+}
+
+.adm .actions {
+  display: flex;
+  gap: 7px;
+}
+
+.adm .actions button {
+  flex: 1;
+  padding: 7px 9px;
+  font-size: 11.5px;
+}
+
+.adm .empty {
+  color: #8d97ad;
+  font-size: 13px;
+  padding: 22px 0;
+  text-align: center;
+}
+
+.adm .hint {
+  color: #6b7691;
+  font-size: 12px;
+  line-height: 1.6;
+  margin-top: 10px;
+}
+
+.adm .hint b {
+  color: #b9c6de;
+  font-weight: 600;
+}
