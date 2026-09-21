@@ -24,9 +24,12 @@ type Listener = (snapshot: ScrollSnapshot) => void;
 
 type ScrollApi = {
   active: string;
+  /** True when motion is off — either the OS preference or the visitor's own toggle. */
   reducedMotion: boolean;
+  setReducedMotion: (off: boolean) => void;
   setActive: (id: string) => void;
   scrollTo: (id: string) => void;
+  scrollToTop: () => void;
   registerSection: (id: string, el: HTMLElement | null) => void;
   /** Per-frame subscription. Never triggers a React render. */
   subscribe: (fn: Listener) => () => void;
@@ -68,7 +71,9 @@ export default function ScrollProvider({
   children: React.ReactNode;
 }) {
   const [active, setActiveState] = useState("about");
-  const [reducedMotion, setReducedMotion] = useState(false);
+  // Motion is off when the OS asks for it, and the visitor can turn it off
+  // themselves. The choice is remembered.
+  const [reducedMotion, setReducedMotionState] = useState(false);
 
   const sections = useRef(new Map<string, HTMLElement>());
   const listeners = useRef(new Set<Listener>());
@@ -118,6 +123,18 @@ export default function ScrollProvider({
     setActiveState(id);
   }, []);
 
+  const setReducedMotion = useCallback((off: boolean) => {
+    setReducedMotionState(off);
+    try {
+      window.localStorage.setItem("portfolio-motion", off ? "off" : "on");
+    } catch {
+      /* private mode: the preference just does not persist */
+    }
+    if (typeof document !== "undefined") {
+      document.documentElement.dataset.motion = off ? "off" : "on";
+    }
+  }, []);
+
   const scrollTo = useCallback(
     (id: string) => {
       const el = sections.current.get(id);
@@ -132,12 +149,40 @@ export default function ScrollProvider({
     [setActive]
   );
 
+  // Resolve the motion preference once: the OS setting, unless the visitor has
+  // made an explicit choice of their own.
+  const scrollToTop = useCallback(() => {
+    const lenis = lenisRef.current as
+      | { scrollTo: (t: number, o?: Record<string, unknown>) => void }
+      | null;
+    // The first section registered is the top of the document.
+    const first = sections.current.keys().next().value as string | undefined;
+    if (first) setActive(first);
+    if (lenis) lenis.scrollTo(0, { duration: 1.25 });
+    else
+      window.scrollTo({
+        top: 0,
+        behavior: reducedMotion ? "auto" : "smooth",
+      });
+  }, [setActive, reducedMotion]);
+
   useEffect(() => {
     const prefersReduced =
-      typeof window !== "undefined" &&
-      (window.matchMedia?.("(prefers-reduced-motion: reduce)").matches ?? false);
-    setReducedMotion(prefersReduced);
+      window.matchMedia?.("(prefers-reduced-motion: reduce)").matches ?? false;
+    let stored: string | null = null;
+    try {
+      stored = window.localStorage.getItem("portfolio-motion");
+    } catch {
+      stored = null;
+    }
+    const off = stored ? stored === "off" : prefersReduced;
+    setReducedMotionState(off);
+    document.documentElement.dataset.motion = off ? "off" : "on";
+  }, []);
 
+  // One rAF loop for the whole page. The smooth-scroll engine is created and
+  // torn down as the motion flag changes.
+  useEffect(() => {
     let disposed = false;
     let raf = 0;
     let lenis: {
@@ -197,7 +242,7 @@ export default function ScrollProvider({
     };
 
     (async () => {
-      if (prefersReduced) return; // native scrolling for reduced-motion users
+      if (reducedMotion) return; // native scrolling when motion is off
       try {
         const mod = (await import("lenis")) as unknown as {
           default?: new (o?: Record<string, unknown>) => {
@@ -233,14 +278,19 @@ export default function ScrollProvider({
       cancelAnimationFrame(raf);
       lenis?.destroy?.();
       lenisRef.current = null;
+      if ((window as unknown as { __lenis?: unknown }).__lenis) {
+        (window as unknown as { __lenis?: unknown }).__lenis = null;
+      }
     };
-  }, []);
+  }, [reducedMotion]);
 
   const api: ScrollApi = {
     active,
     reducedMotion,
+    setReducedMotion,
     setActive,
     scrollTo,
+    scrollToTop,
     registerSection,
     subscribe,
     subscribePhased,

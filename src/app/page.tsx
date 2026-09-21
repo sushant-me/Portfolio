@@ -9,9 +9,15 @@ import SectionHeading from "../components/SectionHeading";
 import CursorGlow from "../components/CursorGlow";
 import SectionParallax from "../components/SectionParallax";
 import HorizontalScroller from "../components/HorizontalScroller";
+import VelocityFx from "../components/VelocityFx";
+import ScrollDock from "../components/ScrollDock";
 import { useTilt } from "../components/useTilt";
 import { useInView } from "../components/useInView";
 import { useScrollProgress } from "../components/useScrollProgress";
+
+/** The hero name, split for the impact entrance. Kept as words, not letters,
+ *  so the rendered text stays a single readable string. */
+const NAME_WORDS = ["Sushant", "Poudel"];
 
 const ROLES = ["AI Researcher","Full-Stack Engineer","Cybersecurity Specialist","QA Automation Expert","Crisis Engineer","Flutter Developer"];
 
@@ -783,17 +789,27 @@ function PortfolioBody() {
     <>
 
       <div className="portfolio-root" style={{ "--accent": ambientColor } as React.CSSProperties}>
+        <a className="skip-link" href="#about">
+          Skip to content
+        </a>
+
         {/* 3D backdrop — the WebGL scene, driven by the page's scroll */}
         <Scene3D accent={ambientColor} />
 
         {/* Pointer light, between the scene and the content */}
         <CursorGlow />
 
+        {/* Velocity drama: speed lines + shockwave ring, only when moving fast */}
+        <VelocityFx />
+
         {/* Depth on the section mastheads */}
         <SectionParallax />
 
         {/* Scroll chrome: reading-progress bar + section rail */}
         <ScrollHud sections={SECTIONS} />
+
+        {/* Back-to-top and the motion switch */}
+        <ScrollDock />
 
         {/* Ambient grid background */}
         <div className="ambient-bg" style={{ opacity: loaded ? 0.5 : 0 }}>
@@ -860,8 +876,20 @@ function PortfolioBody() {
               </div>
             </div>
 
-            <h1 className="hero-name" style={{ opacity: loaded ? 1 : 0, transform: loaded ? "translateY(0)" : "translateY(16px)" }}>
-              Sushant Poudel
+            <h1 className="hero-name">
+              {NAME_WORDS.map((word, i) => (
+                <React.Fragment key={word}>
+                  <span className="name-word">
+                    <span
+                      className="name-word-inner"
+                      style={{ animationDelay: `${0.3 + i * 0.13}s` }}
+                    >
+                      {word}
+                    </span>
+                  </span>
+                  {i < NAME_WORDS.length - 1 ? " " : null}
+                </React.Fragment>
+              ))}
             </h1>
 
             <div className="hero-role" style={{ opacity: loaded ? 1 : 0, transform: loaded ? "translateY(0)" : "translateY(12px)" }}>
@@ -984,8 +1012,18 @@ function PortfolioBody() {
             {/* PROJECTS */}
             <Section id="projects" kicker="Shipped tools, upstream patches, and published advisories">
               <HorizontalScroller label="Keep scrolling — the wall moves sideways">
-                {PROJECTS.map((p) => (
-                  <ProjectCard key={p.name} project={p} variant="wall" />
+                {PROJECTS.map((p, i) => (
+                  <div
+                    className="wall-item"
+                    key={p.name}
+                    style={
+                      {
+                        "--i": i / Math.max(PROJECTS.length - 1, 1),
+                      } as React.CSSProperties
+                    }
+                  >
+                    <ProjectCard project={p} variant="wall" />
+                  </div>
                 ))}
               </HorizontalScroller>
               <div style={{ textAlign: "center", marginTop: "24px" }}>
@@ -2180,6 +2218,14 @@ function PortfolioBody() {
         }
 
         .hero-avatar { position: relative; }
+        /* The aura and halo are sized from this box with inset percentages, so
+           it has to be the avatar's own size. As a full-width block it made them
+           1400px wide and the conic aura read as a beam across the page. */
+        .hero-avatar {
+          width: fit-content;
+          margin-left: auto;
+          margin-right: auto;
+        }
 
         .hero-avatar::after {
           content: "";
@@ -2413,9 +2459,10 @@ function PortfolioBody() {
             gap: 12px;
           }
 
-          .hscroll-track .project-card {
+          .hscroll-track .wall-item {
             flex: 1 1 100%;
             width: auto;
+            transform: none;
           }
 
           .hscroll-bar,
@@ -2432,12 +2479,265 @@ function PortfolioBody() {
           .hscroll { height: auto !important; }
           .hscroll-sticky { position: static; height: auto; overflow: visible; }
           .hscroll-track { transform: none !important; flex-wrap: wrap; }
-          .hscroll-track .project-card { flex: 1 1 320px; width: auto; }
+          .hscroll-track .wall-item { flex: 1 1 320px; width: auto; transform: none; }
           .hscroll-bar, .hscroll-hint { display: none; }
           .gallery-grid > * img { transform: none; }
           .section.in-view .section-head-title { animation: none; }
           .experience-list::after { height: 100%; }
         }
+
+        /* ══════════════════════════════════════════════════════════════
+           KINETIC LAYER
+           ══════════════════════════════════════════════════════════════ */
+
+        /* ── hero name impact entrance ──
+           Words, not letters: the rendered text stays one readable string while
+           each word slams in from below with blur and a scale overshoot. */
+        .name-word { display: inline-block; }
+
+        .name-word-inner {
+          display: inline-block;
+          animation: wordSlam 1.15s cubic-bezier(0.16, 1, 0.3, 1) backwards;
+        }
+
+        @keyframes wordSlam {
+          0% {
+            transform: translate3d(0, 66px, 0) scale(1.28) rotate(3.5deg);
+            opacity: 0;
+            filter: blur(13px);
+          }
+          60% {
+            transform: translate3d(0, -9px, 0) scale(0.982) rotate(-1.2deg);
+            opacity: 1;
+            filter: blur(0);
+          }
+          100% { transform: none; opacity: 1; filter: blur(0); }
+        }
+
+        /* ── avatar energy aura ──
+           A masked arc rather than a blurred conic: the blur had to be
+           re-rastered on every frame of an infinite rotation, which cost frames
+           across the whole page. A mask is rastered once and the rotation then
+           stays on the compositor. */
+        .hero-avatar::before {
+          content: "";
+          position: absolute;
+          inset: -18%;
+          border-radius: 50%;
+          background: conic-gradient(
+            from 0deg,
+            rgba(255, 255, 255, 0) 0deg 168deg,
+            var(--accent, #3b82f6) 250deg,
+            #ffffff 292deg,
+            rgba(255, 255, 255, 0) 336deg 360deg
+          );
+          -webkit-mask: radial-gradient(
+            closest-side,
+            transparent 62%,
+            #000 80%,
+            transparent 100%
+          );
+          mask: radial-gradient(
+            closest-side,
+            transparent 62%,
+            #000 80%,
+            transparent 100%
+          );
+          opacity: 0.75;
+          z-index: -2;
+          animation: auraSpin 7.5s linear infinite;
+        }
+
+        @keyframes auraSpin {
+          to { transform: rotate(360deg); }
+        }
+
+        /* ── speed lines, driven by scroll velocity ──
+           No mix-blend-mode: blending a full-viewport fixed layer forces the
+           backdrop into its own buffer every frame. Plain low-opacity lines read
+           the same at these opacities. */
+        .speed-streaks {
+          position: fixed;
+          left: 0;
+          right: 0;
+          top: -12%;
+          height: 124%;
+          z-index: 1;
+          pointer-events: none;
+          opacity: 0;
+          visibility: hidden;
+          background-image: repeating-linear-gradient(
+            180deg,
+            rgba(255, 255, 255, 0) 0px,
+            rgba(255, 255, 255, 0) 10px,
+            rgba(190, 216, 255, 0.42) 10px,
+            rgba(255, 255, 255, 0) 11.5px
+          );
+          will-change: transform, opacity;
+        }
+
+        /* ── shockwave ring, driven by scroll velocity ──
+           Border only: an inset box-shadow this size has to be re-rastered when
+           the ring scales, which is every frame while the visitor is moving. */
+        .impact-ring {
+          position: fixed;
+          left: 50%;
+          top: 40%;
+          width: 460px;
+          height: 460px;
+          border-radius: 50%;
+          border: 1.5px solid rgba(150, 190, 255, 0.5);
+          transform: translate(-50%, -50%);
+          opacity: 0;
+          visibility: hidden;
+          pointer-events: none;
+          z-index: 1;
+        }
+
+        /* ── curved wall ──
+           Each card turns away from the centre of the viewport as the track
+           moves, so the wall reads as a curved surface rather than a flat strip. */
+        .hscroll-track .wall-item {
+          flex: 0 0 340px;
+          width: 340px;
+          transform: perspective(1100px)
+            rotateY(calc((var(--p, 0) - var(--i, 0)) * 24deg))
+            translateZ(calc((var(--p, 0) - var(--i, 0)) * -130px));
+          transform-origin: 50% 50%;
+        }
+
+        .hscroll-track .wall-item .project-card {
+          width: 100%;
+          min-height: 292px;
+        }
+
+        /* ── bottom-right dock ── */
+        .scroll-dock {
+          position: fixed;
+          right: 18px;
+          bottom: 20px;
+          z-index: 58;
+          display: flex;
+          flex-direction: column;
+          align-items: flex-end;
+          gap: 8px;
+        }
+
+        .dock-btn {
+          display: inline-flex;
+          align-items: center;
+          gap: 8px;
+          padding: 8px 13px;
+          border-radius: 999px;
+          border: 1px solid rgba(255, 255, 255, 0.1);
+          background: rgba(12, 12, 18, 0.72);
+          backdrop-filter: blur(14px);
+          -webkit-backdrop-filter: blur(14px);
+          color: var(--text-tertiary);
+          font-family: var(--font-mono);
+          font-size: 10.5px;
+          letter-spacing: 0.06em;
+          text-transform: uppercase;
+          cursor: pointer;
+          transition: color 0.25s ease, border-color 0.25s ease,
+            transform 0.25s ease, opacity 0.3s ease;
+        }
+
+        .dock-btn:hover {
+          color: var(--text-primary);
+          border-color: var(--accent, #3b82f6);
+          transform: translateY(-2px);
+        }
+
+        .dock-top {
+          opacity: 0;
+          pointer-events: none;
+          transform: translateY(10px) scale(0.96);
+        }
+
+        .dock-top.is-visible {
+          opacity: 1;
+          pointer-events: auto;
+          transform: none;
+        }
+
+        /* ── keyboard focus, site-wide ── */
+        a:focus-visible,
+        button:focus-visible,
+        [role="button"]:focus-visible {
+          outline: 2px solid var(--accent, #3b82f6);
+          outline-offset: 3px;
+          border-radius: 6px;
+        }
+
+        .skip-link {
+          position: fixed;
+          left: 12px;
+          top: -70px;
+          z-index: 90;
+          padding: 10px 16px;
+          border-radius: 10px;
+          background: #14141c;
+          border: 1px solid var(--accent, #3b82f6);
+          color: var(--text-primary);
+          font-size: 13px;
+          text-decoration: none;
+          transition: top 0.2s ease;
+        }
+
+        .skip-link:focus { top: 12px; }
+
+        /* ── motion off: the dock switch, or the OS preference ──
+           Everything decorative stops and every scrubbed value resolves to its
+           final state, so nothing is left half-revealed or invisible. */
+        html[data-motion="off"] .name-word-inner,
+        html[data-motion="off"] .hero-scroll-thumb,
+        html[data-motion="off"] .hero-avatar::before,
+        html[data-motion="off"] .hero-avatar::after,
+        html[data-motion="off"] .particle,
+        html[data-motion="off"] .glow-orb {
+          animation: none;
+        }
+
+        html[data-motion="off"] .speed-streaks,
+        html[data-motion="off"] .impact-ring,
+        html[data-motion="off"] .cursor-glow,
+        html[data-motion="off"] .scroll-progress-glow,
+        html[data-motion="off"] .particles {
+          display: none;
+        }
+
+        html[data-motion="off"] .hero-pin { height: auto; }
+        html[data-motion="off"] .hero-pin .hero { position: static; min-height: 0; }
+        html[data-motion="off"] .hero-scrub { transform: none; opacity: 1; }
+        html[data-motion="off"] .hscroll { height: auto !important; }
+        html[data-motion="off"] .hscroll-sticky {
+          position: static;
+          height: auto;
+          overflow: visible;
+          padding-top: 0;
+        }
+        html[data-motion="off"] .hscroll-track {
+          transform: none !important;
+          flex-wrap: wrap;
+          padding: 0;
+        }
+        html[data-motion="off"] .hscroll-track .wall-item {
+          flex: 1 1 320px;
+          width: auto;
+          transform: none;
+        }
+        html[data-motion="off"] .hscroll-bar,
+        html[data-motion="off"] .hscroll-hint { display: none; }
+        html[data-motion="off"] .section.in-view .stagger > * { animation: none; }
+        html[data-motion="off"] .section.in-view .section-head-title { animation: none; }
+        html[data-motion="off"] .reveal { opacity: 1; transform: none; transition: none; }
+        html[data-motion="off"] .tilt { transform: none !important; }
+        html[data-motion="off"] .tilt::after { display: none; }
+        html[data-motion="off"] .gallery-grid > * img { transform: none; }
+        html[data-motion="off"] .timeline { padding-left: 0; }
+        html[data-motion="off"] .timeline::after { transform: scaleY(1); }
+        html[data-motion="off"] .skill-fill { transform: scaleX(1); }
 
         @media (max-width: 1100px) {
           .section-rail { display: none; }
