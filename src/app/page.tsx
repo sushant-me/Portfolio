@@ -2,6 +2,14 @@
 
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import Reveal from "../components/Reveal";
+import ScrollProvider, { useScroll } from "../components/ScrollProvider";
+import Scene3D from "../components/Scene3D";
+import ScrollHud from "../components/ScrollHud";
+import SectionHeading from "../components/SectionHeading";
+import CursorGlow from "../components/CursorGlow";
+import SectionParallax from "../components/SectionParallax";
+import { useTilt } from "../components/useTilt";
+import { useInView } from "../components/useInView";
 
 const ROLES = ["AI Researcher","Full-Stack Engineer","Cybersecurity Specialist","QA Automation Expert","Crisis Engineer","Flutter Developer"];
 
@@ -433,7 +441,12 @@ function useCountUp(target: number, duration = 1500, start = false) {
   const startRef = useRef<number>(0);
 
   useEffect(() => {
-    if (!start) return;
+    if (!start) {
+      // Re-arm: leaving the viewport resets the counter so the next pass replays
+      // the count-up instead of showing a frozen final number.
+      setValue(0);
+      return;
+    }
     startRef.current = performance.now();
 
     const step = (now: number) => {
@@ -459,10 +472,11 @@ function useCountUp(target: number, duration = 1500, start = false) {
 
 function AnimatedCounter({ value, suffix, label, start }: { value: number; suffix: string; label: string; start: boolean }) {
   const count = useCountUp(value, 1800, start);
+  const tilt = useTilt<HTMLDivElement>(6, 12);
   const formatted = value >= 1000 ? `${(count / 1000).toFixed(0)}K` : count.toString();
 
   return (
-    <div className="stat-card">
+    <div className="stat-card tilt" {...tilt}>
       <div className="stat-value">{formatted}{suffix}</div>
       <div className="stat-label">{label}</div>
     </div>
@@ -485,9 +499,10 @@ function SkillBar({ name, level, color, start }: { name: string; level: number; 
 
 function ProjectCard({ project }: { project: (typeof PROJECTS)[0] }) {
   const [open, setOpen] = useState(false);
+  const tilt = useTilt<HTMLDivElement>(4, 8);
 
   return (
-    <div className="project-card" onClick={() => setOpen(!open)} style={{ borderColor: open ? project.color : undefined }}>
+    <div className="project-card tilt" {...tilt} onClick={() => setOpen(!open)} style={{ borderColor: open ? project.color : undefined }}>
       <div className="project-header">
         <span className="project-name">{project.name}</span>
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"
@@ -529,44 +544,220 @@ function Lightbox({ src, caption, onClose }: { src: string; caption: string; onC
 }
 
 // ================================================================
+//  CARD COMPONENTS
+// ================================================================
+// Each card owns its own pointer tilt. They are separate components (rather
+// than inline JSX in a .map) purely so the hook can live somewhere legal.
+
+function ExpCard({ exp }: { exp: (typeof EXPERIENCE)[number] }) {
+  const tilt = useTilt<HTMLDivElement>(3, 6);
+  return (
+    <div className="exp-card tilt" {...tilt} style={{ "--accent": exp.color } as React.CSSProperties}>
+      <div className="exp-accent" />
+      <div className="exp-header">
+        <div>
+          <div className="exp-role">{exp.role}</div>
+          <div className="exp-company">{exp.company} — {exp.location}</div>
+        </div>
+        <span className="exp-period">{exp.period}</span>
+      </div>
+      <p className="exp-desc">{exp.desc}</p>
+      <div className="tag-row">
+        {exp.tags.map((t) => (
+          <span key={t} className="tag" style={{ color: exp.color, background: `${exp.color}18` }}>{t}</span>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function ResearchCard({ item }: { item: (typeof RESEARCH)[number] }) {
+  const tilt = useTilt<HTMLDivElement>(3, 8);
+  return (
+    <div className="research-card tilt" {...tilt} style={{ "--accent": item.color } as React.CSSProperties}>
+      <div className="research-venue">
+        <span className="venue-badge" style={{
+          color: item.venueType === "conference" ? "#ef4444" : "#6b7280",
+          background: item.venueType === "conference" ? "rgba(239,68,68,0.12)" : "rgba(107,114,128,0.12)",
+        }}>{item.venue}</span>
+      </div>
+      <div className="research-title">{item.title}</div>
+      <p className="research-desc">{item.desc}</p>
+      <div className="tag-row">
+        {item.tags.map((t) => (
+          <span key={t} className="tag" style={{ color: item.color, background: `${item.color}18` }}>{t}</span>
+        ))}
+      </div>
+      {item.file && (
+        <a href={item.file} target="_blank" rel="noopener noreferrer" className="btn-link" style={{ marginTop: "12px", display: "inline-flex", alignItems: "center", gap: "6px" }}>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
+          Read Paper
+        </a>
+      )}
+    </div>
+  );
+}
+
+function HonorCard({ honor }: { honor: { title: string; desc: string } }) {
+  const tilt = useTilt<HTMLDivElement>(2.5, 6);
+  return (
+    <div className="honor-card tilt" {...tilt}>
+      <div className="honor-header">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#22c55e" strokeWidth="1.8"><polyline points="20 6 9 17 4 12"/></svg>
+        <span>{honor.title}</span>
+      </div>
+      <p>{honor.desc}</p>
+    </div>
+  );
+}
+
+function CertCard({ cert }: { cert: (typeof CERTIFICATES)[number] }) {
+  const tilt = useTilt<HTMLDivElement>(2.5, 5);
+  return (
+    <div className="cert-card-large tilt" {...tilt}>
+      <div className="cert-org">{cert.org}</div>
+      <div className="cert-name">{cert.name}</div>
+      <a href={cert.file} target="_blank" rel="noopener noreferrer" className="btn-link" style={{ marginTop: "10px", display: "inline-flex", alignItems: "center", gap: "6px", fontSize: "11px" }}>
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        View Certificate
+      </a>
+    </div>
+  );
+}
+
+function GalleryItem({ img, onOpen }: { img: (typeof GALLERY)[number]; onOpen: () => void }) {
+  const tilt = useTilt<HTMLDivElement>(4, 10);
+  return (
+    <div className="gallery-item tilt" {...tilt} onClick={onOpen}>
+      <img src={img.src} alt={img.caption} loading="lazy" />
+      <div className="gallery-caption">{img.caption}</div>
+    </div>
+  );
+}
+
+function AdvisoryCard({ advisory }: { advisory: (typeof ADVISORIES)[number] }) {
+  const tilt = useTilt<HTMLDivElement>(3, 6);
+  return (
+    <div className="exp-card tilt" {...tilt} style={{ "--accent": advisory.color } as React.CSSProperties}>
+      <div className="exp-accent" />
+      <div className="exp-header">
+        <div>
+          <div className="exp-role">{advisory.id} — {advisory.title}</div>
+          <div className="exp-company">{advisory.tool} · fixed in {advisory.fixed}</div>
+        </div>
+        <span className="exp-period">{advisory.severity}</span>
+      </div>
+      <p className="exp-desc">{advisory.desc}</p>
+      <div className="tag-row">
+        <a className="tag" href={advisory.url} target="_blank" rel="noopener noreferrer" style={{ color: advisory.color, background: `${advisory.color}18` }}>read the advisory</a>
+        <span className="tag" style={{ color: advisory.color, background: `${advisory.color}18` }}>reproduction + regression test</span>
+      </div>
+    </div>
+  );
+}
+
+// ================================================================
+//  SECTION SHELL
+// ================================================================
+
+/**
+ * One scrolling section: registers itself with the scroll provider (for the
+ * rail and the anchor scrolling) and renders its own masthead. Previously these
+ * were `display:none` panels swapped by tab state, which is why the page had no
+ * scroll narrative; they are now real, stacked, addressable landmarks.
+ */
+function Section({
+  id,
+  kicker,
+  children,
+}: {
+  id: string;
+  kicker?: string;
+  children: React.ReactNode;
+}) {
+  const { registerSection } = useScroll();
+  const index = SECTIONS.findIndex((s) => s.id === id) + 1;
+  const meta =
+    SECTIONS.find((s) => s.id === id) ?? { id, label: id, color: "#3b82f6" };
+  const [inViewRef, inView] = useInView<HTMLElement>({
+    threshold: 0.08,
+    rootMargin: "0px 0px -18% 0px",
+    repeat: false,
+  });
+
+  const register = useCallback(
+    (el: HTMLElement | null) => {
+      registerSection(id, el);
+      inViewRef.current = el;
+    },
+    [id, registerSection, inViewRef]
+  );
+
+  return (
+    <section
+      id={id}
+      className={`section ${inView ? "in-view" : ""}`}
+      ref={register}
+    >
+      <SectionHeading
+        index={index}
+        label={meta.label}
+        color={meta.color}
+        kicker={kicker}
+      />
+      {children}
+    </section>
+  );
+}
+
+// ================================================================
 //  MAIN PAGE
 // ================================================================
 
 export default function Portfolio() {
-  const [activeSection, setActiveSection] = useState("about");
+  return (
+    <ScrollProvider>
+      <PortfolioBody />
+    </ScrollProvider>
+  );
+}
+
+function PortfolioBody() {
+  const { active: activeSection, scrollTo } = useScroll();
   const [loaded, setLoaded] = useState(false);
-  const [animateSkills, setAnimateSkills] = useState(false);
-  const [animateStats, setAnimateStats] = useState(false);
   const [lightbox, setLightbox] = useState<{src: string; caption: string} | null>(null);
-  const sectionRef = useRef<HTMLDivElement>(null);
+  const [statsRef, statsInView] = useInView<HTMLDivElement>({ threshold: 0.25 });
+  const [skillsRef, skillsInView] = useInView<HTMLDivElement>({ threshold: 0.12 });
 
   const roleText = useTyping(ROLES, 65, 1800);
   const ambientColor = SECTIONS.find((s) => s.id === activeSection)?.color || "#3b82f6";
 
   useEffect(() => {
-    const t = setTimeout(() => setLoaded(true), 100);
-    const t2 = setTimeout(() => setAnimateStats(true), 700);
-    return () => { clearTimeout(t); clearTimeout(t2); };
+    const t = setTimeout(() => setLoaded(true), 80);
+    return () => clearTimeout(t);
   }, []);
 
-  useEffect(() => {
-    if (activeSection === "skills") {
-      const t = setTimeout(() => setAnimateSkills(true), 300);
-      return () => clearTimeout(t);
-    } else {
-      setAnimateSkills(false);
-    }
-  }, [activeSection]);
+  const animateStats = statsInView;
+  const animateSkills = skillsInView;
 
-  const scrollToSection = useCallback((id: string) => {
-    setActiveSection(id);
-    sectionRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
-  }, []);
+  const scrollToSection = useCallback((id: string) => scrollTo(id), [scrollTo]);
 
   return (
     <>
 
-      <div className="portfolio-root">
+      <div className="portfolio-root" style={{ "--accent": ambientColor } as React.CSSProperties}>
+        {/* 3D backdrop — the WebGL scene, driven by the page's scroll */}
+        <Scene3D accent={ambientColor} />
+
+        {/* Pointer light, between the scene and the content */}
+        <CursorGlow />
+
+        {/* Depth on the section mastheads */}
+        <SectionParallax />
+
+        {/* Scroll chrome: reading-progress bar + section rail */}
+        <ScrollHud sections={SECTIONS} />
+
         {/* Ambient grid background */}
         <div className="ambient-bg" style={{ opacity: loaded ? 0.5 : 0 }}>
           <svg width="100%" height="100%">
@@ -643,6 +834,13 @@ export default function Portfolio() {
                 GitHub
               </a>
             </div>
+
+            <div className="hero-scroll-cue" style={{ opacity: loaded ? 1 : 0 }}>
+              <span className="hero-scroll-text">Scroll to explore</span>
+              <span className="hero-scroll-track">
+                <span className="hero-scroll-thumb" style={{ background: ambientColor }} />
+              </span>
+            </div>
           </header>
 
           {/* NAVIGATION */}
@@ -660,12 +858,12 @@ export default function Portfolio() {
           </nav>
 
           {/* SECTIONS */}
-          <main ref={sectionRef} className="sections">
+          <main className="sections">
 
             {/* ABOUT */}
-            <section id="about" className="section" style={{ display: activeSection === "about" ? "block" : "none", opacity: activeSection === "about" ? 1 : 0 }}>
-              <Reveal delay={0}>
-                <div className="stats-grid">
+            <Section id="about" kicker="Who I am, and the record behind every line on this page">
+              <Reveal delay={0} rotateX={10} z={-40} y={30}>
+                <div className="stats-grid stagger" ref={statsRef}>
                   {STATS.map((s) => (
                     <AnimatedCounter key={s.label} {...s} start={animateStats} />
                   ))}
@@ -689,7 +887,7 @@ export default function Portfolio() {
                 </p>
               </div>
 
-              <div className="honors-grid">
+              <div className="honors-grid stagger">
                 {[
                   { title: "Rank #1 — HackingHub Q3 2026 global leaderboard", desc: "116 flags and 11,860 XP, with 2 silver and 1 bronze award; the next-ranked account holds 97 flags. Public leaderboard API." },
                   { title: "Security patch authored, merged, then generalised into google/go-github", desc: "My PR #4556 stopped a release-asset upload being sent to an off-host URL. The maintainer merged it, then replaced it the next day with the broader PR #4564 — \"credentials are sent only to configured origins\" — which is what master implements today and which carries the commit \"Address feedback from sushant-me\"." },
@@ -700,73 +898,32 @@ export default function Portfolio() {
                   { title: "NEC IT Club — Joint Secretary (2024–2025)", desc: "Logistics, executive administration and student engagement for department-level technical events and hackathons at Nepal Engineering College." },
                   { title: "Direct-to-device LEO satellite communication — Space Con 2026", desc: "Poster on 5G non-terrestrial-network connectivity from ordinary smartphones to LEO satellites, sized for Nepal's terrain." },
                 ].map((h) => (
-                  <div key={h.title} className="honor-card">
-                    <div className="honor-header">
-                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#22c55e" strokeWidth="1.8"><polyline points="20 6 9 17 4 12"/></svg>
-                      <span>{h.title}</span>
-                    </div>
-                    <p>{h.desc}</p>
-                  </div>
+                  <HonorCard key={h.title} honor={h} />
                 ))}
               </div>
-            </section>
+            </Section>
 
             {/* EXPERIENCE */}
-            <section id="experience" className="section" style={{ display: activeSection === "experience" ? "block" : "none", opacity: activeSection === "experience" ? 1 : 0 }}>
-              <div className="experience-list">
+            <Section id="experience" kicker="Two years full-time, and the roles around it">
+              <div className="experience-list stagger">
                 {EXPERIENCE.map((exp, i) => (
-                  <div key={i} className="exp-card" style={{ "--accent": exp.color } as React.CSSProperties}>
-                    <div className="exp-accent" />
-                    <div className="exp-header">
-                      <div>
-                        <div className="exp-role">{exp.role}</div>
-                        <div className="exp-company">{exp.company} — {exp.location}</div>
-                      </div>
-                      <span className="exp-period">{exp.period}</span>
-                    </div>
-                    <p className="exp-desc">{exp.desc}</p>
-                    <div className="tag-row">
-                      {exp.tags.map((t) => (
-                        <span key={t} className="tag" style={{ color: exp.color, background: `${exp.color}18` }}>{t}</span>
-                      ))}
-                    </div>
-                  </div>
+                  <ExpCard key={i} exp={exp} />
                 ))}
               </div>
-            </section>
+            </Section>
 
             {/* RESEARCH */}
-            <section id="research" className="section" style={{ display: activeSection === "research" ? "block" : "none", opacity: activeSection === "research" ? 1 : 0 }}>
-              <div className="research-grid">
+            <Section id="research" kicker="Peer-reviewed work, accepted and in review">
+              <div className="research-grid stagger">
                 {RESEARCH.map((r, i) => (
-                  <div key={i} className="research-card" style={{ "--accent": r.color } as React.CSSProperties}>
-                    <div className="research-venue">
-                      <span className="venue-badge" style={{
-                        color: r.venueType === "conference" ? "#ef4444" : "#6b7280",
-                        background: r.venueType === "conference" ? "rgba(239,68,68,0.12)" : "rgba(107,114,128,0.12)",
-                      }}>{r.venue}</span>
-                    </div>
-                    <div className="research-title">{r.title}</div>
-                    <p className="research-desc">{r.desc}</p>
-                    <div className="tag-row">
-                      {r.tags.map((t) => (
-                        <span key={t} className="tag" style={{ color: r.color, background: `${r.color}18` }}>{t}</span>
-                      ))}
-                    </div>
-                    {r.file && (
-                      <a href={r.file} target="_blank" rel="noopener noreferrer" className="btn-link" style={{ marginTop: "12px", display: "inline-flex", alignItems: "center", gap: "6px" }}>
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
-                        Read Paper
-                      </a>
-                    )}
-                  </div>
+                  <ResearchCard key={i} item={r} />
                 ))}
               </div>
-            </section>
+            </Section>
 
             {/* PROJECTS */}
-            <section id="projects" className="section" style={{ display: activeSection === "projects" ? "block" : "none", opacity: activeSection === "projects" ? 1 : 0 }}>
-              <div className="projects-grid">
+            <Section id="projects" kicker="Shipped tools, upstream patches, and published advisories">
+              <div className="projects-grid stagger">
                 {PROJECTS.map((p) => (
                   <ProjectCard key={p.name} project={p} />
                 ))}
@@ -780,61 +937,37 @@ export default function Portfolio() {
                 </a>
               </div>
               <div className="card-label" style={{ marginTop: "40px" }}>// Published security advisories — CVE IDs requested</div>
-              <div className="experience-list">
+              <div className="experience-list stagger">
                 {ADVISORIES.map((a) => (
-                  <div key={a.id} className="exp-card" style={{ "--accent": a.color } as React.CSSProperties}>
-                    <div className="exp-accent" />
-                    <div className="exp-header">
-                      <div>
-                        <div className="exp-role">{a.id} — {a.title}</div>
-                        <div className="exp-company">{a.tool} · fixed in {a.fixed}</div>
-                      </div>
-                      <span className="exp-period">{a.severity}</span>
-                    </div>
-                    <p className="exp-desc">{a.desc}</p>
-                    <div className="tag-row">
-                      <a className="tag" href={a.url} target="_blank" rel="noopener noreferrer" style={{ color: a.color, background: `${a.color}18` }}>read the advisory</a>
-                      <span className="tag" style={{ color: a.color, background: `${a.color}18` }}>reproduction + regression test</span>
-                    </div>
-                  </div>
+                  <AdvisoryCard key={a.id} advisory={a} />
                 ))}
               </div>
-            </section>
+            </Section>
 
             {/* ACHIEVEMENTS / GALLERY */}
-            <section id="achievements" className="section" style={{ display: activeSection === "achievements" ? "block" : "none", opacity: activeSection === "achievements" ? 1 : 0 }}>
-              <div className="gallery-grid">
+            <Section id="achievements" kicker="Awards, honours, and the moments behind them">
+              <div className="gallery-grid stagger">
                 {GALLERY.map((img, idx) => (
-                  <div key={idx} className="gallery-item" onClick={() => setLightbox(img)}>
-                    <img src={img.src} alt={img.caption} loading="lazy" />
-                    <div className="gallery-caption">{img.caption}</div>
-                  </div>
+                  <GalleryItem key={idx} img={img} onOpen={() => setLightbox(img)} />
                 ))}
               </div>
-            </section>
+            </Section>
 
             {/* CERTIFICATES */}
-            <section id="certificates" className="section" style={{ display: activeSection === "certificates" ? "block" : "none", opacity: activeSection === "certificates" ? 1 : 0 }}>
+            <Section id="certificates" kicker="Every certificate below opens its own PDF">
               <div className="certs-section">
                 <div className="card-label">// Professional certifications (19+)</div>
-                <div className="certs-grid-large">
+                <div className="certs-grid-large stagger">
                   {CERTIFICATES.map((c, i) => (
-                    <div key={i} className="cert-card-large">
-                      <div className="cert-org">{c.org}</div>
-                      <div className="cert-name">{c.name}</div>
-                      <a href={c.file} target="_blank" rel="noopener noreferrer" className="btn-link" style={{ marginTop: "10px", display: "inline-flex", alignItems: "center", gap: "6px", fontSize: "11px" }}>
-                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-                        View Certificate
-                      </a>
-                    </div>
+                    <CertCard key={i} cert={c} />
                   ))}
                 </div>
               </div>
-            </section>
+            </Section>
 
             {/* SKILLS */}
-            <section id="skills" className="section" style={{ display: activeSection === "skills" ? "block" : "none", opacity: activeSection === "skills" ? 1 : 0 }}>
-              <div className="skills-grid">
+            <Section id="skills" kicker="What I actually work with, day to day">
+              <div className="skills-grid stagger" ref={skillsRef}>
                 {SKILL_GROUPS.map((g) => (
                   <div key={g.category} className="skill-group">
                     <div className="skill-category">// {g.category}</div>
@@ -849,13 +982,13 @@ export default function Portfolio() {
 
               <div className="certs-section" style={{ marginTop: "32px" }}>
                 <div className="skill-category">// Certification providers</div>
-                <div className="provider-grid">
+                <div className="provider-grid stagger">
                   {["Google", "IBM", "Meta", "Stanford", "DeepLearning.AI", "Packt", "Great Learning Academy"].map((p) => (
                     <div key={p} className="provider-badge">{p}</div>
                   ))}
                 </div>
               </div>
-            </section>
+            </Section>
           </main>
 
           {/* FOOTER */}
@@ -1128,13 +1261,14 @@ export default function Portfolio() {
           flex-wrap: wrap;
           position: sticky;
           top: 12px;
-          z-index: 10;
+          z-index: 30;
           padding: 10px;
           border-radius: 16px;
           background: rgba(10, 10, 15, 0.75);
           backdrop-filter: blur(16px);
           -webkit-backdrop-filter: blur(16px);
           border: 1px solid var(--border);
+          transition: border-color 0.4s ease, box-shadow 0.4s ease;
         }
 
         .nav-pill {
@@ -1159,9 +1293,21 @@ export default function Portfolio() {
           font-weight: 500;
         }
 
-        /* ── SECTIONS ── */
-        .sections { position: relative; min-height: 400px; }
-        .section { transition: opacity 0.5s ease; }
+        /* ── SECTIONS ──
+           Real scroll landmarks now: stacked, spaced and addressable. The
+           sticky nav can cover a heading, so scroll-margin-top reserves room
+           when an anchor lands on one. */
+        .sections { position: relative; }
+        .section {
+          position: relative;
+          padding: 76px 0 44px;
+          scroll-margin-top: 104px;
+        }
+        .section + .section {
+          border-top: 1px solid rgba(255, 255, 255, 0.045);
+        }
+        .section:first-of-type { padding-top: 40px; }
+        .section:last-of-type { padding-bottom: 56px; }
 
         /* ── STATS ── */
         .stats-grid {
@@ -1688,6 +1834,317 @@ export default function Portfolio() {
 
         .footer-links a:hover {
           color: var(--text-primary);
+        }
+
+        /* ══════════════════════════════════════════════════════════════
+           3D SCROLL LAYER
+           ══════════════════════════════════════════════════════════════ */
+
+        /* The WebGL backdrop. Fixed, behind the grid and the content. */
+        .scene-canvas {
+          position: fixed;
+          inset: 0;
+          width: 100%;
+          height: 100%;
+          z-index: 0;
+          pointer-events: none;
+        }
+
+        /* ── reading progress ── */
+        .scroll-progress {
+          position: fixed;
+          top: 0;
+          left: 0;
+          right: 0;
+          height: 2px;
+          z-index: 60;
+          pointer-events: none;
+          background: rgba(255, 255, 255, 0.05);
+        }
+
+        .scroll-progress-bar {
+          position: absolute;
+          inset: 0;
+          transform-origin: 0 50%;
+          transform: scaleX(0);
+        }
+
+        .scroll-progress-glow {
+          position: absolute;
+          inset: 0;
+          transform-origin: 0 50%;
+          transform: scaleX(0);
+          filter: blur(10px);
+          opacity: 0.3;
+          transition: opacity 0.25s ease;
+        }
+
+        /* ── section rail ── */
+        .section-rail {
+          position: fixed;
+          right: 18px;
+          top: 50%;
+          transform: translateY(-50%);
+          z-index: 55;
+          display: flex;
+          flex-direction: column;
+          gap: 7px;
+          align-items: flex-end;
+        }
+
+        .rail-item {
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          background: none;
+          border: 0;
+          padding: 3px 0;
+          cursor: pointer;
+          color: var(--text-tertiary);
+          font-family: var(--font-mono);
+          font-size: 10px;
+          letter-spacing: 0.08em;
+          text-transform: uppercase;
+          opacity: 0.45;
+          transition: opacity 0.3s ease, color 0.3s ease, transform 0.3s ease;
+        }
+
+        .rail-item:hover { opacity: 1; transform: translateX(-3px); }
+        .rail-item.active { opacity: 1; }
+        .rail-index { font-size: 9px; opacity: 0.65; }
+        .rail-label { white-space: nowrap; }
+
+        .rail-dot {
+          width: 6px;
+          height: 6px;
+          border-radius: 50%;
+          background: rgba(255, 255, 255, 0.22);
+          transition: background 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease;
+        }
+
+        .rail-item.active .rail-dot { transform: scale(1.6); }
+
+        /* ── section masthead ── */
+        .section-head {
+          display: flex;
+          align-items: baseline;
+          gap: 14px;
+          margin-bottom: 26px;
+          flex-wrap: wrap;
+        }
+
+        .section-head-index {
+          font-family: var(--font-mono);
+          font-size: 12px;
+          letter-spacing: 0.12em;
+        }
+
+        .section-head-body { display: flex; flex-direction: column; }
+
+        .section-head-title {
+          margin: 0;
+          font-size: 22px;
+          font-weight: 600;
+          letter-spacing: -0.01em;
+          color: var(--text-primary);
+        }
+
+        .section-head-kicker {
+          margin: 3px 0 0;
+          font-size: 12.5px;
+          color: var(--text-tertiary);
+        }
+
+        .section-head-rule {
+          flex: 1;
+          min-width: 60px;
+          height: 1px;
+          opacity: 0.5;
+        }
+
+        /* ── hero scroll cue ── */
+        .hero-scroll-cue {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 8px;
+          margin-top: 36px;
+          transition: opacity 1s ease 0.5s;
+        }
+
+        .hero-scroll-text {
+          font-family: var(--font-mono);
+          font-size: 10px;
+          letter-spacing: 0.22em;
+          text-transform: uppercase;
+          color: var(--text-tertiary);
+        }
+
+        .hero-scroll-track {
+          position: relative;
+          width: 1px;
+          height: 46px;
+          background: linear-gradient(180deg, rgba(255, 255, 255, 0.22), transparent);
+          overflow: hidden;
+        }
+
+        .hero-scroll-thumb {
+          position: absolute;
+          left: -1.5px;
+          width: 4px;
+          height: 12px;
+          border-radius: 4px;
+          animation: cueDrop 2.2s cubic-bezier(0.5, 0, 0.5, 1) infinite;
+        }
+
+        @keyframes cueDrop {
+          0% { top: -14px; opacity: 0; }
+          30% { opacity: 1; }
+          100% { top: 46px; opacity: 0; }
+        }
+
+        /* ── 3D tilt cards ──
+           The element itself tilts — no wrapper — so grid and flex parents keep
+           their structure. Values come from useTilt as custom properties. */
+        .tilt {
+          position: relative;
+          transform-style: preserve-3d;
+          transform: perspective(1000px) rotateX(var(--rx, 0deg))
+            rotateY(var(--ry, 0deg)) translateZ(var(--tz, 0px));
+          transition: transform 0.55s cubic-bezier(0.22, 1, 0.36, 1),
+            border-color 0.35s ease, box-shadow 0.35s ease;
+          will-change: transform;
+        }
+
+        .tilt.is-tilting {
+          transition: transform 0.09s linear, border-color 0.35s ease,
+            box-shadow 0.35s ease;
+        }
+
+        .tilt::after {
+          content: "";
+          position: absolute;
+          inset: 0;
+          border-radius: inherit;
+          background: radial-gradient(
+            420px circle at var(--mx, 50%) var(--my, 50%),
+            rgba(255, 255, 255, 0.09),
+            transparent 62%
+          );
+          opacity: var(--glare, 0);
+          transition: opacity 0.35s ease;
+          pointer-events: none;
+        }
+
+        /* ── staged 3D entry for grid children ──
+           The .stagger class is on each grid; the animation only runs once its
+           section reports in-view, so nothing animates off-screen. The
+           "backwards" fill (not "forwards") matters: the final keyframe equals
+           the natural state, so once it finishes the element drops back to its
+           own styles and the tilt transform takes over again. */
+        @keyframes deal3d {
+          from {
+            opacity: 0;
+            transform: perspective(900px) translateY(30px) translateZ(-70px)
+              rotateX(14deg);
+          }
+          to {
+            opacity: 1;
+            transform: perspective(900px) translateY(0) translateZ(0) rotateX(0deg);
+          }
+        }
+
+        .section.in-view .stagger > * {
+          animation: deal3d 0.8s cubic-bezier(0.22, 1, 0.36, 1) backwards;
+        }
+
+        .section.in-view .stagger > *:nth-child(1) { animation-delay: 0s; }
+        .section.in-view .stagger > *:nth-child(2) { animation-delay: 0.05s; }
+        .section.in-view .stagger > *:nth-child(3) { animation-delay: 0.1s; }
+        .section.in-view .stagger > *:nth-child(4) { animation-delay: 0.15s; }
+        .section.in-view .stagger > *:nth-child(5) { animation-delay: 0.2s; }
+        .section.in-view .stagger > *:nth-child(6) { animation-delay: 0.25s; }
+        .section.in-view .stagger > *:nth-child(7) { animation-delay: 0.3s; }
+        .section.in-view .stagger > *:nth-child(8) { animation-delay: 0.34s; }
+        .section.in-view .stagger > *:nth-child(9) { animation-delay: 0.38s; }
+        .section.in-view .stagger > *:nth-child(10) { animation-delay: 0.42s; }
+        .section.in-view .stagger > *:nth-child(n + 11) { animation-delay: 0.46s; }
+
+        /* ── pointer light ── */
+        .cursor-glow {
+          position: fixed;
+          top: 0;
+          left: 0;
+          width: 560px;
+          height: 560px;
+          margin: -280px 0 0 -280px;
+          border-radius: 50%;
+          pointer-events: none;
+          z-index: 1;
+          opacity: 0;
+          background: radial-gradient(circle, var(--accent, #3b82f6), transparent 62%);
+          filter: blur(38px);
+          mix-blend-mode: screen;
+          transition: opacity 0.8s ease;
+        }
+
+        /* ── hero polish ──
+           The background shorthand resets background-clip to border-box, so the
+           text clipping has to be re-declared here or the name renders as a
+           solid filled bar. */
+        .hero-name {
+          background: linear-gradient(
+            120deg,
+            #ffffff 0%,
+            #c9d4e6 28%,
+            #ffffff 50%,
+            #b6c2d8 72%,
+            #ffffff 100%
+          );
+          background-size: 220% 220%;
+          -webkit-background-clip: text;
+          background-clip: text;
+          -webkit-text-fill-color: transparent;
+          animation: nameShimmer 11s ease-in-out infinite;
+        }
+
+        @keyframes nameShimmer {
+          0%,
+          100% { background-position: 0% 50%; }
+          50% { background-position: 100% 50%; }
+        }
+
+        .hero-avatar { position: relative; }
+
+        .hero-avatar::after {
+          content: "";
+          position: absolute;
+          inset: -14%;
+          border-radius: 50%;
+          background: radial-gradient(circle, var(--accent, #3b82f6), transparent 68%);
+          filter: blur(26px);
+          z-index: -1;
+          animation: haloPulse 7s ease-in-out infinite;
+        }
+
+        @keyframes haloPulse {
+          0%,
+          100% { transform: scale(0.96); opacity: 0.18; }
+          50% { transform: scale(1.06); opacity: 0.3; }
+        }
+
+        .nav-pill:hover { transform: translateY(-1px); }
+
+        @media (max-width: 1100px) {
+          .section-rail { display: none; }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+          .section.in-view .stagger > * { animation: none; }
+          .tilt { transform: none !important; }
+          .tilt::after { display: none; }
+          .hero-scroll-thumb { animation: none; }
+          .scroll-progress-glow { display: none; }
         }
 
         /* ── RESPONSIVE ── */
