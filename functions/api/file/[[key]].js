@@ -5,12 +5,17 @@
  * content type it was stored with, so an <img src> or a download link works
  * against the uploaded key. Public by design: these are the site's own assets.
  *
- * Caching is deliberately revalidate-always rather than a long max-age. A long
- * cache means a file deleted in the admin panel keeps being served — this zone
- * overrides origin max-age with its own Browser Cache TTL (4 hours at the time
- * of writing), so a "5 minute" header was not actually honoured. With
- * max-age=0 + ETag the browser still gets a cheap 304 on repeat views, but a
- * delete is effective immediately everywhere.
+ * On caching, two measured facts rather than assumptions:
+ *
+ *  - This zone rewrites origin Cache-Control max-age to its own Browser Cache
+ *    TTL (4 hours at the time of writing), so a max-age chosen here is not
+ *    actually honoured. Setting one is therefore pointless.
+ *  - That does NOT delay deletes: with a cache-busting query on the URL, a
+ *    deleted file answered 404 within 10 seconds. The brief delay before that
+ *    is KV's own eventual consistency, which no header can change.
+ *
+ * So the header here is simply revalidate-always with an ETag: repeat views get
+ * a cheap 304 and nothing is ever served stale on purpose.
  */
 
 export async function onRequestGet({ request, params, env }) {
