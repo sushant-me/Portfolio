@@ -240,7 +240,9 @@ const PROJECTS = [
     desc: "A comprehensive digital guide built for navigating and exploring the Annapurna region. Features offline maps, trekking routes, weather integration, and local cultural information. Built as the final capstone submission demonstrating full-stack mobile development expertise.",
     tags: ["Flutter", "Tourism", "Maps"],
     color: "#3b82f6",
-    github: "https://github.com/sushant-me/Final-Capstone-Submission---Annapurna-Guide",
+    // No GitHub link: the capstone repository is private, so a link here 404s
+    // for every visitor. Restore it if the repository is ever made public -- and
+    // note it was a group submission, so that is not a unilateral decision.
   },
   {
     name: "Smart NEPSE",
@@ -256,7 +258,7 @@ const PROJECTS = [
     desc: "Innovative mobile wallet facilitating secure peer-to-peer financial transactions using local protocols without requiring active internet connectivity. Built for the SRSA Innovator Code Sprint with Flutter and local cryptography. Winner-level prototype.",
     tags: ["Flutter", "Cryptography", "Offline"],
     color: "#22c55e",
-    github: "https://github.com/sushant-me/SRSA_Innovator_code_sprint_hackathon(offline pay)",
+    github: "https://github.com/sushant-me/SRSA_Innovator_code_sprint_hackathon",
   },
   {
     name: "NEC Campus App",
