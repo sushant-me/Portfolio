@@ -21,7 +21,12 @@ body {
   color: #f0f0f5;
   font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
   margin: 0;
+  /* `hidden` on an ancestor turns that element into a scroll container and
+     silently breaks every `position: sticky` descendant (the sticky nav and the
+     pinned hero/horizontal sections). `clip` clips without becoming one.
+     The `hidden` line stays first as a fallback for engines without clip. */
   overflow-x: hidden;
+  overflow-x: clip;
 }
 
 /* ── Lenis smooth scroll ──────────────────────────────────────────────────
@@ -59,7 +64,6 @@ html.lenis body {
   transition:
     opacity 0.8s cubic-bezier(0.22, 1, 0.36, 1),
     transform 0.9s cubic-bezier(0.22, 1, 0.36, 1);
-  will-change: opacity, transform;
 }
 
 .reveal-shown {

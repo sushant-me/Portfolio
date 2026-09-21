@@ -15,10 +15,12 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Sushant Poudel — AI | Security | Engineering",
   description: "Portfolio of Sushant Poudel — AI Researcher, Full-Stack Engineer, Cybersecurity Specialist from Nepal. Aspire Leaders Finalist, 2x Hult Prize Runner-Up.",
+  // Small derivatives: the source photo is 7 MB, which as a favicon is a
+  // download nobody asked for. See scripts/optimize-images.py.
   icons: {
-    icon: "/images/profile pciture.jpg",
-    shortcut: "/images/profile pciture.jpg",
-    apple: "/images/profile pciture.jpg",
+    icon: "/images/optimized/icon-192.jpg",
+    shortcut: "/images/optimized/icon-192.jpg",
+    apple: "/images/optimized/icon-192.jpg",
   },
 };
 

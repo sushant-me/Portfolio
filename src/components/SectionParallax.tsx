@@ -9,7 +9,7 @@ import { useScroll } from "./ScrollProvider";
  * imperative (transform only) and there are only seven of them.
  */
 export default function SectionParallax() {
-  const { subscribe } = useScroll();
+  const { subscribePhased } = useScroll();
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -21,22 +21,29 @@ export default function SectionParallax() {
     const refresh = window.setTimeout(() => {
       heads = Array.from(document.querySelectorAll<HTMLElement>(".section-head"));
     }, 500);
+    const offsets: number[] = [];
 
-    const unsubscribe = subscribe(() => {
+    const measure = () => {
       const vh = window.innerHeight || 1;
-      for (const el of heads) {
-        const rect = el.getBoundingClientRect();
-        const centre = rect.top + rect.height / 2;
-        const distance = (centre - vh / 2) / vh; // -0.5 … +0.5 across the view
-        el.style.transform = `translate3d(0, ${(distance * -22).toFixed(2)}px, 0)`;
+      for (let i = 0; i < heads.length; i++) {
+        const rect = heads[i].getBoundingClientRect();
+        const distance = (rect.top + rect.height / 2 - vh / 2) / vh;
+        offsets[i] = distance * -22;
       }
-    });
+    };
 
+    const apply = () => {
+      for (let i = 0; i < heads.length; i++) {
+        heads[i].style.transform = `translate3d(0, ${(offsets[i] ?? 0).toFixed(2)}px, 0)`;
+      }
+    };
+
+    const unsubscribe = subscribePhased(measure, apply);
     return () => {
       clearTimeout(refresh);
       unsubscribe();
     };
-  }, [subscribe]);
+  }, [subscribePhased]);
 
   return null;
 }

@@ -8,10 +8,20 @@ import ScrollHud from "../components/ScrollHud";
 import SectionHeading from "../components/SectionHeading";
 import CursorGlow from "../components/CursorGlow";
 import SectionParallax from "../components/SectionParallax";
+import HorizontalScroller from "../components/HorizontalScroller";
 import { useTilt } from "../components/useTilt";
 import { useInView } from "../components/useInView";
+import { useScrollProgress } from "../components/useScrollProgress";
 
 const ROLES = ["AI Researcher","Full-Stack Engineer","Cybersecurity Specialist","QA Automation Expert","Crisis Engineer","Flutter Developer"];
+
+/**
+ * Display-size derivative of an original asset, produced by
+ * scripts/optimize-images.py. The originals are 16-20 MB camera files; the grid
+ * never draws them wider than ~600px, so it loads the optimised copy and the
+ * lightbox opens the original.
+ */
+const optimized = (path: string) => path.replace("/images/", "/images/optimized/");
 
 const SECTIONS = [
   { id: "about", label: "Overview", color: "#3b82f6" },
@@ -483,7 +493,7 @@ function AnimatedCounter({ value, suffix, label, start }: { value: number; suffi
   );
 }
 
-function SkillBar({ name, level, color, start }: { name: string; level: number; color: string; start: boolean }) {
+function SkillBar({ name, level, color }: { name: string; level: number; color: string }) {
   return (
     <div className="skill-row">
       <div className="skill-header">
@@ -491,18 +501,37 @@ function SkillBar({ name, level, color, start }: { name: string; level: number; 
         <span className="skill-percent">{level}%</span>
       </div>
       <div className="skill-track">
-        <div className="skill-fill" style={{ width: start ? `${level}%` : "0%", background: color }} />
+        {/* Width is scrubbed by the section's --p: the bars fill as you scroll
+            through the grid rather than firing once and freezing. */}
+        <div
+          className="skill-fill"
+          style={{ "--level": `${level}%`, background: color } as React.CSSProperties}
+        />
       </div>
     </div>
   );
 }
 
-function ProjectCard({ project }: { project: (typeof PROJECTS)[0] }) {
+function ProjectCard({
+  project,
+  variant = "grid",
+}: {
+  project: (typeof PROJECTS)[0];
+  variant?: "grid" | "wall";
+}) {
   const [open, setOpen] = useState(false);
   const tilt = useTilt<HTMLDivElement>(4, 8);
+  // In the horizontal wall the detail is always visible: a row of collapsed
+  // stubs sliding past reads as emptiness, not as a wall.
+  const expanded = variant === "wall" || open;
 
   return (
-    <div className="project-card tilt" {...tilt} onClick={() => setOpen(!open)} style={{ borderColor: open ? project.color : undefined }}>
+    <div
+      className={`project-card tilt ${variant === "wall" ? "project-card-wall" : ""}`}
+      {...tilt}
+      onClick={() => setOpen(!open)}
+      style={{ borderColor: expanded ? project.color : undefined }}
+    >
       <div className="project-header">
         <span className="project-name">{project.name}</span>
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"
@@ -511,7 +540,7 @@ function ProjectCard({ project }: { project: (typeof PROJECTS)[0] }) {
         </svg>
       </div>
       <p className="project-tagline">{project.tagline}</p>
-      <div className="project-detail" style={{ maxHeight: open ? "400px" : "0", opacity: open ? 1 : 0, overflow: "hidden", transition: "max-height 0.5s ease, opacity 0.3s ease" }}>
+      <div className="project-detail" style={{ maxHeight: expanded ? "560px" : "0", opacity: expanded ? 1 : 0, overflow: "hidden", transition: "max-height 0.5s ease, opacity 0.3s ease" }}>
         <p className="project-desc">{project.desc}</p>
         <div className="tag-row">
           {project.tags.map((t) => (
@@ -629,7 +658,13 @@ function GalleryItem({ img, onOpen }: { img: (typeof GALLERY)[number]; onOpen: (
   const tilt = useTilt<HTMLDivElement>(4, 10);
   return (
     <div className="gallery-item tilt" {...tilt} onClick={onOpen}>
-      <img src={img.src} alt={img.caption} loading="lazy" />
+      <img
+        src={optimized(img.src)}
+        data-full={img.src}
+        alt={img.caption}
+        loading="lazy"
+        decoding="async"
+      />
       <div className="gallery-caption">{img.caption}</div>
     </div>
   );
@@ -727,7 +762,10 @@ function PortfolioBody() {
   const [loaded, setLoaded] = useState(false);
   const [lightbox, setLightbox] = useState<{src: string; caption: string} | null>(null);
   const [statsRef, statsInView] = useInView<HTMLDivElement>({ threshold: 0.25 });
-  const [skillsRef, skillsInView] = useInView<HTMLDivElement>({ threshold: 0.12 });
+  const heroRef = useScrollProgress<HTMLDivElement>("pinExit");
+  const skillsRef = useScrollProgress<HTMLDivElement>("enter");
+  const experienceRef = useScrollProgress<HTMLDivElement>("enter");
+  const galleryRef = useScrollProgress<HTMLDivElement>("view");
 
   const roleText = useTyping(ROLES, 65, 1800);
   const ambientColor = SECTIONS.find((s) => s.id === activeSection)?.color || "#3b82f6";
@@ -738,7 +776,6 @@ function PortfolioBody() {
   }, []);
 
   const animateStats = statsInView;
-  const animateSkills = skillsInView;
 
   const scrollToSection = useCallback((id: string) => scrollTo(id), [scrollTo]);
 
@@ -788,8 +825,12 @@ function PortfolioBody() {
         {/* Content */}
         <div className="content-wrapper">
 
-          {/* HERO */}
+          {/* HERO — pinned and scrubbed: the whole block drifts, shrinks and
+              fades across the first viewport while the 3D core swells toward
+              the camera. */}
+          <div className="hero-pin" ref={heroRef}>
           <header className="hero">
+            <div className="hero-scrub">
             <div className="hero-badge" style={{ opacity: loaded ? 1 : 0, transform: loaded ? "translateY(0)" : "translateY(12px)" }}>
               <span className="pulse-dot" />
               Open to opportunities
@@ -797,8 +838,25 @@ function PortfolioBody() {
 
             {/* Profile Image */}
             <div className="hero-avatar" style={{ opacity: loaded ? 1 : 0, transform: loaded ? "scale(1)" : "scale(0.8)" }}>
-              <div className="avatar-ring" style={{ borderColor: ambientColor }}>
-                <img src="/images/profile pciture.jpg" alt="Sushant Poudel" />
+              <div
+                className="avatar-ring"
+                style={{ borderColor: ambientColor, cursor: "zoom-in" }}
+                role="button"
+                tabIndex={0}
+                title="View full-size photo"
+                onClick={() => setLightbox({ src: "/images/profile pciture.jpg", caption: "Sushant Poudel" })}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                    setLightbox({ src: "/images/profile pciture.jpg", caption: "Sushant Poudel" });
+                  }
+                }}
+              >
+                <img
+                  src="/images/optimized/avatar-400.jpg"
+                  data-full="/images/profile pciture.jpg"
+                  alt="Sushant Poudel"
+                />
               </div>
             </div>
 
@@ -841,7 +899,9 @@ function PortfolioBody() {
                 <span className="hero-scroll-thumb" style={{ background: ambientColor }} />
               </span>
             </div>
+            </div>
           </header>
+          </div>
 
           {/* NAVIGATION */}
           <nav className="section-nav">
@@ -905,7 +965,7 @@ function PortfolioBody() {
 
             {/* EXPERIENCE */}
             <Section id="experience" kicker="Two years full-time, and the roles around it">
-              <div className="experience-list stagger">
+              <div className="experience-list stagger" ref={experienceRef}>
                 {EXPERIENCE.map((exp, i) => (
                   <ExpCard key={i} exp={exp} />
                 ))}
@@ -923,11 +983,11 @@ function PortfolioBody() {
 
             {/* PROJECTS */}
             <Section id="projects" kicker="Shipped tools, upstream patches, and published advisories">
-              <div className="projects-grid stagger">
+              <HorizontalScroller label="Keep scrolling — the wall moves sideways">
                 {PROJECTS.map((p) => (
-                  <ProjectCard key={p.name} project={p} />
+                  <ProjectCard key={p.name} project={p} variant="wall" />
                 ))}
-              </div>
+              </HorizontalScroller>
               <div style={{ textAlign: "center", marginTop: "24px" }}>
                 <a href="https://github.com/sushant-me" target="_blank" rel="noopener noreferrer" className="btn-link" style={{ padding: "10px 20px", fontSize: "14px" }}>
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ marginRight: "8px", verticalAlign: "middle" }}>
@@ -946,7 +1006,7 @@ function PortfolioBody() {
 
             {/* ACHIEVEMENTS / GALLERY */}
             <Section id="achievements" kicker="Awards, honours, and the moments behind them">
-              <div className="gallery-grid stagger">
+              <div className="gallery-grid stagger" ref={galleryRef}>
                 {GALLERY.map((img, idx) => (
                   <GalleryItem key={idx} img={img} onOpen={() => setLightbox(img)} />
                 ))}
@@ -973,7 +1033,7 @@ function PortfolioBody() {
                     <div className="skill-category">// {g.category}</div>
                     <div className="skill-list">
                       {g.skills.map((s) => (
-                        <SkillBar key={s.name} {...s} color={g.color} start={animateSkills} />
+                        <SkillBar key={s.name} {...s} color={g.color} />
                       ))}
                     </div>
                   </div>
@@ -1036,7 +1096,10 @@ function PortfolioBody() {
         .portfolio-root {
           position: relative;
           min-height: 100vh;
+          /* See globals.css: clip clips overflow without creating a scroll
+             container, which is what keeps sticky positioning alive inside. */
           overflow-x: hidden;
+          overflow-x: clip;
           background: var(--bg);
         }
 
@@ -2013,10 +2076,12 @@ function PortfolioBody() {
             rotateY(var(--ry, 0deg)) translateZ(var(--tz, 0px));
           transition: transform 0.55s cubic-bezier(0.22, 1, 0.36, 1),
             border-color 0.35s ease, box-shadow 0.35s ease;
-          will-change: transform;
         }
 
+        /* will-change is only claimed while a card is actually tilting: on ~70
+           cards at once it costs a compositor layer each for no benefit. */
         .tilt.is-tilting {
+          will-change: transform;
           transition: transform 0.09s linear, border-color 0.35s ease,
             box-shadow 0.35s ease;
         }
@@ -2134,6 +2199,242 @@ function PortfolioBody() {
         }
 
         .nav-pill:hover { transform: translateY(-1px); }
+
+        /* ══════════════════════════════════════════════════════════════
+           SCRUBBED SCROLL SEQUENCES
+           Everything below is driven by a single unitless --p custom
+           property that useScrollProgress writes each frame. No React
+           renders, no layout reads inside CSS — just compositor work.
+           ══════════════════════════════════════════════════════════════ */
+
+        /* ── 1. pinned hero ──
+           The header sticks for one viewport while --p runs 0 → 1; the block
+           drifts up, shrinks, blurs and fades out so the page below is what
+           arrives as the pin releases. */
+        .hero-pin { position: relative; height: 160vh; }
+
+        .hero-pin .hero {
+          position: sticky;
+          top: 0;
+          min-height: 100vh;
+          min-height: 100svh;
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
+          margin-bottom: 0;
+        }
+
+        /* Fades to zero at the same moment the pin releases (p = 1), so there is
+           no stretch of empty viewport between the hero and the first section. */
+        .hero-scrub {
+          transform: translate3d(0, calc(var(--p, 0) * -140px), 0)
+            scale(calc(1 - var(--p, 0) * 0.2));
+          opacity: calc(1 - var(--p, 0) * 1.02);
+          will-change: transform, opacity;
+        }
+
+        /* ── 2. horizontal project wall ──
+           Wrapper height is set by the component to viewport + overflow, so one
+           pixel of scroll equals one pixel of sideways travel. */
+        .hscroll { position: relative; }
+
+        .hscroll-sticky {
+          position: sticky;
+          top: 0;
+          height: 100vh;
+          height: 100svh;
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
+          overflow: hidden;
+          padding-top: 84px;
+        }
+
+        .hscroll-track {
+          display: flex;
+          gap: 26px;
+          align-items: flex-start;
+          padding: 0 24px;
+          will-change: transform;
+        }
+
+        .hscroll-track .project-card {
+          flex: 0 0 340px;
+          width: 340px;
+        }
+
+        /* Wall cards are always expanded, so give them a floor height and let
+           the row read as a strip of panels rather than a row of stubs. */
+        .hscroll-track .project-card-wall {
+          min-height: 292px;
+        }
+
+        .hscroll-track .project-card-wall .project-detail {
+          display: flex;
+          flex-direction: column;
+          gap: 10px;
+          padding-top: 14px;
+        }
+
+        .hscroll-hint {
+          position: absolute;
+          top: 96px;
+          left: 24px;
+          font-family: var(--font-mono);
+          font-size: 10px;
+          letter-spacing: 0.2em;
+          text-transform: uppercase;
+          color: var(--text-tertiary);
+          opacity: calc(1 - var(--p, 0) * 1.6);
+        }
+
+        .hscroll-bar {
+          position: absolute;
+          left: 24px;
+          right: 24px;
+          bottom: 46px;
+          height: 2px;
+          background: rgba(255, 255, 255, 0.07);
+          border-radius: 2px;
+          overflow: hidden;
+        }
+
+        .hscroll-bar-fill {
+          display: block;
+          height: 100%;
+          width: 100%;
+          transform-origin: 0 50%;
+          transform: scaleX(var(--p, 0));
+          background: var(--accent, #3b82f6);
+        }
+
+        /* ── 3. scrubbed skill bars ──
+           Each bar's own --level is multiplied by the section's --p, so the
+           bars fill as the grid rises rather than firing once. scaleX keeps it
+           on the compositor — animating width would relayout the row. */
+        .skill-fill {
+          width: var(--level, 0%);
+          transform-origin: 0 50%;
+          transform: scaleX(min(var(--p, 0) * 1.35, 1));
+          transition: transform 0.16s linear;
+        }
+
+        /* ── 4. experience timeline ──
+           The rail under the cards fills with the section's own progress. scaleY
+           rather than height, so the fill never triggers layout. */
+        .experience-list {
+          position: relative;
+          padding-left: 22px;
+        }
+
+        .experience-list::before,
+        .experience-list::after {
+          content: "";
+          position: absolute;
+          left: 3px;
+          top: 8px;
+          bottom: 8px;
+          width: 2px;
+          border-radius: 2px;
+        }
+
+        .experience-list::before {
+          background: rgba(255, 255, 255, 0.06);
+        }
+
+        .experience-list::after {
+          transform-origin: 50% 0;
+          transform: scaleY(var(--p, 0));
+          background: linear-gradient(
+            180deg,
+            var(--accent, #3b82f6),
+            transparent
+          );
+        }
+
+        /* ── 5. gallery parallax ──
+           Depth varies per column so the grid breathes as it passes. The images
+           are scaled slightly past their frames so no edge shows. */
+        .gallery-grid > *:nth-child(3n + 1) { --depth: 1; }
+        .gallery-grid > *:nth-child(3n + 2) { --depth: -0.75; }
+        .gallery-grid > *:nth-child(3n) { --depth: 0.5; }
+
+        .gallery-grid > * img {
+          transform: translate3d(
+              0,
+              calc((var(--p, 0.5) - 0.5) * var(--depth, 1) * -52px),
+              0
+            )
+            scale(1.14);
+          will-change: transform;
+        }
+
+        /* ── 6. masked heading reveal ── */
+        @keyframes headMask {
+          from {
+            clip-path: inset(0 0 100% 0);
+            transform: translate3d(0, 18px, 0);
+            opacity: 0;
+          }
+          to {
+            clip-path: inset(0 0 0 0);
+            transform: none;
+            opacity: 1;
+          }
+        }
+
+        .section.in-view .section-head-title {
+          animation: headMask 0.95s cubic-bezier(0.22, 1, 0.36, 1) backwards;
+          animation-delay: 0.08s;
+        }
+
+        /* ── 7. scroll-reactive ambient orb ──
+           Driven by the translate property from ScrollHud; see the note there
+           on why it cannot be a transform. */
+
+        @media (max-width: 900px) {
+          .hero-pin { height: 150vh; }
+
+          .hscroll { height: auto !important; }
+
+          .hscroll-sticky {
+            position: static;
+            height: auto;
+            overflow: visible;
+            padding-top: 0;
+          }
+
+          .hscroll-track {
+            transform: none !important;
+            flex-wrap: wrap;
+            padding: 0;
+            gap: 12px;
+          }
+
+          .hscroll-track .project-card {
+            flex: 1 1 100%;
+            width: auto;
+          }
+
+          .hscroll-bar,
+          .hscroll-hint { display: none; }
+
+          .experience-list { padding-left: 16px; }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+          .hero-pin { height: auto; }
+          .hero-pin .hero { position: static; min-height: 0; }
+          .hero-scrub { transform: none; opacity: 1; filter: none; }
+          .hscroll { height: auto !important; }
+          .hscroll-sticky { position: static; height: auto; overflow: visible; }
+          .hscroll-track { transform: none !important; flex-wrap: wrap; }
+          .hscroll-track .project-card { flex: 1 1 320px; width: auto; }
+          .hscroll-bar, .hscroll-hint { display: none; }
+          .gallery-grid > * img { transform: none; }
+          .section.in-view .section-head-title { animation: none; }
+          .experience-list::after { height: 100%; }
+        }
 
         @media (max-width: 1100px) {
           .section-rail { display: none; }

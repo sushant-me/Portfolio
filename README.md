@@ -34,3 +34,58 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+
+## How the site is put together
+
+It is a statically exported Next.js app (`output: 'export'`) deployed to Cloudflare
+Pages, which is Git-connected: pushing to `main` builds and deploys it.
+
+### Scroll system
+
+One rAF loop drives every scroll effect, in `src/components/ScrollProvider.tsx`.
+The loop reads scroll state, runs every `measure` callback, then every `apply`
+callback, then the plain listeners. That two-phase split is deliberate: six
+independently animated elements that each read layout and then write style force
+one browser layout *each* per frame, which measured 27 fps; batching all reads
+before all writes measured 80+ fps.
+
+Effects are driven by a unitless `--p` custom property (0 → 1) that
+`useScrollProgress` writes per frame, so CSS does the animating and React never
+re-renders on scroll. Progress modes: `view`, `enter`, `pin` (sticky wrapper),
+and `pinExit` (pin plus the natural exit, so a full-viewport pinned element does
+not fade out and leave an empty screen before it releases).
+
+What is built on it:
+
+- **Pinned hero** (`pinExit`) — the block drifts, shrinks and fades as the WebGL
+  core swells toward the camera.
+- **Horizontal project wall** (`pin`) — the wrapper is sized to viewport +
+  overflow so one pixel of scroll equals one pixel of sideways travel.
+- **Scrubbed skill bars**, an **experience timeline fill**, **gallery parallax**
+  with per-column depth, masked heading reveals, a reading-progress bar and a
+  section rail.
+- `Scene3D.tsx` is a dynamically imported three.js backdrop (particle shell,
+  wireframe core, orbit rings) that answers scroll, pointer and the active
+  section's accent colour. It is a separate chunk that `index.html` never
+  preloads, and it does not initialise at all under `prefers-reduced-motion`.
+
+Sticky positioning note: `overflow-x: hidden` on an ancestor turns it into a
+scroll container and silently breaks every `position: sticky` descendant. The
+layout uses `overflow-x: clip` for that reason.
+
+### Images
+
+`public/images` holds full-resolution originals — five gallery photos are
+16-20 MB each (~112 MB total). `scripts/optimize-images.py` generates
+`public/images/optimized/*` (long edge ≤ 1600 px, JPEG q82, progressive, EXIF
+rotation baked in) plus small avatar and favicon variants. The grids and the
+avatar load the derivatives; the lightbox still opens the original. Regenerate
+after adding a photo:
+
+```bash
+python3 scripts/optimize-images.py
+```
+
+Total cold page weight after optimisation: ~3.7 MB, most of it the lazily loaded
+three.js chunk.
+

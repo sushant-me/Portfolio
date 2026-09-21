@@ -17,6 +17,10 @@ export default function ScrollHud({ sections }: { sections: HudSection[] }) {
   const { subscribe, active, scrollTo } = useScroll();
 
   useEffect(() => {
+    // The ambient orb floats on a CSS animation, and an animation on `transform`
+    // would beat any inline transform. Driving the separate `translate` property
+    // instead composes with it instead of fighting it.
+    const orb = document.querySelector<HTMLElement>(".glow-orb");
     return subscribe((snap) => {
       const bar = barRef.current;
       if (bar) bar.style.transform = `scaleX(${snap.progress.toFixed(4)})`;
@@ -26,6 +30,9 @@ export default function ScrollHud({ sections }: { sections: HudSection[] }) {
         const v = Math.min(Math.abs(snap.velocity) * 0.09, 1);
         glow.style.opacity = (0.25 + v * 0.75).toFixed(3);
         glow.style.transform = `scaleX(${Math.max(snap.progress, 0.02).toFixed(4)})`;
+      }
+      if (orb) {
+        orb.style.translate = `0 ${(-snap.progress * 12).toFixed(2)}vh`;
       }
     });
   }, [subscribe]);
@@ -44,9 +51,7 @@ export default function ScrollHud({ sections }: { sections: HudSection[] }) {
         <div
           className="scroll-progress-bar"
           ref={barRef}
-          style={{
-            background: `linear-gradient(90deg, ${activeColor}, #ffffff88)`,
-          }}
+          style={{ background: activeColor }}
         />
       </div>
 

@@ -32,7 +32,7 @@ export default function Scene3D({ accent }: { accent: string }) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const accentRef = useRef(accent);
   accentRef.current = accent;
-  const { subscribe, reducedMotion } = useScroll();
+  const { subscribePhased, reducedMotion } = useScroll();
 
   useEffect(() => {
     if (reducedMotion) return;
@@ -206,23 +206,51 @@ export default function Scene3D({ accent }: { accent: string }) {
 
       // ── per-frame render, driven by the provider's loop ──────────────────
       let elapsed = 0;
+      let heroEl: HTMLElement | null = null;
+      let heroLookup = 0;
+      let heroProgress = 0;
+
+      // Layout read — runs in the provider's measure phase, before any writes.
+      const measure = () => {
+        if (!heroEl || heroLookup++ % 120 === 0) {
+          heroEl = document.querySelector<HTMLElement>(".hero-pin");
+        }
+        let hp = 0;
+        if (heroEl) {
+          const rect = heroEl.getBoundingClientRect();
+          // Matches the hero's "pinExit" progress: travel is the whole wrapper,
+          // so the core keeps swelling through the exit instead of stopping
+          // when the pin releases.
+          if (rect.height > 0) hp = Math.min(Math.max(-rect.top / rect.height, 0), 1);
+        }
+        heroProgress = hp;
+      };
+
       const render = (snap: { progress: number; velocity: number }) => {
         if (!ready || disposed || document.visibilityState === "hidden") return;
 
         elapsed += 1 / 60;
         const p = snap.progress;
         const pulse = Math.min(Math.abs(snap.velocity) * 0.06, 0.05);
+        const hp = heroProgress;
 
         pointer.x += (target.x - pointer.x) * 0.045;
         pointer.y += (target.y - pointer.y) * 0.045;
 
-        root.rotation.y = elapsed * 0.045 + p * Math.PI * 1.35 + pointer.x * 0.28;
-        root.rotation.x = Math.sin(elapsed * 0.16) * 0.05 - pointer.y * 0.22 + p * 0.42;
-        root.scale.setScalar(1 + pulse);
+        root.rotation.y =
+          elapsed * 0.045 + hp * 0.85 + p * Math.PI * 1.1 + pointer.x * 0.28;
+        root.rotation.x =
+          Math.sin(elapsed * 0.16) * 0.05 - pointer.y * 0.22 + hp * 0.3 + p * 0.34;
+        root.scale.setScalar(1 + pulse + hp * 0.28);
+
+        // The core swells toward the camera as the hero is scrubbed away.
+        const coreScale = 1 + hp * 1.15;
+        core.scale.setScalar(coreScale);
+        coreMesh.scale.setScalar(coreScale);
 
         shell.rotation.y -= 0.0009;
         dust.rotation.y += 0.0016;
-        core.rotation.x -= 0.0022 + p * 0.003;
+        core.rotation.x -= 0.0022 + hp * 0.006 + p * 0.003;
         core.rotation.z += 0.0014;
 
         rings.forEach((ring, i) => {
@@ -230,7 +258,7 @@ export default function Scene3D({ accent }: { accent: string }) {
           ring.rotation.y += 0.0003 * (i % 2 === 0 ? 1 : -1);
         });
 
-        camera.position.z = 6.6 - p * 2.5;
+        camera.position.z = 6.6 - hp * 2.1 - p * 1.6;
         camera.position.y = pointer.y * -0.35 + p * 0.5;
         camera.position.x = pointer.x * 0.5;
         camera.lookAt(0, 0, 0);
@@ -248,7 +276,8 @@ export default function Scene3D({ accent }: { accent: string }) {
       };
 
       ready = true;
-      const unsubscribe = subscribe(render);
+      const unsubscribe = subscribePhased(measure, render);
+      measure();
       render({ progress: 0, velocity: 0 });
 
       cleanup = () => {
@@ -277,7 +306,7 @@ export default function Scene3D({ accent }: { accent: string }) {
     };
     // accent is read through a ref: changing section must not rebuild the scene
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [reducedMotion, subscribe]);
+  }, [reducedMotion, subscribePhased]);
 
   return <canvas ref={canvasRef} className="scene-canvas" aria-hidden="true" />;
 }
