@@ -42,3 +42,6 @@ next-env.d.ts
 
 # local scratch (content baselines + screenshots)
 /.baseline/
+
+# local wrangler pages dev state
+/.wrangler/
