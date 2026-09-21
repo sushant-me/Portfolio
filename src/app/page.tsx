@@ -965,7 +965,7 @@ function PortfolioBody() {
 
             {/* EXPERIENCE */}
             <Section id="experience" kicker="Two years full-time, and the roles around it">
-              <div className="experience-list stagger" ref={experienceRef}>
+              <div className="experience-list timeline stagger" ref={experienceRef}>
                 {EXPERIENCE.map((exp, i) => (
                   <ExpCard key={i} exp={exp} />
                 ))}
@@ -2321,14 +2321,16 @@ function PortfolioBody() {
 
         /* ── 4. experience timeline ──
            The rail under the cards fills with the section's own progress. scaleY
-           rather than height, so the fill never triggers layout. */
-        .experience-list {
+           rather than height, so the fill never triggers layout. Scoped to
+           .timeline: the advisories list shares .experience-list but has no
+           progress of its own and should not grow a rail. */
+        .timeline {
           position: relative;
           padding-left: 22px;
         }
 
-        .experience-list::before,
-        .experience-list::after {
+        .timeline::before,
+        .timeline::after {
           content: "";
           position: absolute;
           left: 3px;
@@ -2338,11 +2340,11 @@ function PortfolioBody() {
           border-radius: 2px;
         }
 
-        .experience-list::before {
+        .timeline::before {
           background: rgba(255, 255, 255, 0.06);
         }
 
-        .experience-list::after {
+        .timeline::after {
           transform-origin: 50% 0;
           transform: scaleY(var(--p, 0));
           background: linear-gradient(
@@ -2419,7 +2421,8 @@ function PortfolioBody() {
           .hscroll-bar,
           .hscroll-hint { display: none; }
 
-          .experience-list { padding-left: 16px; }
+          .experience-list { padding-left: 0; }
+          .timeline { padding-left: 16px; }
         }
 
         @media (prefers-reduced-motion: reduce) {
