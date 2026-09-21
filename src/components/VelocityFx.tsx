@@ -15,21 +15,28 @@ import { useScroll } from "./ScrollProvider";
 export default function VelocityFx() {
   const streaksRef = useRef<HTMLDivElement | null>(null);
   const ringRef = useRef<HTMLDivElement | null>(null);
+  const smoothed = useRef(0);
   const { subscribe, reducedMotion } = useScroll();
 
   useEffect(() => {
     if (reducedMotion) return;
+    smoothed.current = 0;
     return subscribe((snap) => {
-      const v = Math.min(Math.abs(snap.velocity) / 2.4, 1);
-      // Below the threshold both layers are taken out of the paint entirely.
-      // A blended full-viewport layer is not free just because its opacity is
-      // near zero, so at reading speed nothing here costs anything.
-      const active = v > 0.035;
+      // Measured on this page: a gentle scroll peaks around 7 px/ms and settles
+      // near 1, a hard yank peaks near 97 and settles near 12. Smoothing first
+      // means the effect tracks how fast the page is genuinely travelling
+      // rather than spiking on single frames, and it decays on its own when the
+      // scrolling stops.
+      smoothed.current += (Math.abs(snap.velocity) - smoothed.current) * 0.16;
+      const v = Math.min(smoothed.current / 22, 1);
+      // A normal reading scroll therefore never lights these up at all, and
+      // below the threshold both layers leave the paint entirely.
+      const active = v > 0.16;
 
       const streaks = streaksRef.current;
       if (streaks) {
         streaks.style.visibility = active ? "visible" : "hidden";
-        streaks.style.opacity = active ? (v * 0.45).toFixed(3) : "0";
+        streaks.style.opacity = active ? (v * 0.26).toFixed(3) : "0";
         // Drift the pattern with travel so the lines feel attached to the
         // motion rather than pasted over it.
         if (active) {
@@ -40,9 +47,9 @@ export default function VelocityFx() {
       const ring = ringRef.current;
       if (ring) {
         ring.style.visibility = active ? "visible" : "hidden";
-        ring.style.opacity = active ? (0.1 + v * 0.55).toFixed(3) : "0";
+        ring.style.opacity = active ? (v * 0.45).toFixed(3) : "0";
         if (active) {
-          ring.style.transform = `translate(-50%, -50%) scale(${(0.92 + v * 0.5).toFixed(3)})`;
+          ring.style.transform = `translate(-50%, -50%) scale(${(0.94 + v * 0.42).toFixed(3)})`;
         }
       }
     });
