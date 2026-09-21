@@ -130,6 +130,15 @@ const RESEARCH: Research[] = [
     file: "https://github.com/sushant-me/Edge-Native_Semantic_Firewall_",
   },
   {
+    title: "Evaluating Google's Open Knowledge Format (OKF v0.1) for Multi-Agent Threat Intelligence",
+    venue: "Manuscript 2026",
+    venueType: "preprint",
+    desc: "A proof of concept in digital forensics: whether an open knowledge format can carry incident data between cooperating agents so each traverses only the part of an incident graph it needs, rather than ingesting the whole corpus. Co-authored with Rakhee Pandey.",
+    tags: ["DFIR", "Multi-agent", "Knowledge format"],
+    color: "#0ea5e9",
+    file: "/publications/okf-dfir",
+  },
+  {
     title: "MCP tool shadowing in Google's agent frameworks",
     venue: "Open pull requests — adk-go, adk-java, adk-python",
     venueType: "conference",
