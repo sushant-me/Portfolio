@@ -1,0 +1,149 @@
+/* Writing section — standalone styles. The portfolio's own stylesheet lives inside a
+   styled block in page.tsx and is scoped to that page, so this keeps the two from
+   reaching into each other. */
+
+.wr {
+  min-height: 100vh;
+  background: #08090f;
+  color: #eef1f7;
+  font-family: var(--font-geist-sans), system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+  padding: 56px 22px 96px;
+}
+
+.wr-wrap { max-width: 720px; margin: 0 auto; }
+
+.wr-back {
+  display: inline-block;
+  font-size: 13px;
+  color: #8d97ad;
+  text-decoration: none;
+  margin-bottom: 30px;
+}
+
+.wr-back:hover { color: #eef1f7; }
+
+.wr h1 {
+  font-size: 34px;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  margin: 0 0 10px;
+  font-weight: 650;
+}
+
+.wr .sub { color: #8d97ad; font-size: 14.5px; line-height: 1.6; margin: 0 0 40px; }
+
+.wr-list { list-style: none; padding: 0; margin: 0; }
+
+.wr-list li {
+  border-top: 1px solid rgba(255, 255, 255, 0.09);
+  padding: 22px 0;
+}
+
+.wr-list li:last-child { border-bottom: 1px solid rgba(255, 255, 255, 0.09); }
+
+.wr-list a.title {
+  color: #eef1f7;
+  text-decoration: none;
+  font-size: 19px;
+  font-weight: 600;
+  line-height: 1.35;
+  display: block;
+  margin-bottom: 7px;
+}
+
+.wr-list a.title:hover { color: #7cb0ff; }
+
+.wr-meta {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 11.5px;
+  color: #6f7a90;
+  letter-spacing: 0.02em;
+  margin-bottom: 9px;
+}
+
+.wr-list p { color: #a7b0c2; font-size: 14.5px; line-height: 1.65; margin: 0; }
+
+/* ── the post itself ── */
+
+.post h1 { font-size: 31px; margin-bottom: 12px; }
+
+.post .wr-meta { font-size: 12px; margin-bottom: 34px; }
+
+.post-body { font-size: 16.5px; line-height: 1.75; color: #d6dbe6; }
+
+.post-body h2 {
+  font-size: 22px;
+  color: #eef1f7;
+  margin: 44px 0 14px;
+  letter-spacing: -0.01em;
+}
+
+.post-body h3 { font-size: 18px; color: #eef1f7; margin: 32px 0 10px; }
+
+.post-body p { margin: 0 0 18px; }
+
+.post-body a { color: #7cb0ff; text-decoration: none; border-bottom: 1px solid rgba(124, 176, 255, 0.3); }
+.post-body a:hover { border-bottom-color: #7cb0ff; }
+
+.post-body strong { color: #f4f6fa; font-weight: 640; }
+
+.post-body ul, .post-body ol { margin: 0 0 18px; padding-left: 22px; }
+.post-body li { margin-bottom: 8px; }
+
+.post-body code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 13.5px;
+  background: #14171f;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 5px;
+  padding: 1.5px 5px;
+  color: #c9d4e6;
+}
+
+.post-body pre {
+  background: #0d0f16;
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  border-radius: 10px;
+  padding: 16px 18px;
+  overflow-x: auto;
+  margin: 0 0 22px;
+}
+
+.post-body pre code { background: none; border: none; padding: 0; font-size: 13px; line-height: 1.6; }
+
+.post-body blockquote {
+  border-left: 3px solid #2b3550;
+  margin: 0 0 20px;
+  padding: 2px 0 2px 18px;
+  color: #9aa5ba;
+}
+
+.post-body hr { border: none; border-top: 1px solid rgba(255, 255, 255, 0.1); margin: 36px 0; }
+
+.post-body table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 0 0 24px;
+  font-size: 14px;
+}
+
+.post-body th, .post-body td {
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 8px 11px;
+  text-align: left;
+  vertical-align: top;
+}
+
+.post-body th { background: #11141c; color: #eef1f7; font-weight: 600; }
+
+.post-body img { max-width: 100%; height: auto; border-radius: 8px; }
+
+.post-source {
+  margin-top: 46px;
+  padding-top: 20px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  font-size: 13px;
+  color: #8d97ad;
+}
+
+.post-source a { color: #7cb0ff; text-decoration: none; }
