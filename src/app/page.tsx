@@ -20,7 +20,7 @@ import { useScrollProgress } from "../components/useScrollProgress";
  *  so the rendered text stays a single readable string. */
 const NAME_WORDS = ["Sushant", "Poudel"];
 
-const ROLES = ["AI Researcher","Full-Stack Engineer","Cybersecurity Specialist","QA Automation Expert","Crisis Engineer","Flutter Developer"];
+const ROLES = ["AI Security Engineer","Vulnerability Researcher","Agent Safety Researcher","AI Researcher","Cybersecurity Specialist","Full-Stack Developer"];
 
 /**
  * Display-size derivative of an original asset, produced by
