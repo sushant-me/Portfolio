@@ -8,7 +8,9 @@
     "start": "next start",
     "lint": "eslint",
     "prebuild": "sh scripts/prebuild.sh",
-    "check:posts": "python3 scripts/check-posts.py"
+    "check:posts": "python3 scripts/check-posts.py",
+    "postbuild": "sh scripts/postbuild.sh",
+    "check:links": "python3 scripts/check-links.py"
   },
   "dependencies": {
     "lenis": "^1.3.26",
