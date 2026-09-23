@@ -26,8 +26,17 @@ export async function generateMetadata({
       description: post.summary,
       url,
       type: "article",
+      // Without this the child's openGraph *replaces* the layout's, so the image
+      // the rest of the site advertises is dropped on every post page and links
+      // to the writing render as bare text in Slack, LinkedIn and X.
+      images: [{ url: "/og.png", alt: post.title }],
     },
-    twitter: { card: "summary_large_image", title: post.title, description: post.summary },
+    twitter: {
+      card: "summary_large_image",
+      title: post.title,
+      description: post.summary,
+      images: ["/og.png"],
+    },
   };
 }
 
