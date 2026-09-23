@@ -6,7 +6,9 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "prebuild": "sh scripts/prebuild.sh",
+    "check:posts": "python3 scripts/check-posts.py"
   },
   "dependencies": {
     "lenis": "^1.3.26",
