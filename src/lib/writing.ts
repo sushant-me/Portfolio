@@ -93,3 +93,16 @@ export function formatDate(iso: string): string {
     timeZone: "UTC",
   });
 }
+
+/**
+ * The social preview card for a post, or the site default.
+ *
+ * Cards are rendered at build time by `scripts/make-og-images.py`, so a newly
+ * written post has no card until that runs. Returning the shared default in that
+ * case is deliberate: a preview image pointing at a path that does not exist is a
+ * broken card, which is worse than a generic one.
+ */
+export function ogImageFor(slug: string): string {
+  const card = path.join(process.cwd(), "public", "og", `${slug}.png`);
+  return fs.existsSync(card) ? `/og/${slug}.png` : "/og.png";
+}
