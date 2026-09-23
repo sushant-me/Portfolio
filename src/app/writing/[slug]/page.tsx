@@ -60,6 +60,39 @@ export default async function Post({ params }: { params: Promise<{ slug: string 
             <a href="https://github.com/sushant-me/reputation">reputation</a>.
           </p>
         )}
+        {/* BlogPosting schema. The site-wide blocks describe the person; without
+            this the posts themselves are not eligible for article rich results,
+            which is the difference between a post being indexed and being found. */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "BlogPosting",
+              headline: post.title,
+              description: post.summary,
+              datePublished: post.date,
+              dateModified: post.date,
+              wordCount: post.words,
+              inLanguage: "en",
+              url: `https://sushantpoudel2028.com.np/writing/${post.slug}`,
+              mainEntityOfPage: {
+                "@type": "WebPage",
+                "@id": `https://sushantpoudel2028.com.np/writing/${post.slug}`,
+              },
+              author: {
+                "@type": "Person",
+                name: "Sushant Poudel",
+                url: "https://sushantpoudel2028.com.np",
+              },
+              publisher: {
+                "@type": "Person",
+                name: "Sushant Poudel",
+                url: "https://sushantpoudel2028.com.np",
+              },
+            }),
+          }}
+        />
       </div>
     </main>
   );

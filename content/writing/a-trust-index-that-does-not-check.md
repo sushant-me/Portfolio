@@ -1,11 +1,7 @@
 ---
-title: 
+title: A trust index graded my repos as MCP servers. None of them is one.
 date: 2026-09-23
-summary: summary: An MCP directory crawled three of my repositories, filed all three as connectable servers, and published letter grades. Their own pages quote descriptions saying otherwise. I also formed a…
-source: https://github.com/sushant-me/writeups/blob/main/2026-09-23-a-trust-index-that-does-not-check.md
----
-
-summary: An MCP directory crawled three of my repositories, filed all three as connectable servers, and published letter grades. Their own pages quote descriptions saying otherwise. I also formed a hypothesis about their scoring, tested it, and had to throw it out…
+summary: I got a cold email: an MCP "trust index" had listed one of my repositories, where developers check servers before connecting them. Three free things I could do — claim it, add a badge, connect a…
 source: https://github.com/sushant-me/writeups/blob/main/2026-09-23-a-trust-index-that-does-not-check.md
 ---
 
