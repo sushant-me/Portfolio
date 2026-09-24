@@ -112,6 +112,30 @@ def main() -> int:
         (OUT / f"{slug}.md").write_text(front + body, encoding="utf-8")
         print(f"  {slug:56} {date}  {len(body.split()):>5} words")
 
+    # A static index for the homepage.
+    #
+    # The homepage is a client component ("use client"), so it cannot call
+    # getPosts() - that reads the filesystem and only runs on the server. Without
+    # this file the homepage links /writing once and never links a post, while it
+    # links individual publications; the posts get no link authority from the
+    # site's strongest page. A JSON import is readable from a client component,
+    # and it cannot drift because it is written here, on every sync.
+    import json
+    index = [
+        {
+            "slug": slug_for(p),
+            "title": parse(p)[0],
+            "date": parse(p)[1],
+            "summary": parse(p)[2],
+        }
+        for p in posts
+    ]
+    index.sort(key=lambda e: e["date"], reverse=True)
+    index_path = OUT.parent / "writing-index.json"
+    index_path.write_text(json.dumps(index, indent=2, ensure_ascii=False) + "\n",
+                          encoding="utf-8")
+    print(f"  index: {index_path.relative_to(REPO)} ({len(index)} entries)")
+
     print(f"\n{len(posts)} post(s) synced into {OUT.relative_to(REPO)}")
     return 0
 

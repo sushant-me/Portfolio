@@ -6,6 +6,7 @@ import ScrollProvider, { useScroll } from "../components/ScrollProvider";
 import Scene3D from "../components/Scene3D";
 import ScrollHud from "../components/ScrollHud";
 import SectionHeading from "../components/SectionHeading";
+import writingIndex from "../../content/writing-index.json";
 import CursorGlow from "../components/CursorGlow";
 import SectionParallax from "../components/SectionParallax";
 import HorizontalScroller from "../components/HorizontalScroller";
@@ -1109,6 +1110,18 @@ function PortfolioBody() {
               <a href="https://github.com/sushant-me" target="_blank" rel="noopener noreferrer">GitHub</a>
               <a href="https://linkedin.com/in/sushant-poudel2028" target="_blank" rel="noopener noreferrer">LinkedIn</a>
               <a href="mailto:sushant.poudel2028@gmail.com">Email</a>
+            </div>
+
+            {/* The homepage linked individual publications but never a post, so
+                the writing got no link authority from the site's strongest page.
+                These are the three newest, from an index the sync generates -
+                a client component cannot read the filesystem to build this. */}
+            <div className="footer-links" style={{ marginTop: "0.85rem", opacity: 0.85 }}>
+              {writingIndex.slice(0, 3).map((post) => (
+                <a key={post.slug} href={`/writing/${post.slug}`}>
+                  {post.title.length > 52 ? `${post.title.slice(0, 50)}...` : post.title}
+                </a>
+              ))}
             </div>
           </footer>
         </div>

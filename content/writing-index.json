@@ -1,0 +1,56 @@
+[
+  {
+    "slug": "a-trust-index-that-does-not-check",
+    "title": "A trust index graded my repos as MCP servers. None of them is one.",
+    "date": "2026-09-23",
+    "summary": "I got a cold email: an MCP \"trust index\" had listed one of my repositories, where developers check servers before connecting them. Three free things I could do — claim it, add a badge, connect a…"
+  },
+  {
+    "slug": "the-zero-that-wasnt",
+    "title": "The zero that wasn't: how my own adapter made a working tool look broken",
+    "date": "2026-09-23",
+    "summary": "I spent three passes convinced I had found that an independent MCP scanner detected none of the defects in my corpus. The scanner was working the whole time. The fault was in the twelve lines of glue"
+  },
+  {
+    "slug": "a-benchmark-found-a-bug-in-my-own-detector",
+    "title": "A benchmark found a bug in my own detector — 0.750 to 1.000",
+    "date": "2026-09-21",
+    "summary": "I built a labelled corpus of agent tool-boundary bugs to stop myself making claims about detectors that I had not measured. The first thing it did was find a false positive in my own published…"
+  },
+  {
+    "slug": "a-number-nothing-recomputes",
+    "title": "A number nothing recomputes",
+    "date": "2026-09-21",
+    "summary": "Over a few days of work I found ten wrong numbers in things I had already published. Not ten typos — ten distinct facts, each of which had been true when written, on a CV, a profile, a hire page, a…"
+  },
+  {
+    "slug": "four-checks-that-ran-on-rewritten-data",
+    "title": "Four checks that ran on data something else had already rewritten",
+    "date": "2026-09-21",
+    "summary": "I spent a day auditing my own security tools and found four vulnerabilities in them. Not four unrelated bugs — four instances of one shape: in every case the check ran against data that something…"
+  },
+  {
+    "slug": "the-check-that-could-not-see-what-it-was-checking",
+    "title": "The check that could not see what it was checking",
+    "date": "2026-09-21",
+    "summary": "I spent a day auditing my own security tools and found four vulnerabilities. Then I audited the tooling that verifies my work, and found the same defect three more times — including once in a…"
+  },
+  {
+    "slug": "structured-output-made-it-less-safe",
+    "title": "Structured output made my safety evaluator less safe",
+    "date": "2026-09-20",
+    "summary": "I spent a month building a policy evaluator for autonomous agents: a small model that reads a proposal and decides whether a written policy allows it. The obvious engineering move was to constrain…"
+  },
+  {
+    "slug": "the-crash-that-wasnt",
+    "title": "The crash that wasn't: how AddressSanitizer showed my fix was for the wrong bug",
+    "date": "2026-09-19",
+    "summary": "I opened a pull request against google/s2geometry claiming a null-pointer dereference caused a crash. I had a test. The test passed on my machine. It segfaulted in CI on every platform."
+  },
+  {
+    "slug": "null-origin-ctf-qualifier",
+    "title": "Null Origin CTF 2026 — Qualifier Writeup",
+    "date": "2026-09-18",
+    "summary": "Team: roamers • Event: Null Origin CTF 2026 — Qualifier • Focus: Reverse engineering chain, web, and the methodology that got us there"
+  }
+]
