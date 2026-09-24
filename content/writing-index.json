@@ -1,5 +1,11 @@
 [
   {
+    "slug": "it-learned-where-not-how-hard",
+    "title": "It learned where to put the value, and not how hard to hold it",
+    "date": "2026-09-24",
+    "summary": "My own README carried a criticism I could not answer. The agent loop's working memory is a selective state-space recurrence, and the part that decides what to write was hand-set:"
+  },
+  {
     "slug": "six-numbers-and-the-control",
     "title": "Six numbers I nearly published, and the control that stopped each one",
     "date": "2026-09-24",
