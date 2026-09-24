@@ -7,6 +7,13 @@
     <language>en</language>
     <atom:link href="https://sushantpoudel2028.com.np/feed.xml" rel="self" type="application/rss+xml"/>
     <item>
+      <title>Six numbers I nearly published, and the control that stopped each one</title>
+      <link>https://sushantpoudel2028.com.np/writing/six-numbers-and-the-control</link>
+      <guid isPermaLink="true">https://sushantpoudel2028.com.np/writing/six-numbers-and-the-control</guid>
+      <pubDate>Thu, 24 Sep 2026 09:00:00 +0000</pubDate>
+      <description>I spent a weekend building a selective state-space model — Mamba&#x27;s S6 recurrence — from scratch, to answer a question I actually wanted answered: is the non-attention architecture better, or does it…</description>
+    </item>
+    <item>
       <title>A trust index graded my repos as MCP servers. None of them is one.</title>
       <link>https://sushantpoudel2028.com.np/writing/a-trust-index-that-does-not-check</link>
       <guid isPermaLink="true">https://sushantpoudel2028.com.np/writing/a-trust-index-that-does-not-check</guid>

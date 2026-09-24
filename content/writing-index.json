@@ -1,5 +1,11 @@
 [
   {
+    "slug": "six-numbers-and-the-control",
+    "title": "Six numbers I nearly published, and the control that stopped each one",
+    "date": "2026-09-24",
+    "summary": "I spent a weekend building a selective state-space model — Mamba's S6 recurrence — from scratch, to answer a question I actually wanted answered: is the non-attention architecture better, or does it…"
+  },
+  {
     "slug": "a-trust-index-that-does-not-check",
     "title": "A trust index graded my repos as MCP servers. None of them is one.",
     "date": "2026-09-23",
