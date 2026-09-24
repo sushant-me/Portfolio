@@ -14,6 +14,12 @@ set -e
 here=$(dirname "$0")
 
 if command -v python3 >/dev/null 2>&1; then
+  # Prove the checks fire before trusting them. The failure mode of a guard is
+  # silence, and a guard that has gone quiet is indistinguishable from a clean
+  # tree — so the self-test feeds it the exact defects it exists for (an empty
+  # title, a post with no social card, a card with no post) and requires a hit.
+  # It is a pure function over fixtures, so it costs nothing on every build.
+  python3 "$here/check-posts.py" --self-test >&2
   exec python3 "$here/check-posts.py"
 fi
 
