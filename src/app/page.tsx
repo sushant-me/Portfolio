@@ -246,6 +246,14 @@ const ADVISORIES = [
 
 const PROJECTS = [
   {
+    name: "beyond-attention",
+    tagline: "Mamba's S6 recurrence from scratch, measured honestly",
+    desc: "A selective state-space model implemented from scratch in pure PyTorch. The scan is written three independent ways — a reference loop, a chunked kernel-style path, and an associative Hillis-Steele scan — asserted equal to float64 tolerance on random, degenerate and adversarial inputs, with causality and long-range propagation tested independently because numerical agreement cannot catch either. Mutation-tested: five deliberate breakages each fail a different, specific test. Benchmarked against a parameter-matched Transformer on multi-query associative recall, where the main table says the state-space model wins clearly and the control overturns it. Both are published, in that order, because reporting one of them would be choosing the answer.",
+    tags: ["PyTorch", "State-space models", "Benchmarking", "Reproducibility"],
+    color: "#14b8a6",
+    github: "https://github.com/sushant-me/beyond-attention",
+  },
+  {
     name: "Annapurna Guide",
     tagline: "Final Capstone — Tourism App",
     desc: "A comprehensive digital guide built for navigating and exploring the Annapurna region. Features offline maps, trekking routes, weather integration, and local cultural information. Built as the final capstone submission demonstrating full-stack mobile development expertise.",
