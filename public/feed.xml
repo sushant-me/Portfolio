@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Sushant Poudel — Writing</title>
+    <link>https://sushantpoudel2028.com.np/writing</link>
+    <description>Security research and engineering writeups: what the bug was, how it was found, and what it cost to find out.</description>
+    <language>en</language>
+    <atom:link href="https://sushantpoudel2028.com.np/feed.xml" rel="self" type="application/rss+xml"/>
+    <item>
+      <title>A trust index graded my repos as MCP servers. None of them is one.</title>
+      <link>https://sushantpoudel2028.com.np/writing/a-trust-index-that-does-not-check</link>
+      <guid isPermaLink="true">https://sushantpoudel2028.com.np/writing/a-trust-index-that-does-not-check</guid>
+      <pubDate>Wed, 23 Sep 2026 09:00:00 +0000</pubDate>
+      <description>I got a cold email: an MCP &quot;trust index&quot; had listed one of my repositories, where developers check servers before connecting them. Three free things I could do — claim it, add a badge, connect a…</description>
+    </item>
+    <item>
+      <title>The zero that wasn&#x27;t: how my own adapter made a working tool look broken</title>
+      <link>https://sushantpoudel2028.com.np/writing/the-zero-that-wasnt</link>
+      <guid isPermaLink="true">https://sushantpoudel2028.com.np/writing/the-zero-that-wasnt</guid>
+      <pubDate>Wed, 23 Sep 2026 09:00:00 +0000</pubDate>
+      <description>I spent three passes convinced I had found that an independent MCP scanner detected none of the defects in my corpus. The scanner was working the whole time. The fault was in the twelve lines of glue</description>
+    </item>
+    <item>
+      <title>A benchmark found a bug in my own detector — 0.750 to 1.000</title>
+      <link>https://sushantpoudel2028.com.np/writing/a-benchmark-found-a-bug-in-my-own-detector</link>
+      <guid isPermaLink="true">https://sushantpoudel2028.com.np/writing/a-benchmark-found-a-bug-in-my-own-detector</guid>
+      <pubDate>Mon, 21 Sep 2026 09:00:00 +0000</pubDate>
+      <description>I built a labelled corpus of agent tool-boundary bugs to stop myself making claims about detectors that I had not measured. The first thing it did was find a false positive in my own published…</description>
+    </item>
+    <item>
+      <title>A number nothing recomputes</title>
+      <link>https://sushantpoudel2028.com.np/writing/a-number-nothing-recomputes</link>
+      <guid isPermaLink="true">https://sushantpoudel2028.com.np/writing/a-number-nothing-recomputes</guid>
+      <pubDate>Mon, 21 Sep 2026 09:00:00 +0000</pubDate>
+      <description>Over a few days of work I found ten wrong numbers in things I had already published. Not ten typos — ten distinct facts, each of which had been true when written, on a CV, a profile, a hire page, a…</description>
+    </item>
+    <item>
+      <title>Four checks that ran on data something else had already rewritten</title>
+      <link>https://sushantpoudel2028.com.np/writing/four-checks-that-ran-on-rewritten-data</link>
+      <guid isPermaLink="true">https://sushantpoudel2028.com.np/writing/four-checks-that-ran-on-rewritten-data</guid>
+      <pubDate>Mon, 21 Sep 2026 09:00:00 +0000</pubDate>
+      <description>I spent a day auditing my own security tools and found four vulnerabilities in them. Not four unrelated bugs — four instances of one shape: in every case the check ran against data that something…</description>
+    </item>
+    <item>
+      <title>The check that could not see what it was checking</title>
+      <link>https://sushantpoudel2028.com.np/writing/the-check-that-could-not-see-what-it-was-checking</link>
+      <guid isPermaLink="true">https://sushantpoudel2028.com.np/writing/the-check-that-could-not-see-what-it-was-checking</guid>
+      <pubDate>Mon, 21 Sep 2026 09:00:00 +0000</pubDate>
+      <description>I spent a day auditing my own security tools and found four vulnerabilities. Then I audited the tooling that verifies my work, and found the same defect three more times — including once in a…</description>
+    </item>
+    <item>
+      <title>Structured output made my safety evaluator less safe</title>
+      <link>https://sushantpoudel2028.com.np/writing/structured-output-made-it-less-safe</link>
+      <guid isPermaLink="true">https://sushantpoudel2028.com.np/writing/structured-output-made-it-less-safe</guid>
+      <pubDate>Sun, 20 Sep 2026 09:00:00 +0000</pubDate>
+      <description>I spent a month building a policy evaluator for autonomous agents: a small model that reads a proposal and decides whether a written policy allows it. The obvious engineering move was to constrain…</description>
+    </item>
+    <item>
+      <title>The crash that wasn&#x27;t: how AddressSanitizer showed my fix was for the wrong bug</title>
+      <link>https://sushantpoudel2028.com.np/writing/the-crash-that-wasnt</link>
+      <guid isPermaLink="true">https://sushantpoudel2028.com.np/writing/the-crash-that-wasnt</guid>
+      <pubDate>Sat, 19 Sep 2026 09:00:00 +0000</pubDate>
+      <description>I opened a pull request against google/s2geometry claiming a null-pointer dereference caused a crash. I had a test. The test passed on my machine. It segfaulted in CI on every platform.</description>
+    </item>
+    <item>
+      <title>Null Origin CTF 2026 — Qualifier Writeup</title>
+      <link>https://sushantpoudel2028.com.np/writing/null-origin-ctf-qualifier</link>
+      <guid isPermaLink="true">https://sushantpoudel2028.com.np/writing/null-origin-ctf-qualifier</guid>
+      <pubDate>Fri, 18 Sep 2026 09:00:00 +0000</pubDate>
+      <description>Team: roamers • Event: Null Origin CTF 2026 — Qualifier • Focus: Reverse engineering chain, web, and the methodology that got us there</description>
+    </item>
+  </channel>
+</rss>

@@ -136,6 +136,53 @@ def main() -> int:
                           encoding="utf-8")
     print(f"  index: {index_path.relative_to(REPO)} ({len(index)} entries)")
 
+    # An RSS feed. A blog with no feed cannot be subscribed to, which is the
+    # difference between a reader coming back and a reader who never returns.
+    # Written here rather than by a route handler because the site is a static
+    # export, and here it cannot drift: every sync rewrites it.
+    import html as _html
+    import email.utils as _eu
+
+    def _rfc822(d: str) -> str:
+        try:
+            y, m, day = (int(x) for x in d.split("-"))
+            return _eu.format_datetime(__import__("datetime").datetime(y, m, day, 9, 0, 0,
+                                       tzinfo=__import__("datetime").timezone.utc))
+        except Exception:
+            return _eu.formatdate()
+
+    SITE = "https://sushantpoudel2028.com.np"
+    items = []
+    for entry in index:
+        link = f"{SITE}/writing/{entry['slug']}"
+        items.append(
+            "    <item>\n"
+            f"      <title>{_html.escape(entry['title'])}</title>\n"
+            f"      <link>{link}</link>\n"
+            f"      <guid isPermaLink=\"true\">{link}</guid>\n"
+            f"      <pubDate>{_rfc822(entry['date'])}</pubDate>\n"
+            f"      <description>{_html.escape(entry['summary'])}</description>\n"
+            "    </item>"
+        )
+
+    feed = (
+        '<?xml version="1.0" encoding="UTF-8"?>\n'
+        '<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">\n'
+        "  <channel>\n"
+        "    <title>Sushant Poudel — Writing</title>\n"
+        f"    <link>{SITE}/writing</link>\n"
+        "    <description>Security research and engineering writeups: what the bug was, "
+        "how it was found, and what it cost to find out.</description>\n"
+        "    <language>en</language>\n"
+        f'    <atom:link href="{SITE}/feed.xml" rel="self" type="application/rss+xml"/>\n'
+        + "\n".join(items) + "\n"
+        "  </channel>\n"
+        "</rss>\n"
+    )
+    feed_path = REPO / "public" / "feed.xml"
+    feed_path.write_text(feed, encoding="utf-8")
+    print(f"  feed:  {feed_path.relative_to(REPO)} ({len(index)} items)")
+
     print(f"\n{len(posts)} post(s) synced into {OUT.relative_to(REPO)}")
     return 0
 

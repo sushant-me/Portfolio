@@ -18,6 +18,13 @@ const DESCRIPTION =
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE),
+  // So browsers, feed readers and crawlers can find the feed. Without the
+  // declaration the file exists but nothing advertises it.
+  alternates: {
+    types: {
+      "application/rss+xml": [{ url: "/feed.xml", title: "Sushant Poudel — Writing" }],
+    },
+  },
   title: "Sushant Poudel — AI | Security | Engineering",
   description: DESCRIPTION,
   // Small derivatives: the source photo is 7 MB, which as a favicon is a
