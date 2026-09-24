@@ -162,3 +162,42 @@ rendered from a committed results file by a script, so re-running the experiment
 and the renderer reproduces them — and the results file has a `--verify` mode that
 re-runs and diffs every number against what is committed, because it went stale
 once and nothing noticed.
+
+
+## Correction, added after this was published
+
+A later measurement weakened the framing above, so it is corrected here rather
+than left standing.
+
+This post says the gate learned the addressing but "did not learn the hardness at
+all", and that "a temperature chosen at evaluation supplies the hardness gradient
+descent did not". **The second half of that is too strong.**
+
+Evaluating the *hard* gate (`w > 0.5`) at the same trained parameters the soft
+gate uses gives a loss of **0.00** — an exactly correct state. And the committed
+results already said so: the soft-trained gate's **rounded** gate equals the
+hand-set one-hot on **1.0 of events**. The discrete decision gradient descent
+learned is not merely close to right; it is exactly right, everywhere.
+
+So the 0.420 does not come from wrong addressing. It comes from using **soft
+values as write weights** — a 0.9 write into a slot is not a 1.0 write, and under
+`exp(-800·w)` it corrupts the slots that were meant to hold. The miscalibration
+is in the *values*, not in the decision.
+
+Which means hardening is a **no-op on the discrete answer**. A 0.5 threshold or a
+temperature of 0.05 recovers 1.000 because the rounding was never in question, not
+because either one supplied something gradient descent missed. The honest
+statement is narrower and less interesting than the title: *the soft values are
+miscalibrated; the addressing — and therefore the gate — is already correct.*
+
+I also tried the obvious fix for a soft gate, a straight-through hard forward
+pass, and it is worse: **0.160** against the soft gate's 0.420, converging to an
+all-ones gate that writes to every slot on all five seeds. It fails from scratch
+because a hard forward pass yields no gradient until the threshold is
+approximately right — and, given the paragraph above, it has nothing to add even
+when it works.
+
+Four explanations were tried and discarded before this one, each refuted by adding
+a control to the previous claim rather than by reasoning harder about it. The one
+that held came from evaluating both paths at the same parameters, which is the
+comparison I should have run first.
