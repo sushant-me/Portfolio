@@ -44,7 +44,7 @@ const SECTIONS = [
 const STATS = [
   { value: 1, suffix: "", label: "Security patch merged into google/go-github" },
   { value: 5, suffix: "", label: "Memory-safety issues filed in google/s2geometry" },
-  { value: 133, suffix: "", label: "Flags on the HackingHub Q3 2026 board — rank #1" },
+  { value: 142, suffix: "", label: "Flags on the HackingHub Q3 2026 board — rank #1" },
   { value: 2, suffix: "", label: "IEEE papers accepted" },
   { value: 2, suffix: "", label: "Years as a full-time AI engineer" },
   { value: 3, suffix: "", label: "Security tools released and CI-tested" },
@@ -983,7 +983,7 @@ function PortfolioBody() {
                   AI security engineer working on the failure mode where an autonomous agent does something a human would have blocked.
                   A patch of mine is merged into google/go-github; five memory-safety issues I filed against google/s2geometry are open, including a 2.4 GiB allocation reachable from a 28-byte input, with standalone reproducers for each.
                   Two IEEE papers accepted — one on local policy verification for agents, one on predictive bandwidth scaling for WebRTC over LEO satellite links.
-                  Ranked #1 on the HackingHub Q3 2026 global leaderboard (133 flags, 13,625 XP).
+                  Ranked #1 on the HackingHub Q3 2026 global leaderboard (142 flags, 14,525 XP).
                   Two years as a full-time AI engineer at Atmos SoftTech, building production ML systems, full-stack products and offline-first agent pipelines.
                 </p>
                 <p className="summary-text" style={{ marginTop: 12 }}>
@@ -997,7 +997,7 @@ function PortfolioBody() {
               <div className="honors-grid stagger">
                 {[
                   { title: "A maintainer independently reproduced a finding of mine before accepting it", desc: "Auditing six AI-action rules in sisaku-security/sisakulint surfaced defects in five. Instead of taking the premise on trust, maintainer on-keyday built both revisions of the rule and ran them over the same inputs, then wrote \"the gap is real and the direction you took to it is a reasonable one\" and filed three tracked issues from the audit. The pull request was closed for review capacity, not for being wrong. The quotation is machine-checked in my reputation repository — edit that comment and the claim goes red." },
-                  { title: "Rank #1 — HackingHub Q3 2026 global leaderboard", desc: "133 flags and 13,625 XP, with 2 silver and 1 bronze award; the next-ranked account holds 97 flags. Public leaderboard API." },
+                  { title: "Rank #1 — HackingHub Q3 2026 global leaderboard", desc: "142 flags and 14,525 XP, with 2 silver and 1 bronze award; the next-ranked account holds 97 flags. Public leaderboard API." },
                   { title: "Security patch authored, merged, then generalised into google/go-github", desc: "My PR #4556 stopped a release-asset upload being sent to an off-host URL. The maintainer merged it, then replaced it the next day with the broader PR #4564 — \"credentials are sent only to configured origins\" — which is what master implements today and which carries the commit \"Address feedback from sushant-me\". My name is in the project's AUTHORS file on master." },
                   { title: "Five memory-safety issues in google/s2geometry", desc: "A NULL dereference on the library's documented traversal path, an out-of-bounds read, a 16 GiB allocation from a 117-byte input, and a 2.4 GiB allocation reachable from a 28-byte input. Two hardening pull requests are under review by the maintainer. The maintainer's reply to these, quoted rather than paraphrased: \"It's not really a DoS since these are assumed to only operate on trusted data. We should document the assumptions better.\" — a disagreement about severity and threat model, not about whether the reads are out of bounds." },
                   { title: "An OSS-Fuzz harness that was testing nothing", desc: "google/libphonenumber's as-you-type formatter asserted 0.00% line coverage of the code it targeted because it never generated valid input; the corrected harness reaches 93%." },
