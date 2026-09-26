@@ -22,7 +22,9 @@ type MediaFile = {
   url: string;
 };
 
-const TOKEN_KEY = "portfolio-admin-token";
+// The localStorage slot the admin token is kept in on this device. It is a
+// storage key, not a credential: the token itself is typed in and never shipped.
+const STORAGE_KEY = "portfolio-admin-token";
 
 function humanSize(bytes: number) {
   if (!bytes) return "0 B";
@@ -48,7 +50,7 @@ export default function AdminPage() {
 
   useEffect(() => {
     try {
-      setToken(window.localStorage.getItem(TOKEN_KEY) || "");
+      setToken(window.localStorage.getItem(STORAGE_KEY) || "");
     } catch {
       /* storage blocked: the field just starts empty */
     }
@@ -87,7 +89,7 @@ export default function AdminPage() {
 
   const saveToken = useCallback(() => {
     try {
-      window.localStorage.setItem(TOKEN_KEY, token);
+      window.localStorage.setItem(STORAGE_KEY, token);
     } catch {
       /* not fatal: uploads still work for this session */
     }
