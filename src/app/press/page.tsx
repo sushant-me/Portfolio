@@ -134,17 +134,23 @@ export default function PressPage() {
           team should inspect in an MCP server before connecting it.
         </p>
         <p>
-          He reports negative results as readily as positive ones. His published evaluation found
-          that constraining a model&rsquo;s output to JSON &mdash; without requiring it to state
-          its reasoning first &mdash; made the safety check less safe, and that even the best
-          configuration still approved a small number of irreversible actions. The repository
-          ships its corpus, all raw model outputs and a checker that re-derives every number from
-          them, so a reader can reach the same conclusion independently.
+          He reports negative results as readily as positive ones. His evaluation &mdash; accepted,
+          camera-ready in progress &mdash; found that constraining a model&rsquo;s output to JSON,
+          without requiring it to state its reasoning first, made the safety check less safe: the
+          constrained version approved 46.2% of the 600 proposals it was shown, against 17.2% for
+          plain text. Requiring the reasoning made it the most accurate configuration and much the
+          best on actions that cannot be undone, and it still scored worse than plain text on that
+          broad measure. The repository ships its corpus, the raw model outputs and a checker that
+          re-derives the reported figures from them &mdash; every one except a single declared
+          recorded constant, which the checker names &mdash; so a reader can reach the same
+          conclusion independently.
         </p>
         <p>
           He has reported memory-safety defects in widely used libraries and defects in agent
-          toolkits, and he maintains a public repository in which every claim he makes about his
-          own work carries the source it came from and is re-checked automatically.
+          toolkits, and he maintains a public repository in which each claim it covers carries the
+          public source it came from and is re-checked automatically. Coverage is stated rather than
+          implied: the ledger currently holds 23 claims and does not yet extend to every manuscript
+          on this site.
         </p>
 
         <h2>Topics he can write about or comment on</h2>

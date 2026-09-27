@@ -64,6 +64,20 @@ export async function generateMetadata({
   };
 }
 
+// The abstract is the paper's own text, reproduced verbatim, so ambiguity or a contradiction with
+// the artifacts is corrected here rather than by editing the paper's words on a web page. Each note
+// exists because a reader checking the figures would otherwise reach a conclusion the data do not
+// support — the same failure the reproducibility checker exists to catch, one level up.
+const NUMBER_NOTES: Record<string, string[]> = {
+  "agentic-verification": [
+    "The 46.2% and 17.2% are rates over all 600 scenarios the evaluator was shown, not over the subset the policy blocks or escalates. Of those 600, the JSON-only arm approved 277 and free-form approved 103. Restricted to the 449 scenarios whose ground truth is block-or-escalate, the rates are 61.7% and 22.9%.",
+    "The proposed schema is the most accurate arm, but it is not the safest on the abstract's headline measure. Free-form scored 17.2% unsafe accepts against the schema's 23.5%, and 64.5% decision accuracy against 66.3% — a 1.8-point gain whose confidence intervals overlap (free-form 60.6–68.2, schema 62.4–69.9). Where it does win is the irreversible class: 6 of 208 hard denials, against 11 for free-form and 71 for JSON-only.",
+    "The repository holds 3,000 generations, not 1,800. The abstract describes the paper's three-condition comparison; the committed results also include a fourth condition, cot_av (600), and a 200-scenario replication of three conditions (600). The fourth condition reaches 96.0% rule attribution against the proposed arm's 86.5% and matches it on hard denials, which is why it is reported rather than dropped.",
+    "One figure in the abstract is not checker-derived. Peak VRAM is a declared recorded constant rather than a value computed from the raw outputs, and the abstract states 3.95 GiB while the measurement file records 3,947 MiB (3.85 GiB). The repository flags the unit question as unresolved; it is recorded here rather than quietly reconciled.",
+    "Status: accepted, camera-ready in progress. The paper's acceptance is not independently checkable from a public source — the reproducibility record for it verifies that a public repository exists, which is a different claim.",
+  ],
+};
+
 const ARTIFACT_TEXT: Record<string, string> = {
   "public-reproducible":
     "Public and reproducible. The code, the 600-scenario corpus and all 3,000 raw model generations are in the repository, and its own checker re-derives every number in the abstract from them — the corpus regenerating byte-for-byte and the metrics recomputing from the committed generations.",
@@ -115,6 +129,20 @@ export default async function Paper({ params }: { params: Promise<{ slug: string
           <>
             <div className="abstract-label">Abstract</div>
             <p className="abstract">{p.abstract}</p>
+          </>
+        )}
+
+        {/* The abstract is the paper's own text and is reproduced verbatim, so where it is
+            ambiguous or contradicts the artifacts, the correction goes here rather than in it.
+            An editor who checks a number should be able to see how the number was measured. */}
+        {NUMBER_NOTES[slug] && (
+          <>
+            <div className="abstract-label">How to read these numbers</div>
+            <ul className="number-notes">
+              {NUMBER_NOTES[slug].map((note) => (
+                <li key={note}>{note}</li>
+              ))}
+            </ul>
           </>
         )}
 
