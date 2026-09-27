@@ -38,6 +38,15 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: "monthly",
       priority: 0.8,
     },
+    {
+      // The page an editor or journalist should land on: bio, headshot, topics and checkable
+      // work in one URL. Ranked above an individual paper because it is the entry point for
+      // commissioning rather than a destination for readers.
+      url: `${BASE}/press`,
+      lastModified: new Date(),
+      changeFrequency: "monthly",
+      priority: 0.9,
+    },
     ...PAPERS.map((p) => ({
       url: `${BASE}/publications/${p.slug}`,
       lastModified: new Date(),
