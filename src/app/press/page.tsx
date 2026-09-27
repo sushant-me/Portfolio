@@ -65,7 +65,7 @@ const WORK: { name: string; url: string; what: string }[] = [
     name: "Edge-Native Semantic Firewall",
     url: "https://github.com/sushant-me/Edge-Native_Semantic_Firewall_",
     what:
-      "A 600-scenario evaluation of structured Chain-of-Thought policy verification on a 3.8B model running locally. Code, corpus and all 1,800 raw model generations are public, and a checker re-derives every reported number from them in under a second with no GPU.",
+      "A 600-scenario evaluation of structured Chain-of-Thought policy verification on a 3.8B model running locally. Code, corpus and all 3,000 raw model generations are public, and a checker re-derives every reported number from them in under a second with no GPU.",
   },
   {
     name: "mcp-nameguard",
