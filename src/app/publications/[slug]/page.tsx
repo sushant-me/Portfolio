@@ -76,6 +76,16 @@ const NUMBER_NOTES: Record<string, string[]> = {
     "One figure in the abstract is not checker-derived. Peak VRAM is a declared recorded constant rather than a value computed from the raw outputs, and the abstract states 3.95 GiB while the measurement file records 3,947 MiB (3.85 GiB). The repository flags the unit question as unresolved; it is recorded here rather than quietly reconciled.",
     "Status: accepted, camera-ready in progress. The paper's acceptance is not independently checkable from a public source — the reproducibility record for it verifies that a public repository exists, which is a different claim.",
   ],
+  prebas: [
+    "Status: accepted for the 2026 IEEE RTC in Chicago. The acceptance rests on the organiser's notification, which is available on request; the submission portal row is not a public URL, so it cannot be checked from this page.",
+    "No artifact was released. The paper reports measurements but its code, data and raw outputs are not public, so nothing on it can be independently reproduced — which is what the Artifact label below means, not a judgement about the work.",
+  ],
+};
+
+// The notes are corrections to how a page should be read, which is not always about numbers.
+const NOTE_LABEL: Record<string, string> = {
+  "agentic-verification": "How to read these numbers",
+  prebas: "Before you cite this",
 };
 
 const ARTIFACT_TEXT: Record<string, string> = {
@@ -137,7 +147,7 @@ export default async function Paper({ params }: { params: Promise<{ slug: string
             An editor who checks a number should be able to see how the number was measured. */}
         {NUMBER_NOTES[slug] && (
           <>
-            <div className="abstract-label">How to read these numbers</div>
+            <div className="abstract-label">{NOTE_LABEL[slug] ?? "How to read this page"}</div>
             <ul className="number-notes">
               {NUMBER_NOTES[slug].map((note) => (
                 <li key={note}>{note}</li>

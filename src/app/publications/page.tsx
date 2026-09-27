@@ -81,8 +81,14 @@ export default function PublicationsIndex() {
           byline says so. PDFs are the authors&rsquo; own copies hosted here so that each paper has a
           stable URL that can be cited. &ldquo;Artifact&rdquo; says what you can check for yourself:
           one paper ships its code, corpus and raw model outputs and re-derives its own numbers in
-          CI; the rest report measurements without a released artifact, and are labelled that way
-          rather than presented as if they were reproducible.
+          CI. Of the others, several report measurements with no released artifact and several assert
+          no experiment at all &mdash; architecture and feasibility work &mdash; and each page says
+          which it is rather than presenting either as reproducible.
+        </p>
+        <p className="footnote">
+          Acceptance status is the author&rsquo;s own claim and is not independently checkable from a
+          public source. Where it rests on a notification rather than a public record, the paper&rsquo;s
+          page says so.
         </p>
       </div>
     </main>
