@@ -92,7 +92,7 @@ const ARTIFACT_TEXT: Record<string, string> = {
   "public-reproducible":
     "Public and reproducible. The code, the 600-scenario corpus and all 3,000 raw model generations are in the repository, and its own checker re-derives every number in the abstract from them — the corpus regenerating byte-for-byte and the metrics recomputing from the committed generations.",
   "not-released":
-    "No artifact released. This paper reports measurements, but its code, corpus and raw outputs are not public, so the numbers above cannot be independently checked. Written as a manuscript; treat the results as unreproduced.",
+    "No artifact released. This paper reports measurements, but its code, corpus and raw outputs are not public, so the numbers above cannot be independently checked. Treat the results as unreproduced.",
   "not-empirical":
     "No experiment asserted. This is architecture, feasibility or position work, so there is no measurement to reproduce and no artifact owed.",
 };
