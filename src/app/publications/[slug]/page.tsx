@@ -78,6 +78,7 @@ const NUMBER_NOTES: Record<string, string[]> = {
   ],
   prebas: [
     "Status: accepted for the 2026 IEEE RTC in Chicago. The acceptance rests on the organiser's notification, which is available on request; the submission portal row is not a public URL, so it cannot be checked from this page.",
+    "Accepted is the claim this page supports — not published. The RTC research track is published in IEEE Xplore, but this paper appears in neither IEEE Xplore nor Crossref as of 28 September 2026. The conference was held 22–23 September 2026 and proceedings normally follow by weeks or months, and inclusion depended on author registration, which was not completed: the associated mailbox holds only registration reminders, with no registration or payment confirmation. Treat any description of this paper as already in IEEE Xplore as premature.",
     "No artifact was released. The paper reports measurements but its code, data and raw outputs are not public, so nothing on it can be independently reproduced — which is what the Artifact label below means, not a judgement about the work.",
   ],
 };

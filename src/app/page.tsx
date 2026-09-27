@@ -45,7 +45,7 @@ const STATS = [
   { value: 1, suffix: "", label: "Security patch merged into google/go-github" },
   { value: 5, suffix: "", label: "Memory-safety issues filed in google/s2geometry" },
   { value: 177, suffix: "", label: "Flags on the HackingHub Q3 2026 board — rank #1" },
-  { value: 2, suffix: "", label: "Papers accepted, one in IEEE Xplore" },
+  { value: 2, suffix: "", label: "Papers accepted, one at an IEEE conference" },
   { value: 2, suffix: "", label: "Years as a full-time AI engineer" },
   { value: 6, suffix: "", label: "Security tools released and CI-tested" },
 ];
