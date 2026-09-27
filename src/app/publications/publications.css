@@ -73,6 +73,22 @@
 .pub-venue .tag.accepted { border-color: rgba(74, 222, 128, 0.4); color: #86efac; }
 .pub-venue .tag.presented { border-color: rgba(96, 165, 250, 0.4); color: #93c5fd; }
 
+/* What a reader can actually check. Muted on purpose: it is a disclosure, not a badge. */
+.pub-artifact {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 11px;
+  letter-spacing: 0.02em;
+  color: #5d667d;
+  margin-top: 5px;
+}
+
+.artifact-note {
+  color: #a7b0c2;
+  font-size: 13.5px;
+  line-height: 1.75;
+  margin: 4px 0 0;
+}
+
 /* ── a single paper ── */
 
 .paper h1 { font-size: 27px; line-height: 1.3; margin-bottom: 14px; }
