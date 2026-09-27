@@ -45,7 +45,7 @@ const STATS = [
   { value: 1, suffix: "", label: "Security patch merged into google/go-github" },
   { value: 5, suffix: "", label: "Memory-safety issues filed in google/s2geometry" },
   { value: 177, suffix: "", label: "Flags on the HackingHub Q3 2026 board — rank #1" },
-  { value: 2, suffix: "", label: "IEEE papers accepted" },
+  { value: 2, suffix: "", label: "Papers accepted, one in IEEE Xplore" },
   { value: 2, suffix: "", label: "Years as a full-time AI engineer" },
   { value: 3, suffix: "", label: "Security tools released and CI-tested" },
 ];
@@ -123,9 +123,9 @@ const RESEARCH: Research[] = [
   },
   {
     title: "Edge-Native Semantic Firewall for Autonomous LLM Agents",
-    venue: "IEEE — accepted, camera-ready in progress, to be presented at NCIT",
+    venue: "ICICSET 2026 — accepted with revision, camera-ready in progress",
     venueType: "conference",
-    desc: "Accepted. A structured Chain-of-Thought verification framework that asks whether a small, locally served model can enforce policy for an agent that executes actions rather than proposing them. 600 policy scenarios per condition on Phi-3-mini (3.8B, 4-bit) on one consumer laptop inside a 4.2 GiB VRAM budget, with no cloud inference. The result contradicted our hypothesis: constraining output to JSON without a reasoning field was the least safe of the three arms (46.2% unsafe accepts versus 17.2% unconstrained), while a mandated reasoning field cut false accepts of irreversible hard-denial commands from 71 to 6. The residual failures are reported rather than rounded away.",
+    desc: "Accepted. A structured Chain-of-Thought verification framework that asks whether a small, locally served model can enforce policy for an agent that executes actions rather than proposing them. 600 policy scenarios per condition on Phi-3-mini (3.8B, 4-bit) on one consumer laptop inside a 4.2 GiB VRAM budget, with no cloud inference. The result contradicted our hypothesis: constraining output to JSON without a reasoning field was the least safe of the four arms — it approved 46.2% of the 600 proposals it was shown, against 17.2% for unconstrained text, while a mandated reasoning field cut false accepts of irreversible hard-denial commands from 71 to 6. The residual failures are reported rather than rounded away.",
     tags: ["AI security", "Agent safety", "Local inference", "Evaluation"],
     color: "#3b82f6",
     file: "https://github.com/sushant-me/Edge-Native_Semantic_Firewall_",
@@ -982,7 +982,7 @@ function PortfolioBody() {
                 <p className="summary-text">
                   AI security engineer working on the failure mode where an autonomous agent does something a human would have blocked.
                   A patch of mine is merged into google/go-github; five memory-safety issues I filed against google/s2geometry are open, including a 2.4 GiB allocation reachable from a 28-byte input, with standalone reproducers for each.
-                  Two IEEE papers accepted — one on local policy verification for agents, one on predictive bandwidth scaling for WebRTC over LEO satellite links.
+                  Two papers accepted — one on local policy verification for agents (ICICSET 2026), one on predictive bandwidth scaling for WebRTC over LEO satellite links (IEEE RTC 2026, whose research track is published in IEEE Xplore).
                   Ranked #1 on the HackingHub Q3 2026 global leaderboard (177 flags, 18,125 XP).
                   Two years as a full-time AI engineer at Atmos SoftTech, building production ML systems, full-stack products and offline-first agent pipelines.
                 </p>
