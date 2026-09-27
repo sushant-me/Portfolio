@@ -103,12 +103,28 @@ function bibtexKey(title: string, authors: string[]) {
   return `${first}${new Date().getFullYear()}${word.toLowerCase()}`;
 }
 
+// Two papers generated the same citation key, because both titles open with the same word and both
+// credit the same first author. A duplicated key makes one of them uncitable and silently
+// overwrites the other in any tool that imports both, so uniqueness is enforced here rather than
+// left to chance. The base key is kept wherever it is already unique.
+const BASE_KEYS = PAPERS.map((x) => bibtexKey(x.title, x.authors));
+const KEY_COUNTS = BASE_KEYS.reduce<Record<string, number>>((acc, key) => {
+  acc[key] = (acc[key] ?? 0) + 1;
+  return acc;
+}, {});
+
+function uniqueKey(paper: { slug: string; title: string; authors: string[] }) {
+  const base = bibtexKey(paper.title, paper.authors);
+  if ((KEY_COUNTS[base] ?? 0) < 2) return base;
+  return `${base}${paper.slug.split("-").pop()!.replace(/[^a-z0-9]/gi, "")}`;
+}
+
 export default async function Paper({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const p = PAPERS.find((x) => x.slug === slug);
   if (!p) notFound();
 
-  const bib = `@misc{${bibtexKey(p.title, p.authors)},
+  const bib = `@misc{${uniqueKey(p)},
   title  = {${p.title}},
   author = {${p.authors.join(" and ")}},
   year   = {2026},
@@ -127,9 +143,11 @@ export default async function Paper({ params }: { params: Promise<{ slug: string
             crawler uses to identify a paper's title and byline. */}
         <h1>{p.title}</h1>
         <div className="pub-authors">{p.authors.join(" · ")}</div>
-        <div className="affil">
-          Dept. of Computer Science and Engineering, Nepal Engineering College, Bhaktapur, Nepal
-        </div>
+        {(p.affiliation ?? "Dept. of Computer Science and Engineering, Nepal Engineering College, Bhaktapur, Nepal") && (
+          <div className="affil">
+            {p.affiliation ?? "Dept. of Computer Science and Engineering, Nepal Engineering College, Bhaktapur, Nepal"}
+          </div>
+        )}
         <div className="pub-venue">
           <span className={`tag ${p.status}`}>{p.status}</span>
           {p.venue}

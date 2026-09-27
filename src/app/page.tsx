@@ -1021,7 +1021,7 @@ function PortfolioBody() {
             </Section>
 
             {/* RESEARCH */}
-            <Section id="research" kicker="Peer-reviewed work, accepted and in review">
+            <Section id="research" kicker="Accepted papers, and work still in draft">
               <div className="research-grid stagger">
                 {RESEARCH.map((r, i) => (
                   <ResearchCard key={i} item={r} />

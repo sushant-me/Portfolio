@@ -35,6 +35,10 @@ export type Paper = {
   pdf: string;
   repo: string;
   artifact: "public-reproducible" | "not-released" | "not-empirical";
+  // Printed affiliation for this paper. Omitted means the CSE department, which is what the
+  // roster says for most of them. hcg's byline names Computer Engineering instead, and
+  // embodiedos's report names no institution at all - asserting one for it was inventing a fact.
+  affiliation?: string;
 };
 
 export const PAPERS: Paper[] = [
@@ -70,6 +74,7 @@ export const PAPERS: Paper[] = [
     pdf: "/papers/hcg.pdf",
     repo: "",
     artifact: "not-released",
+    affiliation: "Department of Computer Engineering, Nepal Engineering College, Bhaktapur, Nepal",
   },
 {
     slug: "okf-dfir",
@@ -125,6 +130,7 @@ export const PAPERS: Paper[] = [
     pdf: "/papers/embodiedos.pdf",
     repo: "",
     artifact: "not-released",
+    affiliation: "",
   },
 {
     slug: "data-center",
