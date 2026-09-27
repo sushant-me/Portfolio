@@ -47,7 +47,7 @@ const STATS = [
   { value: 177, suffix: "", label: "Flags on the HackingHub Q3 2026 board — rank #1" },
   { value: 2, suffix: "", label: "Papers accepted, one in IEEE Xplore" },
   { value: 2, suffix: "", label: "Years as a full-time AI engineer" },
-  { value: 3, suffix: "", label: "Security tools released and CI-tested" },
+  { value: 6, suffix: "", label: "Security tools released and CI-tested" },
 ];
 
 
