@@ -86,6 +86,23 @@ const NUMBER_NOTES: Record<string, string[]> = {
 const NOTE_LABEL: Record<string, string> = {
   "agentic-verification": "How to read these numbers",
   prebas: "Before you cite this",
+  "leo-d2d": "Before you cite this",
+  swayam: "Before you cite this",
+};
+
+// Status claims that are not checkable from a public source, recorded on the page rather than left
+// for a reader to discover. Both of these carry a "presented" badge with nothing behind it in the
+// claim ledger, which is exactly the kind of status this site says elsewhere it does not present
+// as fact.
+const STATUS_DISCLOSURES: Record<string, string[]> = {
+  "leo-d2d": [
+    "Status: presented at Space Con 2026. That status is the author's own claim — it has no public record and no entry in the claim ledger, so it cannot be checked from this page.",
+    "The premise that more than 40 percent of Nepal's land sits above 3,000 metres carries no citation in the paper. It is stated here as the paper states it; it was not independently verified.",
+  ],
+  swayam: [
+    "Status: presented at the Municipal AI Governance Conference 2026, Budhanilkantha Municipality. As with the other presented papers here, that status is the author's own claim and has no public record behind it.",
+    "The Gatekeeper figures are a benchmark on the authors' own corpus, not a field deployment. The paper itself states that absolute invulnerability is not claimed.",
+  ],
 };
 
 const ARTIFACT_TEXT: Record<string, string> = {
@@ -163,11 +180,11 @@ export default async function Paper({ params }: { params: Promise<{ slug: string
         {/* The abstract is the paper's own text and is reproduced verbatim, so where it is
             ambiguous or contradicts the artifacts, the correction goes here rather than in it.
             An editor who checks a number should be able to see how the number was measured. */}
-        {NUMBER_NOTES[slug] && (
+        {(NUMBER_NOTES[slug] || STATUS_DISCLOSURES[slug]) && (
           <>
             <div className="abstract-label">{NOTE_LABEL[slug] ?? "How to read this page"}</div>
             <ul className="number-notes">
-              {NUMBER_NOTES[slug].map((note) => (
+              {[...(NUMBER_NOTES[slug] ?? []), ...(STATUS_DISCLOSURES[slug] ?? [])].map((note) => (
                 <li key={note}>{note}</li>
               ))}
             </ul>
