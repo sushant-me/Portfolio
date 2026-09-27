@@ -64,9 +64,10 @@ export default async function Post({ params }: { params: Promise<{ slug: string 
           <p className="post-source">
             The canonical copy of this post lives in the{" "}
             <a href="https://github.com/sushant-me/writeups">writeups repository</a> —{" "}
-            <a href={post.source}>view the source of this one</a>. Every factual claim I make
-            about my own work is re-checked weekly against its public source by{" "}
-            <a href="https://github.com/sushant-me/reputation">reputation</a>.
+            <a href={post.source}>view the source of this one</a>. Claims about my own work that
+            the ledger covers are re-checked weekly against their public source by{" "}
+            <a href="https://github.com/sushant-me/reputation">reputation</a> — 23 claims today, 19
+            checked live, and it does not yet extend to every page on this site.
           </p>
         )}
         {/* BlogPosting schema. The site-wide blocks describe the person; without

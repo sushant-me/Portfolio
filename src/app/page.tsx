@@ -987,7 +987,7 @@ function PortfolioBody() {
                   Two years as a full-time AI engineer at Atmos SoftTech, building production ML systems, full-stack products and offline-first agent pipelines.
                 </p>
                 <p className="summary-text" style={{ marginTop: 12 }}>
-                  I would rather be checked than believed: every claim on this page is re-checked weekly against its public source by a script anyone can run —{" "}
+                  I would rather be checked than believed: the claims about my own technical work that the ledger covers are re-checked weekly against their public source by a script anyone can run —{" "}
                   <a href="https://github.com/sushant-me/reputation" target="_blank" rel="noopener noreferrer" style={{ color: "#3b82f6" }}>
                     github.com/sushant-me/reputation
                   </a>.

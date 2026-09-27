@@ -171,11 +171,12 @@ export default async function Paper({ params }: { params: Promise<{ slug: string
         <pre className="bibtex">{bib}</pre>
 
         <p className="footnote">
-          Every factual claim Sushant makes about his own work is re-checked weekly against its
+          Claims about his own work that the ledger covers are re-checked weekly against their
           public source by{" "}
-          <a href="https://github.com/sushant-me/reputation">sushant-me/reputation</a>. The
-          reproducibility note above is part of that record: where no artifact exists, the page
-          says so instead of implying one.
+          <a href="https://github.com/sushant-me/reputation">sushant-me/reputation</a> — 23 claims
+          today, 19 checked live. Coverage is stated rather than implied: it does not yet extend to
+          every manuscript listed here. The reproducibility note above is part of that record: where
+          no artifact exists, the page says so instead of implying one.
         </p>
       </div>
     </main>
