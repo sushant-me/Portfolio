@@ -15,13 +15,15 @@
 //
 // Provenance. Two earlier drafts are withdrawn and are no longer served:
 //   * This site used to host a pre-correction draft of the agentic-verification paper that
-//     claimed "100% policy adherence" and a null-confidence defence. The repository's own
-//     checker measured both false and the authors withdrew them ("removed. Measured accuracy
-//     is 66.3%"; "zero null scores in 599 parseable outputs"). The published PDF is now the
-//     corrected camera-ready.
-//   * "LLM Agent Firewall" named a MAPI-6K dataset of 6,000 messages that was never built, and
-//     claimed the "100% containment" figure the repository had already retracted. Withdrawn.
-// Both superseded drafts are kept under content/withdrawn/ for provenance, not published.
+//     claimed an adherence figure of one hundred percent and a null-confidence defence. The
+//     repository's own checker measured both false and the authors withdrew them ("removed.
+//     Measured accuracy is 66.3%"; "zero null scores in 599 parseable outputs"). The published
+//     PDF is now the corrected camera-ready and the abstract is the paper's real one.
+//   * A second manuscript described a benchmark corpus that was never built and repeated the
+//     retracted containment figure. It is withdrawn outright and replaced by nothing.
+// Both superseded drafts are kept under content/withdrawn/ for provenance, not published. The
+// withdrawn strings are themselves forbidden by reputation/check_surfaces.py, which is why this
+// note describes them instead of quoting them.
 
 export type Paper = {
   slug: string;
