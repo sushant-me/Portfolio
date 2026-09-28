@@ -106,10 +106,10 @@ demonstrated it without the sanitizer.
   with you — before.
 - **A test that passes without a sanitizer is evidence about this machine, not about the code.** Treat
   a green local run of a crash test as unverified.
-- **"It exercises the code" is a claim that needs checking.** The same week I found an OSS-Fuzz harness
-  in another Google library that asserted **0.00% line coverage** of the function it targeted, because
-  it never generated a valid input at all. It ran, it passed, it tested nothing. Coverage is how you
-  tell the difference between a test and decoration.
+- **"It exercises the code" is a claim that needs checking.** Coverage is how you tell the difference
+  between a test and decoration: a target can compile, run, and still never reach the function it was
+  written for, and only the coverage report shows you which of the two you actually have. Read it
+  before you cite the test as evidence.
 - **When a reviewer says a fix "covers up" a problem, they are usually pointing at the symptom/fix
   mismatch.** Go and measure which problem you actually fixed; that is a five-minute experiment and it
   is decisive either way.

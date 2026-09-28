@@ -85,6 +85,12 @@ What makes this the strongest instance is how it was found. I fixed the parser a
 PASS  results/metrics.json reproduces from the raw outputs (5 conditions)
 ```
 
+> **Corrected 28 September 2026.** That label was wrong when it printed. The check counted every
+> top-level key in `metrics.json`, which includes `_replication` — bookkeeping about the run, not a
+> fifth way of asking the model. The study has **four** conditions (naive, zeroshot, cot, `cot_av`)
+> plus a 200-scenario replication of three of them. The transcript is left as it printed; the checker
+> now says `(4 conditions plus a replication block)`.
+
 Of course it did. That check re-runs `analyze.py` over `results/*.jsonl` — and `analyze.py` reads
 the **decision field already stored in those files**. It verifies the derivation *from parsed
 decisions* and never the parsing that produced them. The artifact whose entire stated purpose is
