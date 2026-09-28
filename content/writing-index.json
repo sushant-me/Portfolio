@@ -6,6 +6,12 @@
     "summary": "A week ago I wrote about a labelled corpus that found a false positive in my own scanner and took its precision from 0.750 to 1.000. That number was true, and it was also misleading, because I wrote…"
   },
   {
+    "slug": "nineteen-findings-four-wrong-four-ways",
+    "title": "Nineteen findings, four of them wrong, four different ways",
+    "date": "2026-09-28",
+    "summary": "I took the static detector I have been building for agent tool-boundary bugs and pointed it at 14 real agent frameworks — codebases written by other people, for other reasons, with no idea a detector"
+  },
+  {
     "slug": "two-true-facts-and-a-loopback-bypass",
     "title": "Two true facts I did not join up: an IPv6 loopback bypass in SunshineCTF's SiteCheck",
     "date": "2026-09-28",

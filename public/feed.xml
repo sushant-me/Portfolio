@@ -14,6 +14,13 @@
       <description>A week ago I wrote about a labelled corpus that found a false positive in my own scanner and took its precision from 0.750 to 1.000. That number was true, and it was also misleading, because I wrote…</description>
     </item>
     <item>
+      <title>Nineteen findings, four of them wrong, four different ways</title>
+      <link>https://sushantpoudel2028.com.np/writing/nineteen-findings-four-wrong-four-ways</link>
+      <guid isPermaLink="true">https://sushantpoudel2028.com.np/writing/nineteen-findings-four-wrong-four-ways</guid>
+      <pubDate>Mon, 28 Sep 2026 09:00:00 +0000</pubDate>
+      <description>I took the static detector I have been building for agent tool-boundary bugs and pointed it at 14 real agent frameworks — codebases written by other people, for other reasons, with no idea a detector</description>
+    </item>
+    <item>
       <title>Two true facts I did not join up: an IPv6 loopback bypass in SunshineCTF&#x27;s SiteCheck</title>
       <link>https://sushantpoudel2028.com.np/writing/two-true-facts-and-a-loopback-bypass</link>
       <guid isPermaLink="true">https://sushantpoudel2028.com.np/writing/two-true-facts-and-a-loopback-bypass</guid>
