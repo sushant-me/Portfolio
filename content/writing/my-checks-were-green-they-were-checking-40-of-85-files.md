@@ -41,7 +41,7 @@ the verification that reports "PASS" in the place that runs without me.
 **A note on the numbers, because it makes the point better than the prose does.** Those
 figures were measured while I was working: 85 files, 63 numeric claims on the
 workstation, 46 in CI. Writing this post added a surface, so the same command now
-reads **86 files** and **64 claims**. The ratio is the story and the absolute number
+reads **86 files** and **64 assertions**. The ratio is the story and the absolute number
 is only meaningful with the file count next to it — which is exactly why the output
 prints `22/29 matched (40 files)` and not just `PASS`.
 
