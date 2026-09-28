@@ -1,5 +1,11 @@
 [
   {
+    "slug": "my-benchmark-said-1000-real-code-said-014",
+    "title": "My own benchmark said 1.000. Real code said 0.14.",
+    "date": "2026-09-28",
+    "summary": "A week ago I wrote about a labelled corpus that found a false positive in my own scanner and took its precision from 0.750 to 1.000. That number was true, and it was also misleading, because I wrote…"
+  },
+  {
     "slug": "two-true-facts-and-a-loopback-bypass",
     "title": "Two true facts I did not join up: an IPv6 loopback bypass in SunshineCTF's SiteCheck",
     "date": "2026-09-28",
