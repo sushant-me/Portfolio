@@ -1,5 +1,11 @@
 [
   {
+    "slug": "two-true-facts-and-a-loopback-bypass",
+    "title": "Two true facts I did not join up: an IPv6 loopback bypass in SunshineCTF's SiteCheck",
+    "date": "2026-09-28",
+    "summary": "I spent six rounds on one 463-point web challenge getting the answer wrong, and the reason is worth more than the flag. Twice I measured something true, drew a correct conclusion from it, and then…"
+  },
+  {
     "slug": "it-learned-where-not-how-hard",
     "title": "It learned where to put the value, and not how hard to hold it",
     "date": "2026-09-24",

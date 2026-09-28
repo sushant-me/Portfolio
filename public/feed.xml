@@ -7,6 +7,13 @@
     <language>en</language>
     <atom:link href="https://sushantpoudel2028.com.np/feed.xml" rel="self" type="application/rss+xml"/>
     <item>
+      <title>Two true facts I did not join up: an IPv6 loopback bypass in SunshineCTF&#x27;s SiteCheck</title>
+      <link>https://sushantpoudel2028.com.np/writing/two-true-facts-and-a-loopback-bypass</link>
+      <guid isPermaLink="true">https://sushantpoudel2028.com.np/writing/two-true-facts-and-a-loopback-bypass</guid>
+      <pubDate>Mon, 28 Sep 2026 09:00:00 +0000</pubDate>
+      <description>I spent six rounds on one 463-point web challenge getting the answer wrong, and the reason is worth more than the flag. Twice I measured something true, drew a correct conclusion from it, and then…</description>
+    </item>
+    <item>
       <title>It learned where to put the value, and not how hard to hold it</title>
       <link>https://sushantpoudel2028.com.np/writing/it-learned-where-not-how-hard</link>
       <guid isPermaLink="true">https://sushantpoudel2028.com.np/writing/it-learned-where-not-how-hard</guid>
