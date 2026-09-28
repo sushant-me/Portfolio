@@ -1,0 +1,75 @@
+name: CI
+
+# Why this exists when the site already has prebuild/postbuild hooks.
+#
+# `npm run build` on Cloudflare Pages runs scripts/prebuild.sh and
+# scripts/postbuild.sh, which run check-posts.py and check-links.py. Those hooks are
+# deliberately soft about the interpreter: if `python3` is not on PATH they SKIP, with
+# the honest message "the check did not run, so this build is not evidence that posts
+# are well formed", and the deploy proceeds.
+#
+# That is the right call for a deploy -- a missing interpreter is not the site's fault
+# -- but it means the checks may never have run in production, and nothing in this
+# repository can tell whether Cloudflare's image ships python3. So the checks are
+# enforced HERE instead, in an environment where the interpreter is guaranteed.
+#
+# This job is the only place these checks are known to run.
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+
+      # Prove the interpreter question is settled rather than assumed: the hooks skip
+      # without it, so the job asserts it is present before anything else runs.
+      - name: Assert the interpreter the hooks depend on
+        run: command -v python3 && python3 --version
+
+      - name: Install
+        run: npm ci
+
+      # Runs check-posts.py --self-test, then check-posts.py, as prebuild.
+      # The self-test feeds the checker the defects it exists for and requires a hit,
+      # so a checker that has gone quiet fails the build instead of passing it.
+      - name: Content checks
+        run: npm run check:posts
+
+      # This is the real gate: `npm run build` invokes prebuild and postbuild, so a
+      # failure here is a failure of the same hooks the deploy uses. It also confirms
+      # the site still compiles, which nothing else in this repository does.
+      - name: Build, which runs the prebuild and postbuild checks
+        run: npm run build
+
+      - name: Assert the build emitted pages to check
+        run: |
+          if [ ! -d out ]; then
+            echo "::error::the build emitted no out/ directory, so check-links read nothing"
+            exit 1
+          fi
+          pages=$(find out -name '*.html' | wc -l)
+          echo "emitted $pages html page(s)"
+          if [ "$pages" -lt 1 ]; then
+            echo "::error::out/ has no html pages; a check over nothing is not a pass"
+            exit 1
+          fi
+
+      # Belt and braces: run the link check explicitly, so its result is attributable
+      # as its own step rather than folded into the build's exit code.
+      - name: Internal link check over the emitted output
+        run: npm run check:links
