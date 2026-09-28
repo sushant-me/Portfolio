@@ -6,6 +6,12 @@
     "summary": "A week ago I wrote about a labelled corpus that found a false positive in my own scanner and took its precision from 0.750 to 1.000. That number was true, and it was also misleading, because I wrote…"
   },
   {
+    "slug": "my-checks-were-green-they-were-checking-40-of-85-files",
+    "title": "My checks were green. They were checking 40 of 85 files.",
+    "date": "2026-09-28",
+    "summary": "I maintain a repository whose entire job is to check that my public claims are still true. It has a green badge, a weekly schedule, and a self-test that proves the checker can fail."
+  },
+  {
     "slug": "nineteen-findings-four-wrong-four-ways",
     "title": "Nineteen findings, four of them wrong, four different ways",
     "date": "2026-09-28",
