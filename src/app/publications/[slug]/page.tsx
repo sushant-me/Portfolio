@@ -209,7 +209,7 @@ export default async function Paper({ params }: { params: Promise<{ slug: string
         <p className="footnote">
           Claims about his own work that the ledger covers are re-checked weekly against their
           public source by{" "}
-          <a href="https://github.com/sushant-me/reputation">sushant-me/reputation</a> — 23 claims
+          <a href="https://github.com/sushant-me/reputation">sushant-me/reputation</a> — 25 claims
           today, 19 checked live. Coverage is stated rather than implied: it does not yet extend to
           every manuscript listed here. The reproducibility note above is part of that record: where
           no artifact exists, the page says so instead of implying one.
