@@ -66,8 +66,7 @@ export default async function Post({ params }: { params: Promise<{ slug: string 
             <a href="https://github.com/sushant-me/writeups">writeups repository</a> —{" "}
             <a href={post.source}>view the source of this one</a>. Claims about my own work that
             the ledger covers are re-checked weekly against their public source by{" "}
-            <a href="https://github.com/sushant-me/reputation">reputation</a> — 25 claims today, 19
-            checked live, and it does not yet extend to every page on this site.
+            <a href="https://github.com/sushant-me/reputation">reputation</a> — 26 claims today, 20 checked live, and it does not yet extend to every page on this site.
           </p>
         )}
         {/* BlogPosting schema. The site-wide blocks describe the person; without
