@@ -149,7 +149,7 @@ export default function PressPage() {
           He has reported memory-safety defects in widely used libraries and defects in agent
           toolkits, and he maintains a public repository in which each claim it covers carries the
           public source it came from and is re-checked automatically. Coverage is stated rather than
-          implied: the ledger currently holds 23 claims and does not yet extend to every manuscript
+          implied: the ledger currently holds 27 claims and does not yet extend to every manuscript
           on this site.
         </p>
 
