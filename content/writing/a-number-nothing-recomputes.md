@@ -159,7 +159,7 @@ dependencies, and it runs in two seconds on every push.
 - Two facts in the record are still not machine-checkable — a signed employment letter and a
   conference acceptance email. They are reported as `on-request` rather than passed silently,
   because "documentation available" and "verified" are different statements.
-- Deriving a count means the prose stops being readable on its own. `27 claims, 20 live` is
+- Deriving a count means the prose stops being readable on its own. `27 claims, 19 live` is
   clear; `{truth['claims']} claims` would not be. The number is written once and asserted,
   which is a compromise, not a solution.
 

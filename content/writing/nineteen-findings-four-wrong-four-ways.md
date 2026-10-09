@@ -208,8 +208,10 @@ does.
 - **Zero false positives on 14 repositories is not zero.** It is the first sample
   where I have none.
 - The `adk-go` and `adk-java` rows are **corroborated rather than line-checked** —
-  they cover the same names as the open upstream fixes `adk-go#1606` and
-  `adk-java#1515`. Ten findings I have not read line by line, marked as such.
+  they cover the same names as **my own open pull requests** `adk-go#1606` and
+  `adk-java#1515`, neither merged and neither accepted by a maintainer. Ten findings I have
+  not read line by line, and their corroboration is my own proposal rather than someone
+  else's fix — marked as such.
 
 ---
 
