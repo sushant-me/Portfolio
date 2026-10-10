@@ -84,14 +84,23 @@ const PERSON_SCHEMA = {
   sameAs: [
     "https://github.com/sushant-me",
     "https://linkedin.com/in/sushant-poudel2028",
+    "https://hackerone.com/nofear976",
+    "https://github.com/sushant-me/reputation",
   ],
   knowsAbout: [
+    // Ordered so the most distinctive specialisms come first. These are the queries a
+    // reader, a recruiter or a committee would actually use to look for this work, and
+    // each one is demonstrated by a public artefact rather than asserted.
+    "AI safety evaluation",
+    "Agentic system security",
+    "Model Context Protocol security",
     "AI security",
     "Cybersecurity",
+    "Penetration testing",
     "Reverse engineering",
+    "Software assurance and verification",
     "Full-stack engineering",
     "Flutter",
-    "Penetration testing",
   ],
   email: "mailto:sushant.poudel2028@gmail.com",
 };
