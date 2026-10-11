@@ -7,6 +7,13 @@
     <language>en</language>
     <atom:link href="https://sushantpoudel2028.com.np/feed.xml" rel="self" type="application/rss+xml"/>
     <item>
+      <title>A linter that a spelling could get past</title>
+      <link>https://sushantpoudel2028.com.np/writing/a-linter-that-a-spelling-could-get-past</link>
+      <guid isPermaLink="true">https://sushantpoudel2028.com.np/writing/a-linter-that-a-spelling-could-get-past</guid>
+      <pubDate>Mon, 12 Oct 2026 09:00:00 +0000</pubDate>
+      <description>sisakulint is a static analyser for GitHub Actions workflows. Other repositories run it in CI to gate their own workflow changes, which makes it a check that other checks depend on. If it can be got…</description>
+    </item>
+    <item>
       <title>AI safety — positions held, and the evidence for each</title>
       <link>https://sushantpoudel2028.com.np/writing/ai-safety-positions-and-the-evidence-for-each</link>
       <guid isPermaLink="true">https://sushantpoudel2028.com.np/writing/ai-safety-positions-and-the-evidence-for-each</guid>

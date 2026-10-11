@@ -1,5 +1,11 @@
 [
   {
+    "slug": "a-linter-that-a-spelling-could-get-past",
+    "title": "A linter that a spelling could get past",
+    "date": "2026-10-12",
+    "summary": "sisakulint is a static analyser for GitHub Actions workflows. Other repositories run it in CI to gate their own workflow changes, which makes it a check that other checks depend on. If it can be got…"
+  },
+  {
     "slug": "ai-safety-positions-and-the-evidence-for-each",
     "title": "AI safety — positions held, and the evidence for each",
     "date": "2026-10-10",
