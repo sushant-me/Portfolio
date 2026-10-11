@@ -75,7 +75,31 @@ project rather than found in someone else's:**
   because it never generated a valid input. The corrected harness reaches **93.05%**.
 - An MCP tool-name guard returned an error on a reserved name, which failed the whole
   listing, the step, and every invocation of the agent — including agents that configured
-  nothing that collided.
+  nothing that collided. **That one is now fixed**, because the maintainer who found it
+  required exactly the property this position describes (see below).
+
+**Two maintainers reached this position independently, and I think that is the strongest
+evidence on this page — because neither of them has any interest in my argument.**
+
+- **`kvmilos`, reviewing `google/adk-java#1515`:** *"Without them, a check that rejects every
+  built-in, or a toolset branch that skips `applyTool`, still passes every test."* He was
+  asking me to add two tests. **His reason for wanting them is the whole of this position:**
+  the suite could not distinguish a guard that works from a guard that refuses everything.
+  I checked that claim rather than accepting it — made the guard over-broad and ran the
+  suite: **32 of 33 tests passed, and the only failure was the new positive control.**
+- **`karolpiotrowicz`, reviewing `google/adk-go#1606`:** *"Each one uses a single-tool server
+  and only checks that `Tools()` errors, so they currently require the whole listing to fail.
+  A case with a reserved name next to an honest tool, and one with a filter, would pin the
+  behavior that matters."* **His case is not a test-quality point — the over-broad check was
+  failing real agent runs.** He reproduced it and gave the error string. The fix he required
+  was to make a reserved name cost one tool rather than the listing, and the test he required
+  asserts that the listing *succeeds* — the inverse of what the old tests asserted.
+
+**Why I lead with their sentences rather than my own.** I can argue this position about my own
+work and a reader has to take my word for the framing. **A maintainer at Google writing, in
+public, that a check rejecting every built-in still passes every test is a fact about their
+codebase, not a claim of mine.** It is the difference between holding a view and having it
+confirmed by someone with the authority to say so.
 
 **The position.** An evaluation result is a *measurement*, and a measurement without a
 stated coverage floor is not one. I now require three things before I trust a check: the
@@ -95,7 +119,9 @@ it matters. Alignment claims inherit whatever is wrong with their measurement.
 *Sources: `sushant-me/work#7` (*"The map's error notice has never been seen to fire"* — open,
 with the negative control and the unreached path described in the issue);
 `check_links.py`, `check_secrets.py`, `verify_evidence.py` in `sushant-me/reputation`;
-the PR body for `google/libphonenumber#4079`; `google/adk-go#1606`.*
+the PR body for `google/libphonenumber#4079`; `google/adk-go#1606`;
+and the review threads on `google/adk-java#1515` and `google/adk-go#1606`, where `kvmilos`
+and `karolpiotrowicz` state the missing-coverage case in their own words.*
 
 ---
 
