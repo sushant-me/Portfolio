@@ -1,9 +1,9 @@
 "use client";
 
 import React, { useState, useEffect, useRef, useCallback } from "react";
-import dynamic from "next/dynamic";
 import Reveal from "../components/Reveal";
 import ScrollProvider, { useScroll } from "../components/ScrollProvider";
+import Scene3D from "../components/Scene3D";
 import ScrollHud from "../components/ScrollHud";
 import SectionHeading from "../components/SectionHeading";
 import writingIndex from "../../content/writing-index.json";
@@ -16,19 +16,6 @@ import HeroLandscape from "../components/HeroLandscape";
 import { useTilt } from "../components/useTilt";
 import { useInView } from "../components/useInView";
 import { useScrollProgress } from "../components/useScrollProgress";
-
-/**
- * Scene3D is the only component on the site that imports `three`, and it is a
- * full-screen decorative background behind `aria-hidden`. Importing it
- * statically put the whole 3D engine on the critical path: a 184 KB chunk with
- * 98 KB of it unused, and 1.4 s of main-thread blocking on a mid-range phone.
- *
- * Loaded dynamically it splits into its own chunk and is fetched after the page
- * is interactive, so it can no longer delay first paint or block input. The
- * rendered result is identical -- the component already renders nothing on the
- * server, and it already opts out entirely under `prefers-reduced-motion`.
- */
-const Scene3D = dynamic(() => import("../components/Scene3D"), { ssr: false });
 
 /** The hero name, split for the impact entrance. Kept as words, not letters,
  *  so the rendered text stays a single readable string. */
