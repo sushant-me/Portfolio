@@ -470,8 +470,45 @@ function useTyping(texts: string[], speed = 70, pause = 2000) {
     return () => clearTimeout(timer);
   }, [display, index, phase, texts, speed, pause]);
 
-  return display;
+  return { typed: display, full: texts[index] ?? "" };
 }
+
+/**
+ * Renders the typewriter role line without producing layout shift.
+ *
+ * The full role is always in the DOM, so the line has a constant box and nothing
+ * below it can move. The typed prefix is revealed with `clip-path` and the cursor
+ * sits at the reveal edge via `transform`. Neither is a layout property, so the
+ * browser records no shift -- which is the whole point, because this line was
+ * responsible for essentially all of the page's CLS (0.379 of it).
+ *
+ * The line is re-centred with a transform as well. The full string is centred
+ * as a box, so the visible prefix sits at the box's left edge; shifting the box
+ * right by half the hidden width puts the prefix where the full string would
+ * have centred it. Clipping alone left the text visibly anchored left, which the
+ * screenshot caught.
+ *
+ * `ch` is used as an exact character width because the role line is monospace
+ * (`var(--font-mono)`).
+ */
+function TypedRole({ typed, full }: { typed: string; full: string }) {
+  const total = full.length || 1;
+  const shown = Math.min(typed.length, total);
+  return (
+    <span className="role-live" style={{ transform: `translateX(${(total - shown) / 2}ch)` }}>
+      <span
+        className="role-clip role-cursor"
+        style={{ clipPath: `inset(0 ${(1 - shown / total) * 100}% 0 0)` }}
+      >
+        {full}
+      </span>
+      <span className="cursor-blink" style={{ transform: `translateX(${shown}ch)` }}>
+        |
+      </span>
+    </span>
+  );
+}
+
 
 function useCountUp(target: number, duration = 1500, start = false) {
   const [value, setValue] = useState(0);
@@ -795,7 +832,7 @@ function PortfolioBody() {
   const experienceRef = useScrollProgress<HTMLDivElement>("enter");
   const galleryRef = useScrollProgress<HTMLDivElement>("view");
 
-  const roleText = useTyping(ROLES, 65, 1800);
+  const { typed: roleText, full: roleFull } = useTyping(ROLES, 65, 1800);
   const ambientColor = SECTIONS.find((s) => s.id === activeSection)?.color || "#3b82f6";
 
   useEffect(() => {
@@ -916,8 +953,7 @@ function PortfolioBody() {
             </h1>
 
             <div className="hero-role" style={{ opacity: loaded ? 1 : 0, transform: loaded ? "translateY(0)" : "translateY(12px)" }}>
-              <span className="role-cursor">{roleText}</span>
-              <span className="cursor-blink">|</span>
+              <TypedRole typed={roleText} full={roleFull} />
             </div>
 
             <p className="hero-summary" style={{ opacity: loaded ? 1 : 0, transform: loaded ? "translateY(0)" : "translateY(12px)" }}>
@@ -1337,6 +1373,25 @@ function PortfolioBody() {
         }
 
         .role-cursor { color: var(--accent); }
+
+        /* The typed line keeps a constant box: the full role is always in the DOM
+           and only its clip-path changes, so nothing here resizes and nothing
+           below it moves. The cursor and the re-centring offset are transforms,
+           which do not produce layout shifts. Growing the text instead -- the
+           obvious implementation -- made every keystroke a shift source and cost
+           0.379 CLS, essentially all of it. */
+        .role-live {
+          position: relative;
+          display: inline-block;
+        }
+
+        .role-clip { display: block; }
+
+        .cursor-blink {
+          position: absolute;
+          left: 0;
+          top: 0;
+        }
 
         .cursor-blink {
           animation: blink 1s step-end infinite;
