@@ -1,0 +1,33 @@
+# Cloudflare Pages header rules.
+#
+# Read from the build output root, so this file ships as `out/_headers`.
+#
+# Before this file every asset was served with the default
+# `public, max-age=14400, must-revalidate` — four hours, then revalidate. For
+# content-hashed build output that is pure waste: the filename changes whenever
+# the bytes change, so the copy a browser already holds can never be stale.
+
+# Hashed build output. The hash is in the name, so this is safe to pin for a
+# year and never revalidate.
+/_next/static/*
+  Cache-Control: public, max-age=31536000, immutable
+
+# Media that is not content-hashed but changes rarely. A week, not a year,
+# because a replaced image keeps its path.
+/og/*
+  Cache-Control: public, max-age=604800
+/images/*
+  Cache-Control: public, max-age=604800
+/papers/*
+  Cache-Control: public, max-age=604800
+/press/*
+  Cache-Control: public, max-age=604800
+
+# The feed and the sitemap are how crawlers discover new work, so they stay
+# short-lived. A publish must be visible immediately rather than in four hours.
+/feed.xml
+  Cache-Control: public, max-age=0, must-revalidate
+/sitemap.xml
+  Cache-Control: public, max-age=0, must-revalidate
+/robots.txt
+  Cache-Control: public, max-age=0, must-revalidate
