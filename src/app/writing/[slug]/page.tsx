@@ -71,7 +71,18 @@ export default async function Post({ params }: { params: Promise<{ slug: string 
         )}
         {/* BlogPosting schema. The site-wide blocks describe the person; without
             this the posts themselves are not eligible for article rich results,
-            which is the difference between a post being indexed and being found. */}
+            which is the difference between a post being indexed and being found.
+
+            `image` is required, not recommended: Google lists it alongside
+            headline, datePublished and author as a required property for an
+            Article rich result, so this block was claiming an eligibility it did
+            not have. It reuses the Open Graph card the page already publishes
+            rather than introducing anything new.
+
+            The card path has to be made absolute here. `ogImageFor` returns
+            `/og/<slug>.png`, which Next resolves against `metadataBase` for the
+            `openGraph` block, but that resolution does not happen inside
+            JSON-LD — a relative value there is not a valid URL. */}
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
@@ -80,6 +91,7 @@ export default async function Post({ params }: { params: Promise<{ slug: string 
               "@type": "BlogPosting",
               headline: post.title,
               description: post.summary,
+              image: [`https://sushantpoudel2028.com.np${ogImageFor(post.slug)}`],
               datePublished: post.date,
               dateModified: post.date,
               wordCount: post.words,
