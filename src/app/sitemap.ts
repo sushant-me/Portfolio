@@ -15,26 +15,42 @@ const BASE = "https://sushantpoudel2028.com.np";
  *
  * Generated from the same source the pages are, so a new post cannot be published
  * without appearing here.
+ *
+ * `lastmod` is a claim about when the content changed, so it is only emitted where
+ * a real date exists. It used to be `new Date()` — the build time — on the
+ * homepage, the publications index, the press page and every paper page. That
+ * meant every deploy, including one that only touched a header rule, told Google
+ * that all ten publication URLs had just changed. Two builds of byte-identical
+ * content produced different values, which is the definition of an unreliable
+ * `lastmod`, and Google's documented response to that is to stop trusting it
+ * rather than to recrawl. Omitting the field is the honest option and costs
+ * nothing: it is optional in the sitemap spec.
+ *
+ * Posts carry a real publication date, so they keep one, and /writing inherits the
+ * newest of them because that is what actually changes on that page.
  */
 export default function sitemap(): MetadataRoute.Sitemap {
   const posts = getPosts();
+  const newestPost = posts[0]?.date ? new Date(`${posts[0].date}T00:00:00Z`) : undefined;
 
   return [
     {
       url: BASE,
-      lastModified: new Date(),
+      // The homepage is reordered by new work rather than edited, so the newest
+      // dated thing on it stands in for "last meaningfully changed".
+      lastModified: newestPost,
       changeFrequency: "monthly",
       priority: 1,
     },
     {
       url: `${BASE}/writing`,
-      lastModified: posts[0]?.date ? new Date(`${posts[0].date}T00:00:00Z`) : new Date(),
+      lastModified: newestPost,
       changeFrequency: "weekly",
       priority: 0.8,
     },
     {
       url: `${BASE}/publications`,
-      lastModified: new Date(),
+      // No paper carries a date, so there is nothing truthful to put here.
       changeFrequency: "monthly",
       priority: 0.8,
     },
@@ -43,19 +59,17 @@ export default function sitemap(): MetadataRoute.Sitemap {
       // work in one URL. Ranked above an individual paper because it is the entry point for
       // commissioning rather than a destination for readers.
       url: `${BASE}/press`,
-      lastModified: new Date(),
       changeFrequency: "monthly",
       priority: 0.9,
     },
     ...PAPERS.map((p) => ({
       url: `${BASE}/publications/${p.slug}`,
-      lastModified: new Date(),
       changeFrequency: "yearly" as const,
       priority: 0.7,
     })),
     ...posts.map((p) => ({
       url: `${BASE}/writing/${p.slug}`,
-      lastModified: p.date ? new Date(`${p.date}T00:00:00Z`) : new Date(),
+      lastModified: p.date ? new Date(`${p.date}T00:00:00Z`) : undefined,
       changeFrequency: "yearly" as const,
       priority: 0.7,
     })),
