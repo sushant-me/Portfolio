@@ -160,7 +160,7 @@ worth less than one that can, and the difference is the whole value of the claim
 
 **Evidence.** `sushant-me/reputation` holds every claim I make about my own work, each with
 the source that can re-check it, and a script that hits those sources live on every push and
-weekly on a schedule — 27 claims, 19 checked live, 8 documented as available on request,
+weekly on a schedule — 28 claims, 20 checked live, 8 documented as available on request,
 0 failing. When it reported a failure I investigated rather than relaxed it, and found the
 check was wrong: a Google contribution had been merged through Copybara, which closes the
 pull request without setting `merged`, so a merged contribution read as a rejected one. The
@@ -179,7 +179,7 @@ destroyed the only thing that makes the rest of the list worth reading.
 is bounded by how hard it is to falsify. A system whose claims cannot be independently
 re-derived is not auditable, however accurate it happens to be.
 
-*Sources: `sushant-me/reputation` (27 claims, 0 failing); `SECRETS-TO-ROTATE.md`.*
+*Sources: `sushant-me/reputation` (28 claims, 0 failing); `SECRETS-TO-ROTATE.md`.*
 
 ---
 
