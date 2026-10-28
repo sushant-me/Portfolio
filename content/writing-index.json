@@ -1,5 +1,11 @@
 [
   {
+    "slug": "two-defects-my-tests-could-not-see",
+    "title": "Two defects my tests could not see, found by a bot",
+    "date": "2026-10-29",
+    "summary": "A review bot read two small pull requests against sisakulint, a static analyser for GitHub Actions workflows, and raised five findings between them. Two were real. One was a data race I had just…"
+  },
+  {
     "slug": "a-linter-that-a-spelling-could-get-past",
     "title": "A linter that a spelling could get past",
     "date": "2026-10-12",
