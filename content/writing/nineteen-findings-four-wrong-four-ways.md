@@ -202,7 +202,7 @@ does.
 - **14 frameworks is a sample, not a survey.** All of these are popular
   Python/TypeScript agent frameworks. Nothing here says anything about a Java or Go
   codebase, or about a framework I did not clone.
-- **The corpus is still mine.** It has 23 cases and this exercise changed my view of
+- **The corpus is still mine.** It has 24 cases and this exercise changed my view of
   it: it is a regression gate, not an independent benchmark, and it cannot contain
   the mistakes I have not made yet. That is now written into `SURVEY.md`.
 - **Zero false positives on 14 repositories is not zero.** It is the first sample

@@ -114,7 +114,7 @@ than aesthetic.
 **A benchmark the author wrote to prove their own detector works will not contain the
 shapes that break it.**
 
-The corpus has 23 labelled cases, every one citing the real-world pattern it came from. It
+The corpus has 24 labelled cases, every one citing the real-world pattern it came from. It
 is genuinely useful — it found a different bug, and it keeps the regression honest. What it
 cannot do is contain the false-positive modes I had not imagined. Its 1.000 was a statement
 about the corpus, and I had been reading it as a statement about the detector.
