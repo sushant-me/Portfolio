@@ -21,6 +21,13 @@
       <description>A review bot read two small pull requests against sisakulint, a static analyser for GitHub Actions workflows, and raised five findings between them. Two were real. One was a data race I had just…</description>
     </item>
     <item>
+      <title>Two hundred and twenty-three alerts, and the ones I would not close</title>
+      <link>https://sushantpoudel2028.com.np/writing/two-hundred-and-twenty-three-alerts</link>
+      <guid isPermaLink="true">https://sushantpoudel2028.com.np/writing/two-hundred-and-twenty-three-alerts</guid>
+      <pubDate>Thu, 29 Oct 2026 09:00:00 +0000</pubDate>
+      <description>GitHub&#x27;s own records say 223 Dependabot alerts were fixed on this account on 28 and 29 October 2026 — 17 critical, 101 high, 92 medium, 13 low. That is not self-reported: each alert carries a…</description>
+    </item>
+    <item>
       <title>A linter that a spelling could get past</title>
       <link>https://sushantpoudel2028.com.np/writing/a-linter-that-a-spelling-could-get-past</link>
       <guid isPermaLink="true">https://sushantpoudel2028.com.np/writing/a-linter-that-a-spelling-could-get-past</guid>

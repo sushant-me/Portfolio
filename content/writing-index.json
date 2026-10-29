@@ -12,6 +12,12 @@
     "summary": "A review bot read two small pull requests against sisakulint, a static analyser for GitHub Actions workflows, and raised five findings between them. Two were real. One was a data race I had just…"
   },
   {
+    "slug": "two-hundred-and-twenty-three-alerts",
+    "title": "Two hundred and twenty-three alerts, and the ones I would not close",
+    "date": "2026-10-29",
+    "summary": "GitHub's own records say 223 Dependabot alerts were fixed on this account on 28 and 29 October 2026 — 17 critical, 101 high, 92 medium, 13 low. That is not self-reported: each alert carries a…"
+  },
+  {
     "slug": "a-linter-that-a-spelling-could-get-past",
     "title": "A linter that a spelling could get past",
     "date": "2026-10-12",
