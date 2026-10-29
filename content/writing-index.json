@@ -1,5 +1,11 @@
 [
   {
+    "slug": "four-fixes-four-ways-of-proving-them",
+    "title": "Four fixes, four ways of proving them",
+    "date": "2026-10-29",
+    "summary": "Four pull requests went up today, in four different projects, and each needed a different kind of proof that the change did what it claimed. None of them is merged yet. What follows is what I ran…"
+  },
+  {
     "slug": "my-detector-missed-my-own-sample",
     "title": "My detector missed the bug in my own sample",
     "date": "2026-10-29",
