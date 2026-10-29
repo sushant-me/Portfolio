@@ -1,5 +1,11 @@
 [
   {
+    "slug": "my-detector-missed-my-own-sample",
+    "title": "My detector missed the bug in my own sample",
+    "date": "2026-10-29",
+    "summary": "agent-review-sample is a deliberately vulnerable 180-line agent, written so that \"I review agent security\" is something a reader can run rather than something I assert. It has four planted findings,…"
+  },
+  {
     "slug": "two-defects-my-tests-could-not-see",
     "title": "Two defects my tests could not see, found by a bot",
     "date": "2026-10-29",

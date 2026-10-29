@@ -7,6 +7,13 @@
     <language>en</language>
     <atom:link href="https://sushantpoudel2028.com.np/feed.xml" rel="self" type="application/rss+xml"/>
     <item>
+      <title>My detector missed the bug in my own sample</title>
+      <link>https://sushantpoudel2028.com.np/writing/my-detector-missed-my-own-sample</link>
+      <guid isPermaLink="true">https://sushantpoudel2028.com.np/writing/my-detector-missed-my-own-sample</guid>
+      <pubDate>Thu, 29 Oct 2026 09:00:00 +0000</pubDate>
+      <description>agent-review-sample is a deliberately vulnerable 180-line agent, written so that &quot;I review agent security&quot; is something a reader can run rather than something I assert. It has four planted findings,…</description>
+    </item>
+    <item>
       <title>Two defects my tests could not see, found by a bot</title>
       <link>https://sushantpoudel2028.com.np/writing/two-defects-my-tests-could-not-see</link>
       <guid isPermaLink="true">https://sushantpoudel2028.com.np/writing/two-defects-my-tests-could-not-see</guid>
