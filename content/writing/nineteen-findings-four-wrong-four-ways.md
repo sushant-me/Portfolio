@@ -220,6 +220,6 @@ does.
 [SURVEY.md](https://github.com/sushant-me/agentbound/blob/master/SURVEY.md)
 · **The releases this came in:** [v0.1.13](https://github.com/sushant-me/agentbound/releases/tag/v0.1.13),
 [v0.1.14](https://github.com/sushant-me/agentbound/releases/tag/v0.1.14),
-[v0.1.15](https://github.com/sushant-me/agentbound/releases/tag/v0.1.15)
+[v0.1.16](https://github.com/sushant-me/agentbound/releases/tag/v0.1.16)
 · **Every claim above is re-checked weekly against its public source by**
 [github.com/sushant-me/reputation](https://github.com/sushant-me/reputation).
