@@ -61,10 +61,17 @@
   # for this origin.
   Permissions-Policy: accelerometer=(), autoplay=(), browsing-topics=(), camera=(), display-capture=(), encrypted-media=(), fullscreen=(self), geolocation=(), gyroscope=(), magnetometer=(), microphone=(), midi=(), payment=(), picture-in-picture=(), publickey-credentials-get=(), screen-wake-lock=(), usb=(), xr-spatial-tracking=()
 
-  # The site is entirely self-hosted: fonts are emitted by next/font, three.js
-  # and Lenis are bundled, and there is no analytics, CDN or third-party script
-  # on any page. So the policy can say `'self'` everywhere instead of listing
-  # vendor origins.
+  # The site source is entirely self-hosted: fonts are emitted by next/font,
+  # three.js and Lenis are bundled, and no page includes a third-party script.
+  # There are exactly two exceptions, and they are not in the repository: the
+  # zone has Cloudflare Web Analytics, and Cloudflare injects its beacon
+  # (static.cloudflareinsights.com) into the HTML at the edge and posts the
+  # measurement to cloudflareinsights.com. A 'self'-only policy would block
+  # both without breaking the page visibly — the pages still hydrate, the
+  # analytics just never records anything, and every page carries a console
+  # error. Verified live: without these two origins the beacon is the only CSP
+  # violation on the site. Scope them to those cookies-free analytics hosts;
+  # if Web Analytics is ever turned off in the dashboard, delete them again.
   #
   # `'unsafe-inline'` for script/style is required by the Next.js static export:
   # the RSC flight payload, the hydration bootstrap and the JSON-LD block are all
@@ -75,7 +82,7 @@
   # nonce-based policy would need a server; a hash list would have to be
   # regenerated on every build and would silently break the first inline script
   # that lands outside it.
-  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self'; connect-src 'self'; media-src 'self'; worker-src 'self' blob:; manifest-src 'self'; object-src 'none'; frame-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; upgrade-insecure-requests
+  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' https://static.cloudflareinsights.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self'; connect-src 'self' https://cloudflareinsights.com; media-src 'self'; worker-src 'self' blob:; manifest-src 'self'; object-src 'none'; frame-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; upgrade-insecure-requests
 
   # Isolate the browsing context: a page opened from here cannot reach back into
   # the opener's window object.

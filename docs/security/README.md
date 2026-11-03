@@ -76,11 +76,13 @@ X-Content-Type-Options: nosniff
 X-Frame-Options: DENY
 Referrer-Policy: strict-origin-when-cross-origin
 Permissions-Policy: accelerometer=(), autoplay=(), ... camera=(), ... usb=()
-Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline';
+Content-Security-Policy: default-src 'self';
+  script-src 'self' 'unsafe-inline' https://static.cloudflareinsights.com;
   style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self';
-  connect-src 'self'; media-src 'self'; worker-src 'self' blob:;
-  manifest-src 'self'; object-src 'none'; frame-src 'none'; base-uri 'self';
-  form-action 'self'; frame-ancestors 'none'; upgrade-insecure-requests
+  connect-src 'self' https://cloudflareinsights.com; media-src 'self';
+  worker-src 'self' blob:; manifest-src 'self'; object-src 'none';
+  frame-src 'none'; base-uri 'self'; form-action 'self';
+  frame-ancestors 'none'; upgrade-insecure-requests
 ```
 
 The file also sets `Cross-Origin-Opener-Policy: same-origin`,
@@ -101,6 +103,19 @@ Notes that matter when maintaining it:
   The directive still forbids eval, pins `base-uri`, blocks plugin/object
   embedding, and sets `frame-ancestors 'none'` even with `'unsafe-inline'`
   present.
+- **Two origins are allowed, and both are Cloudflare's analytics, not the
+  site's own code.** The zone has Cloudflare Web Analytics enabled, and
+  Cloudflare injects `static.cloudflareinsights.com/beacon.min.js` into the
+  HTML at the edge, which posts to `cloudflareinsights.com`. This was found the
+  honest way: the first deployed policy said `'self'` everywhere, the
+  post-deploy browser check showed exactly one CSP violation on every page —
+  that beacon — and the pages still rendered, so only a console/network check
+  would notice analytics had gone dark. Allow the two hosts in `script-src` and
+  `connect-src`, and remove them again if Web Analytics is switched off in the
+  dashboard. Do not widen `script-src` for any other reason; adding a CDN or an
+  analytics vendor is a policy decision that belongs in this file with a
+  comment.
+
 - **`frame-ancestors 'none'` and `X-Frame-Options: DENY` are deliberately
   both sent.** Current browsers enforce the CSP directive; the XFO header covers
   older ones.
