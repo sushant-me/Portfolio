@@ -45,3 +45,7 @@ next-env.d.ts
 
 # local wrangler pages dev state
 /.wrangler/
+
+# python bytecode from the verification tooling
+__pycache__/
+*.pyc

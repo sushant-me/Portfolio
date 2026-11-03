@@ -1,0 +1,508 @@
+# Security hardening runbook
+
+Target: `https://sushantpoudel2028.com.np` — a Next.js 16 static export
+(`output: 'export'`) served by Cloudflare Pages, with DNS for the apex at
+Cloudflare. Source of the findings: HybridSec-QA scan `12b22277123d`,
+2026-11-03.
+
+This directory contains the independent verification for the work, not the
+work itself:
+
+- [`scripts/verify-security.py`](../../scripts/verify-security.py) — talks to
+  the deployed site and public DNS, and exits non-zero if any check fails.
+- [`verify-before.txt`](verify-before.txt) — the 2026-11-03 before-state run
+  (20 checks: 7 passed, 13 failed).
+- `verify-after.txt` — to be produced after the fixes are deployed (section 4).
+- [`api-review-2026-11-03.md`](api-review-2026-11-03.md) — a separate review of
+  the Pages Functions API by another reviewer; not part of this runbook.
+
+The repository fixes live in [`public/_headers`](../../public/_headers),
+[`public/.well-known/security.txt`](../../public/.well-known/security.txt),
+`src/app/robots.ts`, and Cloudflare DNS. `_headers` is not applied to Pages
+Functions responses; the API under `functions/api/` sets its own headers and is
+outside this runbook.
+
+## 1. What the scan found, and what each finding means
+
+| # | Severity | Finding | What it means | Check id in the verifier |
+|---|----------|---------|---------------|--------------------------|
+| 1 | Medium | Missing `Strict-Transport-Security` | Without HSTS a browser will still make the first request over plain HTTP, so a network attacker can intercept that request before the 301 arrives. The header tells the browser to use HTTPS for this host for `max-age` seconds and to refuse to downgrade. | `headers.hsts:/`, `headers.hsts:/writing` |
+| 2 | Medium | No SPF record (TXT) | SPF lists the hosts allowed to use the domain as the envelope sender. With no record, a receiver has nothing to check, so anyone can send mail with this domain in `MAIL FROM`. `v=spf1 -all` says "nothing is authorized". | `dns.spf` |
+| 3 | Medium | No DMARC record at `_dmarc` | DMARC ties SPF/DKIM results to the visible `From:` domain and says what to do when neither aligns. Without it, receivers have no instruction to reject mail that spoofs the domain. `p=reject` is the strongest policy. | `dns.dmarc` |
+| 4 | Low | Missing `X-Frame-Options` and `Permissions-Policy` | `X-Frame-Options` (or CSP `frame-ancestors`) stops the page being embedded in an attacker's iframe and used for clickjacking. `Permissions-Policy` disables browser features (camera, microphone, geolocation, USB, ...) for scripts on the page. The same remediation also added `X-Content-Type-Options`, `Referrer-Policy` and a CSP. | `headers.xfo:*`, `headers.permissions-policy:*`, `headers.csp:*` |
+| 5 | Low | `robots.txt` published; no RFC 9116 `security.txt` | `security.txt` is the machine-readable place to publish a security contact, a policy, and an expiry. Without it a researcher has no canonical channel. Separately, `robots.txt` is a crawler request, not access control: a `Disallow` of a sensitive path does not protect it and publicly advertises it. | `securitytxt.*`, `robots.access-control` |
+
+The remaining checks in the tool cover the rest of the same remediation surface:
+`X-Content-Type-Options` on every HTML page, `Referrer-Policy`, a CSP that
+contains `frame-ancestors`/`base-uri`/`object-src`, the HTTP→HTTPS 301, and
+`robots.txt` being served with an absolute `Sitemap:` line.
+
+## 2. State at capture (2026-11-03, before the fixes)
+
+The full run is in [`verify-before.txt`](verify-before.txt). Summary: 20 checks,
+7 passed, 13 failed, exit code 1. All five findings were still present.
+
+Two header types (four per-page checks) were already passing, and it is worth
+knowing why: they are **Cloudflare Pages platform defaults**, not this
+repository's configuration.
+Cloudflare documents that every static asset response gets
+`X-Content-Type-Options: nosniff` and
+`Referrer-Policy: strict-origin-when-cross-origin` (plus
+`Access-Control-Allow-Origin: *`) unless `_headers` overrides them. The
+HTTP→HTTPS 301 is also already served at the edge. Do not read those passes as
+evidence that the repository's header rules are working:
+
+- [Cloudflare Pages — Serving Pages: Headers](https://developers.cloudflare.com/pages/configuration/serving-pages/#headers)
+- [Cloudflare Pages — Headers](https://developers.cloudflare.com/pages/configuration/headers/)
+
+The live `robots.txt` also contains a Cloudflare-managed block (AI-crawler
+rules injected at the edge) ahead of the origin's rules. The verifier groups
+`Disallow` entries by the crawler they apply to and says when a
+Cloudflare-managed block is present, so those injected rules are not mistaken
+for the origin's configuration.
+
+## 3. The fixes
+
+### 3.1 Security headers — `public/_headers`
+
+Cloudflare Pages reads `_headers` from the build output root, so the source file
+is `public/_headers` and it ships as `out/_headers`. It applies to **static
+asset responses only**; responses generated by Pages Functions are not covered
+(Cloudflare documents this explicitly). The header block currently sets:
+
+```text
+Strict-Transport-Security: max-age=63072000; includeSubDomains; preload
+X-Content-Type-Options: nosniff
+X-Frame-Options: DENY
+Referrer-Policy: strict-origin-when-cross-origin
+Permissions-Policy: accelerometer=(), autoplay=(), ... camera=(), ... usb=()
+Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline';
+  style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self';
+  connect-src 'self'; media-src 'self'; worker-src 'self' blob:;
+  manifest-src 'self'; object-src 'none'; frame-src 'none'; base-uri 'self';
+  form-action 'self'; frame-ancestors 'none'; upgrade-insecure-requests
+```
+
+The file also sets `Cross-Origin-Opener-Policy: same-origin`,
+`X-Permitted-Cross-Domain-Policies: none` and `X-XSS-Protection: 0`; those are
+not part of the scan findings but are intentional and harmless to keep.
+
+Notes that matter when maintaining it:
+
+- **One place only.** `_headers` rules that match the same request are merged,
+  and a header defined twice is joined with a comma rather than replaced
+  (Cloudflare's documented behaviour). Do not also configure the same headers in
+  `next.config.ts` or in the Cloudflare dashboard (for example the zone-level
+  HSTS toggle): a duplicated `Strict-Transport-Security` is at best ambiguous.
+- **CSP `'unsafe-inline'` is intentional for this build.** The Next.js static
+  export emits inline RSC/hydration scripts and JSON-LD, and React writes inline
+  `style` attributes. A nonce needs a server; a hash list would have to be
+  regenerated on every build and would break the first inline script outside it.
+  The directive still forbids eval, pins `base-uri`, blocks plugin/object
+  embedding, and sets `frame-ancestors 'none'` even with `'unsafe-inline'`
+  present.
+- **`frame-ancestors 'none'` and `X-Frame-Options: DENY` are deliberately
+  both sent.** Current browsers enforce the CSP directive; the XFO header covers
+  older ones.
+- **`X-Robots-Tag: noindex, nofollow` on `/admin*`** is also in this file. It is
+  an indexing instruction, not access control; see section 3.3.
+- **`Permissions-Policy` can only remove features.** If a feature is added to
+  the site later, it has to be allowed here explicitly; the deny-by-default list
+  is the point.
+- The page-level checks run on `/` and on an HTML subpage (default discovery:
+  `/writing`, then `/press`, then `/publications`, then links on the homepage).
+  Both pages must carry the headers because a rule that only matches `/` would
+  leave every other page behind.
+
+Per-page HSTS guidance:
+
+- `max-age=63072000` is two years; the verifier's floor is 15552000 (180 days),
+  so a shorter max-age fails.
+- `includeSubDomains` commits every current and future subdomain to HTTPS. There
+  is no `www` and no other subdomain today. Add a subdomain only if it will
+  serve HTTPS.
+- `preload` is covered in section 5. The token is inert until the domain is
+  submitted at hstspreload.org; having it in the header is a statement of intent,
+  not a preloaded state.
+
+### 3.2 RFC 9116 `security.txt`
+
+The file is [`public/.well-known/security.txt`](../../public/.well-known/security.txt)
+and is expected to ship as `out/.well-known/security.txt`. The verifier accepts
+**either** `/.well-known/security.txt` (preferred by RFC 9116) **or**
+`/security.txt` (the legacy location), requiring HTTP 200 with a `Contact:` and
+an ISO-8601 `Expires:` at least 30 days in the future.
+
+Required fields (RFC 9116): `Contact` and `Expires`. Optional fields used here:
+`Canonical`, `Preferred-Languages`, and `Policy` (pointing at
+`SECURITY.md`). Multiple `Contact:` lines are allowed and ordered by
+preference; the current file lists the email and the GitHub private advisory
+URL. There are no secrets in the file — everything in it is meant to be public.
+
+Maintenance is the point of `Expires`: it is currently
+`2027-05-01T00:00:00Z`. Renew it before it gets within 30 days of expiry,
+redeploy, and update `Canonical` if the served location ever changes. The
+verifier fails both on an expired date and on a date less than 30 days away, so
+the file cannot go stale without a signal.
+
+Caveat specific to this host: Cloudflare Pages reads the build output, and static
+export tooling is not always reliable about dot-directories. The repository
+build check (`scripts/check-security-output.sh`) asserts
+`out/.well-known/security.txt` exists. If a deploy ever 404s the well-known path,
+the script still passes on `/security.txt`; the options are, in order:
+
+1. Fix the export so `public/.well-known/` is copied (the cause, not the
+   symptom).
+2. Publish a copy at `public/security.txt` and point `Canonical` at that path.
+3. Add a Cloudflare Pages `_redirects` rewrite (proxy) from
+   `/.well-known/security.txt` to `/security.txt` with status `200`; Pages
+   documents proxying:
+   <https://developers.cloudflare.com/pages/configuration/redirects/#proxying>.
+
+Do not "solve" a missing file with a redirect to an unrelated page: a
+`security.txt` that returns HTML is not a `security.txt`.
+
+### 3.3 `robots.txt` and the admin path
+
+`robots.txt` is a request to well-behaved crawlers. It is public, it does not
+authenticate anyone, and a `Disallow` of a sensitive path is not protection — it
+is an advertisement. The scan's criterion is that the file must not rely on
+`Disallow` for access control of anything sensitive; from outside, a sensitive
+path in a `Disallow` rule cannot be distinguished from using `robots.txt` as the
+control.
+
+The final design removes the anti-pattern rather than annotating it:
+
+- `src/app/robots.ts` declares no `Disallow` at all. It allows `/` and publishes
+  the `Sitemap:` line (the verifier requires an absolute sitemap URL).
+- `/admin` is kept out of search results by a response header in
+  `public/_headers`, not by `robots.txt`:
+
+  ```text
+  /admin*
+    X-Robots-Tag: noindex, nofollow
+  ```
+
+  `X-Robots-Tag` is the stronger control for indexing. A `Disallow`d URL can
+  still be indexed when other pages link to it (a crawler may record the URL
+  without fetching it), while `noindex` tells a crawler that does fetch it not
+  to index it. Neither is access control; the security boundary for `/admin` is
+  the admin token its API requires.
+- `_headers` applies to static responses only. `/admin` is a static page, so it
+  gets the tag; the `/api/*` JSON routes are Pages Functions, so they do not.
+  That is acceptable: the API answers 401 without `ADMIN_TOKEN`, returns
+  `application/json` with `no-store`, and has no indexable content. The verifier
+  tests HTML responses, not the API.
+
+Real protection for both paths is server-side: `/api/*` compares the
+`x-admin-token` header with the `ADMIN_TOKEN` Pages secret (and refuses
+everything when the secret is unset), and `/admin` is a client-side tool whose
+every useful request needs that token.
+
+Cloudflare also injects a managed block of AI-crawler rules ahead of the
+origin's `robots.txt`. Those rules appear in the verifier's evidence and are not
+this repository's configuration. After the fix the origin file has no
+`Disallow` at all, so `robots.access-control` passes even though the injected
+block contains `Disallow: /` rules scoped to specific crawlers.
+
+If a path genuinely must not be served, the fix is authorization (as it already
+is for the API) or Cloudflare Access, not a line in `robots.txt`.
+
+### 3.4 DNS records for SPF and DMARC
+
+Both records are TXT records in the Cloudflare DNS zone for
+`sushantpoudel2028.com.np` (nameservers `ophelia.ns.cloudflare.com` /
+`tadeo.ns.cloudflare.com`). DNS changes are not in the repository, so the
+verifier queries them over DNS over HTTPS (Cloudflare's JSON API at
+`https://cloudflare-dns.com/dns-query`) rather than trusting a local resolver.
+
+Cloudflare dashboard → the zone → **DNS → Records → Add record**:
+
+| Type | Name | Content | TTL | Proxy status |
+|------|------|---------|-----|--------------|
+| `TXT` | `@` | `v=spf1 -all` | Auto | n/a (TXT is not proxied) |
+| `TXT` | `_dmarc` | `v=DMARC1; p=reject; sp=reject` | Auto | n/a (TXT is not proxied) |
+
+- Name `@` means the apex, `sushantpoudel2028.com.np`. In the API/`dig` form the
+  verification name is `sushantpoudel2028.com.np` (SPF) and
+  `_dmarc.sushantpoudel2028.com.np` (DMARC).
+- Cloudflare's **Auto** TTL resolves to 300 seconds for these records. The
+  verifier prints the TTL each answer actually had, so a record that is not
+  propagated yet is visible as missing rather than assumed.
+- A TXT record for another purpose (site verification, etc.) can coexist at the
+  same name. SPF just has to be published **exactly once**. The verifier fails
+  if it finds zero or more than one `v=spf1` record. DMARC is the same: one
+  `v=DMARC1` record at `_dmarc`.
+
+**Why `v=spf1 -all` is correct here.** The domain currently has no MX record and
+no mail senders. An SPF record with no authorized mechanisms and a terminal
+`-all` tells receivers that *no host* is authorized to send mail with this
+domain as the envelope sender, and that every other sender is a hard fail.
+`~all` (soft fail) is the appropriate transition value while legitimate senders
+are still being discovered; for a domain that sends nothing, `-all` is both the
+strictest and the accurate value. `v=spf1 -all` does not affect receiving mail
+(SPF is about envelope senders), and it does not affect the website.
+
+**Why `p=reject`.** With no DKIM keys published and SPF authorizing nothing,
+mail that claims to come from this domain cannot pass either aligned check.
+`p=reject` instructs receivers to reject it rather than quarantine it.
+`sp=reject` applies the same policy to subdomains (it is also the default when
+omitted; stating it is explicit). No `pct=` is needed; the default is 100.
+
+If mail is ever enabled, do not simply keep `p=reject` and hope. The safe change
+is staged: add the sender's SPF include and DKIM records, then move DMARC to
+`p=none` with aggregate reporting while you confirm every legitimate source
+passes, then `p=quarantine`, then `p=reject`. The SPF record changes, not the
+DMARC record's meaning.
+
+#### If the owner later sends mail: replace the SPF content
+
+Do this only for the domain that is actually used as the envelope sender.
+Verify the current include against the provider's documentation at enablement
+time; providers change these values.
+
+| Provider | Replace `v=spf1 -all` with | Notes |
+|----------|----------------------------|-------|
+| Google Workspace | `v=spf1 include:_spf.google.com ~all` | [Google SPF documentation](https://support.google.com/a/answer/33786) |
+| Microsoft 365 | `v=spf1 include:spf.protection.outlook.com -all` | [Microsoft SPF documentation](https://learn.microsoft.com/en-us/microsoft-365/security/office-365-security/email-authentication-spf-configure) |
+| Resend | `v=spf1 include:amazonses.com ~all` | Resend's DNS guide instructs adding this on a `send` subdomain and leaving the root alone; if Resend sends as the root, merge the include. [Resend DNS guide](https://resend.com/docs/guides/dns/strato) |
+| Postmark | `v=spf1 include:spf.mtasv.net ~all` | [Postmark SPF documentation](https://postmarkapp.com/support/article/what-is-spf-and-why-is-it-important) |
+| Amazon SES | `v=spf1 include:amazonses.com ~all` | [SES SPF documentation](https://docs.aws.amazon.com/ses/latest/dg/send-email-authentication-spf.html) |
+
+Do not stack providers by publishing multiple SPF records — merge the `include:`
+mechanisms into the single record. DKIM must also be configured for the sending
+domain: DMARC can pass on SPF alignment alone only when the envelope domain
+aligns, and DKIM is what survives forwarding.
+
+#### DMARC aggregate reports (`rua`): the external-authorization caveat
+
+A `rua=` address receives XML aggregate reports. Do not add
+`rua=mailto:something@gmail.com` and assume reports arrive.
+
+RFC 7489 §7.1 requires a receiver to confirm that the destination domain
+authorized reports from the publishing domain. If the `rua` host differs from
+the policy domain, the receiver queries a TXT record at:
+
+```text
+<policy-domain>._report._dmarc.<destination-host>
+```
+
+and requires at least one record beginning `v=DMARC1`. For an address at
+`gmail.com`, that name would be:
+
+```text
+sushantpoudel2028.com.np._report._dmarc.gmail.com
+```
+
+Only Google controls the `gmail.com` zone, so that authorization record cannot be
+published by this domain's owner, and compliant receivers will ignore the
+`rua`. The same applies to `ruf` (forensic reports). This runbook therefore
+publishes the DMARC record **without `rua`**; it is a valid policy record and
+the scan only requires the policy.
+
+If aggregate reports are wanted later:
+
+- Use a mailbox **on a domain you control** that is different from the policy
+  domain, and publish the authorization record in that destination zone:
+  `sushantpoudel2028.com.np._report._dmarc.<destination-domain>` TXT
+  `v=DMARC1`. (Do not point at `gmail.com`: you cannot publish there.)
+- Or use a DMARC report processor that publishes the authorization record on
+  its own side for your domain; follow its onboarding instructions and add
+  exactly the record it specifies.
+- An address at the policy domain itself needs no external-authorization record,
+  but the domain currently has no MX, so it cannot receive reports until mail is
+  configured.
+
+### 3.5 What was not changed
+
+The verifier also confirms `X-Content-Type-Options`, `Referrer-Policy` and the
+301 redirect, but those are not findings: they already work (Pages defaults for
+the first two, edge behaviour for the 301). The pages API is out of scope for
+this runbook; if header coverage is later required for `/api/*`, it has to be
+set in the Functions code because `_headers` does not apply there.
+
+## 4. How to verify
+
+From the repository root:
+
+```sh
+python3 scripts/verify-security.py                 # table, exit 1 until every check passes
+python3 scripts/verify-security.py --json          # one JSON object on stdout
+python3 scripts/verify-security.py --timeout 10    # per-request timeout, seconds
+python3 scripts/verify-security.py --subpage /press
+```
+
+The tool needs Python 3 and nothing else: no `pip install`, no `dig`, no
+`requests`. DNS is queried through Cloudflare's DoH JSON API so the result does
+not depend on the machine's resolver.
+
+Exit codes:
+
+| Code | Meaning |
+|------|---------|
+| `0` | every check passed |
+| `1` | one or more checks failed (the table names them) |
+| `2` | the run could not be made meaningful: bad `--url`/`--domain`, `--timeout <= 0`, or no checks executed |
+
+Save the after-state in the same format as the before-state:
+
+```sh
+python3 scripts/verify-security.py | tee docs/security/verify-after.txt
+```
+
+`verify-after.txt` should show `RESULT: PASS` and exit 0. If it shows a failing
+check, fix the cause; do not edit the evidence or relax the check.
+
+Preview deployments: point `--url` at the preview and keep `--domain` on the
+production name, because SPF/DMARC live on the production domain and `pages.dev`
+has no DMARC policy of its own:
+
+```sh
+python3 scripts/verify-security.py \
+  --url https://<deployment>.<project>.pages.dev \
+  --domain sushantpoudel2028.com.np
+```
+
+Manual spot checks (the same assertions, without the harness):
+
+```sh
+# Headers that must be present on HTML responses
+curl -sSI https://sushantpoudel2028.com.np/ | grep -iE \
+  '^(strict-transport-security|x-frame-options|content-security-policy|permissions-policy|referrer-policy|x-content-type-options):'
+
+# HTTP -> HTTPS 301
+curl -sSI http://sushantpoudel2028.com.np/ | head -3
+
+# security.txt (one of the two paths must be 200)
+curl -sS https://sushantpoudel2028.com.np/.well-known/security.txt
+curl -sS https://sushantpoudel2028.com.np/security.txt
+
+# SPF, then DMARC, over DNS-over-HTTPS
+curl -sS -H 'accept: application/dns-json' \
+  'https://cloudflare-dns.com/dns-query?name=sushantpoudel2028.com.np&type=TXT' | python3 -m json.tool
+curl -sS -H 'accept: application/dns-json' \
+  'https://cloudflare-dns.com/dns-query?name=_dmarc.sushantpoudel2028.com.np&type=TXT' | python3 -m json.tool
+```
+
+Do not test HSTS by removing the header and reloading in a browser: once a
+browser has seen `Strict-Transport-Security`, it keeps upgrading that host for
+the stored `max-age` even when the header disappears. Use `curl` (a fresh
+process with no HSTS cache) or a clean browser profile.
+
+## 5. HSTS preload commitment
+
+The current header is `max-age=63072000; includeSubDomains; preload`. The
+`preload` token only matters if the domain is submitted to the HSTS preload
+list at <https://hstspreload.org/>. Browsers ignore the token until the domain is
+on the list they ship with; submitting is a separate, manual, long-lived
+decision.
+
+hstspreload.org's stated requirements, all of which must hold:
+
+- a valid HTTPS certificate on the domain;
+- HTTP requests on the domain redirect to HTTPS;
+- the `Strict-Transport-Security` header on the base domain (and every
+  subdomain) with `max-age` of at least one year (`31536000`),
+  `includeSubDomains`, and `preload`.
+
+The current header satisfies the header requirements. Before submitting, be
+sure about the consequences:
+
+- Every current and future subdomain must serve HTTPS, permanently. A subdomain
+  that only serves plain HTTP (an internal host, an appliance, a staging box)
+  becomes unreachable in browsers that have the list entry, not merely
+  redirected.
+- Removal is not immediate. The domain has to be removed from the preload list
+  and then propagated through browser releases, which takes months; users whose
+  browser already has the entry keep enforcing it until they update.
+- The apex currently has no `www` and no other subdomains, which makes the
+  commitment easier to make, not smaller: any subdomain added later inherits it.
+
+`max-age` alone is reversible on the normal HSTS timescale (section 6). Preload
+is the part that is not. If this is not a commitment you want to make now, remove
+the `preload` token (and optionally `includeSubDomains`) from
+`public/_headers` before deploying; the verifier still passes with a plain
+`max-age` of at least 180 days, so preloading is not required to close the
+finding.
+
+## 6. Testing headers locally
+
+- **Authoritative test: a Cloudflare Pages deployment.** Push the branch and run
+  the verifier against the preview URL (section 4). This is the only test that
+  exercises Pages' `_headers` handling, the Functions boundary, and the edge
+  redirect together.
+- **Local Pages emulation:** `npx wrangler pages dev out` serves the build
+  output on workerd and applies `_headers`/`_redirects`. Confirm the headers
+  actually appear with `curl -sSI http://localhost:8788/` instead of assuming;
+  behaviour depends on the wrangler version in use. The HTTP→HTTPS check will
+  still fail locally because local dev is plain HTTP, so judge that check on the
+  deployment, not locally. DNS checks always query public DNS, so a local run
+  tests whatever SPF/DMARC is published, not the local machine.
+- **Not a header test:** `python3 -m http.server` (or any static file server)
+  serving `out/` serves the files but does not read `_headers`. Every security
+  header will look absent there. That is a limitation of the test, not a
+  regression.
+- **Before deploying:** `scripts/check-security-output.sh` asserts that
+  `out/_headers` contains the expected header lines and that
+  `out/.well-known/security.txt` was emitted. That catches an export that drops
+  the file or a header that was renamed; it does not prove the live edge uses
+  them.
+
+## 7. Rollback
+
+- **Headers:** revert the `public/_headers` commit and redeploy. There is no
+  server-side state, but HSTS already delivered to a browser persists until its
+  `max-age` expires. Sending `max-age=0` on subsequent responses asks browsers
+  to forget it, and only works for clients that fetch a response while that
+  value is being served; it cannot reach a client that never comes back. If the
+  domain was actually preloaded, follow the removal process at
+  <https://hstspreload.org/removal/> and expect browser-release delay.
+- **`security.txt`:** delete the file (or both locations) and redeploy. An
+  expired or 404 file means there is no published policy; a copy fetched earlier
+  by a third party cannot be recalled. Update `Canonical` if the serving path
+  changes.
+- **SPF/DMARC:** delete the two TXT records in the Cloudflare dashboard. With
+  `Auto` TTL (300 s) the records disappear from caches in about five minutes.
+  Removing DMARC `p=reject` reopens spoofing of the domain, so do it only as a
+  deliberate rollback and record why. Lowering to `p=none` is the gentler step.
+- **`robots.txt`:** revert `src/app/robots.ts` and redeploy.
+- **Pages deployment:** the Cloudflare dashboard can roll a project back to a
+  previous deployment (Deployments → select the deployment → Rollback). That
+  rolls back static content and `_headers`; it does not roll back DNS records,
+  which are zone-level.
+- Keep `verify-before.txt` after any rollback. Re-run the verifier and save the
+  output rather than describing the state from memory.
+
+## 8. Checklist
+
+- [ ] `public/_headers` deployed; `/` and `/writing` return HSTS, XFO, nosniff,
+      Referrer-Policy, Permissions-Policy, and a CSP with
+      `frame-ancestors`/`base-uri`/`object-src`.
+- [ ] `/.well-known/security.txt` returns 200 (or `/security.txt` does) with
+      `Contact:` and a future `Expires:`.
+- [ ] SPF TXT at the apex: exactly one `v=spf1 ... -all`/`~all`.
+- [ ] DMARC TXT at `_dmarc`: exactly one `v=DMARC1` with
+      `p=reject`/`p=quarantine`.
+- [ ] `robots.txt` serves a `Sitemap:` line and lists no sensitive path in
+      `Disallow`; `/admin*` is `X-Robots-Tag: noindex, nofollow` in `_headers`.
+- [ ] `python3 scripts/verify-security.py` exits 0 and
+      `docs/security/verify-after.txt` is saved.
+- [ ] `security.txt` `Expires` renewal is on the calendar (currently
+      2027-05-01; renew before 2027-04-01 to stay above the 30-day gate).
+
+## 9. References
+
+- RFC 9116 — `security.txt`: <https://www.rfc-editor.org/rfc/rfc9116>
+- RFC 7208 — SPF: <https://www.rfc-editor.org/rfc/rfc7208>
+- RFC 7489 — DMARC (external destination verification in §7.1):
+  <https://www.rfc-editor.org/rfc/rfc7489>
+- RFC 6797 — HSTS: <https://www.rfc-editor.org/rfc/rfc6797>
+- HSTS preload submission and removal: <https://hstspreload.org/>
+- `X-Robots-Tag` (indexing directive, not access control):
+  <https://developers.google.com/search/docs/crawling-indexing/robots-meta-tag#xrobotstag>
+- Cloudflare Pages `_headers`:
+  <https://developers.cloudflare.com/pages/configuration/headers/>
+- Cloudflare Pages default response headers:
+  <https://developers.cloudflare.com/pages/configuration/serving-pages/#headers>
+- Cloudflare Pages `_redirects` proxying:
+  <https://developers.cloudflare.com/pages/configuration/redirects/#proxying>

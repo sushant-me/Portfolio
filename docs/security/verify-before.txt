@@ -1,0 +1,96 @@
+# Security verification: BEFORE state
+#
+# Target       : https://sushantpoudel2028.com.np
+# Scan         : HybridSec-QA 12b22277123d (2026-11-03)
+# Repo state   : HEAD 723538c on branch main. The working tree already contained
+#                the in-progress fixes when this was captured; the live site
+#                had NOT been redeployed and still served the pre-fix responses.
+# Captured     : 2026-11-03T05:11:54Z (UTC) with Python 3.14.7
+# Expectation  : findings 1-5 are unfixed in production, so this run is expected
+#                to FAIL. This file is the before-state record.
+#
+# Command      : python3 scripts/verify-security.py
+#
+
+Security verification
+  target  : https://sushantpoudel2028.com.np
+  domain  : sushantpoudel2028.com.np
+  checked : 2026-11-03T05:11:54+00:00
+
+RESULT  CHECK                                   DETAIL
+------  --------------------------------------  ----------------------------------------------------------------------
+FAIL    HSTS header on /                        Strict-Transport-Security absent; add `max-age=31536000` (see
+                                                docs/security/README.md)
+FAIL    X-Frame-Options on /                    X-Frame-Options absent and CSP has no frame-ancestors; the page can be framed
+PASS    X-Content-Type-Options on /             nosniff
+PASS    Referrer-Policy on /                    strict-origin-when-cross-origin
+FAIL    Permissions-Policy on /                 Permissions-Policy absent; disable unused features explicitly (camera=(),
+                                                microphone=(), geolocation=(), ...)
+FAIL    Content-Security-Policy on /            Content-Security-Policy absent; add `frame-ancestors 'none'; base-uri 'self';
+                                                object-src 'none'` at minimum
+FAIL    HSTS header on /writing                 Strict-Transport-Security absent; add `max-age=31536000` (see
+                                                docs/security/README.md)
+FAIL    X-Frame-Options on /writing             X-Frame-Options absent and CSP has no frame-ancestors; the page can be framed
+PASS    X-Content-Type-Options on /writing      nosniff
+PASS    Referrer-Policy on /writing             strict-origin-when-cross-origin
+FAIL    Permissions-Policy on /writing          Permissions-Policy absent; disable unused features explicitly (camera=(),
+                                                microphone=(), geolocation=(), ...)
+FAIL    Content-Security-Policy on /writing     Content-Security-Policy absent; add `frame-ancestors 'none'; base-uri 'self';
+                                                object-src 'none'` at minimum
+PASS    HTTP to HTTPS redirect                  301 -> https://sushantpoudel2028.com.np/
+FAIL    security.txt published                  at least one path must return 200: /.well-known/security.txt=404,
+                                                /security.txt=404
+FAIL    security.txt has Contact and Expires    not evaluated: no security.txt was served, so there is no policy to parse
+FAIL    SPF record on apex                      no TXT record starting v=spf1 at sushantpoudel2028.com.np; add `v=spf1 -all` if
+                                                the domain sends no mail
+FAIL    DMARC record at _dmarc                  NXDOMAIN at _dmarc.sushantpoudel2028.com.np; add `v=DMARC1; p=reject` (see
+                                                runbook for rua caveat)
+PASS    robots.txt served                       HTTP 200, text/plain; contains a Cloudflare-managed block (rules below it are
+                                                the origin's)
+FAIL    robots.txt not used for access control  Disallow names sensitive path(s) (/admin). robots.txt is public and advisory; it
+                                                does not authenticate anyone. Protect these with real authorization and use
+                                                X-Robots-Tag: noindex if they must stay out of search. Disallow paths present: /
+                                                (amazonbot, anthropic-ai, applebot-extended, +29 more); /admin (all crawlers)
+PASS    robots.txt advertises a sitemap         https://sushantpoudel2028.com.np/sitemap.xml
+
+SUMMARY: 20 checks: 7 passed, 13 failed  (0.5s)
+RESULT: FAIL (13 failing check(s); see docs/security/README.md)
+
+#
+# Command exit code: 1
+#
+# Progress log (stderr, same run):
+#
+[verify] fetching homepage headers from https://sushantpoudel2028.com.np/
+[verify] finding an HTML subpage to check
+[verify] checking subpage /writing
+[verify] checking http://sushantpoudel2028.com.np/ redirect
+[verify] checking security.txt (RFC 9116)
+[verify] /.well-known/security.txt -> 404
+[verify] /security.txt -> 404
+[verify] querying DNS-over-HTTPS at cloudflare-dns.com for sushantpoudel2028.com.np TXT records
+[verify] checking robots.txt
+[verify] done in 0.5s; exit 1
+
+#
+# Finding mapping (read off the table above):
+#   1 [Medium] HSTS ................ FAIL: headers.hsts:/ and headers.hsts:/writing
+#   2 [Medium] SPF ................. FAIL: dns.spf
+#   3 [Medium] DMARC ............... FAIL: dns.dmarc
+#   4 [Low]    X-Frame-Options ..... FAIL: headers.xfo:/ and headers.xfo:/writing
+#              Permissions-Policy .. FAIL: headers.permissions-policy:/ and :/writing
+#              (CSP also fails ... FAIL: headers.csp:/ and :/writing)
+#   5 [Low]    security.txt ........ FAIL: securitytxt.available, securitytxt.fields
+#              robots.txt .......... FAIL: robots.access-control (Disallow: /admin
+#                                     in the origin's robots.txt at capture time)
+#
+# Already passing before the fix (Cloudflare Pages platform defaults / edge
+# behaviour, not repo configuration -- see docs/security/README.md section 2):
+#   X-Content-Type-Options: nosniff
+#   Referrer-Policy: strict-origin-when-cross-origin
+#   HTTP -> HTTPS 301 redirect
+#   robots.txt served, with a Sitemap: line
+#
+# Do not edit this file to make it pass. After the fixes are deployed, run the
+# script again and save docs/security/verify-after.txt; keep this before-state
+# record unchanged.
