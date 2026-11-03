@@ -1,0 +1,18 @@
+# Security contact for sushantpoudel2028.com.np
+#
+# RFC 9116. This file closes the HybridSec-QA finding "robots.txt published; No
+# security.txt disclosure policy" (scan 12b22277123d, 2026-11-03): before it, a
+# researcher who found something had no canonical, machine-readable place to
+# send it and no statement of what to expect.
+#
+# `Expires` is required and must be in the future, so this file is a maintenance
+# item, not a write-once artefact. scripts/verify-security.py checks the field
+# and fails if it has less than 30 days left, which turns "refresh the date" into
+# a build/deploy-time signal rather than a thing to remember.
+
+Contact: mailto:sushant.poudel2028@gmail.com
+Contact: https://github.com/sushant-me/Portfolio/security/advisories/new
+Expires: 2027-05-01T00:00:00Z
+Preferred-Languages: en, ne
+Canonical: https://sushantpoudel2028.com.np/.well-known/security.txt
+Policy: https://github.com/sushant-me/Portfolio/blob/main/SECURITY.md

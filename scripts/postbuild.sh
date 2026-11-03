@@ -7,6 +7,12 @@
 set -e
 here=$(dirname "$0")
 
+# Runs first and unconditionally: it is POSIX sh + grep, so there is no
+# interpreter to be missing, and a build that lost the security headers should
+# fail here rather than after the deploy. See the script for why this can only
+# be checked in the output tree.
+sh "$here/check-security-output.sh"
+
 if command -v python3 >/dev/null 2>&1; then
   exec python3 "$here/check-links.py"
 fi

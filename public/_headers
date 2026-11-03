@@ -7,6 +7,97 @@
 # content-hashed build output that is pure waste: the filename changes whenever
 # the bytes change, so the copy a browser already holds can never be stale.
 
+# ---------------------------------------------------------------------------
+# Security headers, on every response.
+#
+# These close the four header findings in the HybridSec-QA scan of
+# 2026-11-03 (scan 12b22277123d):
+#
+#   * [Medium] Missing Strict-Transport-Security  -> strict-transport-security
+#   * [Low]    Missing X-Frame-Options            -> x-frame-options (+ CSP
+#                                                     frame-ancestors, the modern
+#                                                     equivalent that is not
+#                                                     ignored by browsers)
+#   * [Low]    Missing Permissions-Policy         -> permissions-policy
+#   * (asked for in the same remediation)         -> content-security-policy,
+#                                                     x-content-type-options,
+#                                                     referrer-policy
+#
+# The rules have to live here rather than in next.config.ts because this site is
+# a static export (`output: 'export'`): Next emits no server, so the only place
+# a response header can be attached is the host. Cloudflare Pages reads this
+# file at deploy time; no dashboard setting is required.
+#
+# `_headers` does NOT apply to Functions responses. The API routes under
+# functions/api/ set their own headers, including a sandbox CSP on files served
+# from user uploads — that is deliberate, see functions/api/file/[[key]].js.
+# ---------------------------------------------------------------------------
+
+/*
+  # Two years, subdomains included, and preload-eligible. There is no subdomain
+  # today (www does not resolve) and every path already 301s to HTTPS, so this
+  # asks browsers to stop making the downgrade possible at all. Preload is a
+  # long-lived commitment: remove it before ever serving a subdomain over plain
+  # HTTP. See docs/security/README.md.
+  Strict-Transport-Security: max-age=63072000; includeSubDomains; preload
+
+  # Stop the browser from re-sniffing a type the server already declared. This
+  # one is the difference between a text/plain upload being displayed and being
+  # treated as HTML on this origin.
+  X-Content-Type-Options: nosniff
+
+  # No page on this site is designed to be framed. CSP frame-ancestors below is
+  # what current browsers enforce; this header is for the ones that never
+  # implemented it.
+  X-Frame-Options: DENY
+
+  # Origins only, so a cross-origin link does not leak the path of an internal
+  # page through the Referer header; same-origin navigations still carry it.
+  Referrer-Policy: strict-origin-when-cross-origin
+
+  # Everything the site does not need is denied before a feature (camera,
+  # microphone, location, payment, Bluetooth/USB, ...) can be requested by any
+  # script that manages to run. `fullscreen` is the only one allowed, and only
+  # for this origin.
+  Permissions-Policy: accelerometer=(), autoplay=(), browsing-topics=(), camera=(), display-capture=(), encrypted-media=(), fullscreen=(self), geolocation=(), gyroscope=(), magnetometer=(), microphone=(), midi=(), payment=(), picture-in-picture=(), publickey-credentials-get=(), screen-wake-lock=(), usb=(), xr-spatial-tracking=()
+
+  # The site is entirely self-hosted: fonts are emitted by next/font, three.js
+  # and Lenis are bundled, and there is no analytics, CDN or third-party script
+  # on any page. So the policy can say `'self'` everywhere instead of listing
+  # vendor origins.
+  #
+  # `'unsafe-inline'` for script/style is required by the Next.js static export:
+  # the RSC flight payload, the hydration bootstrap and the JSON-LD block are all
+  # inline in the emitted HTML, and React sets `style` attributes on the
+  # parallax components. It is still worth sending the directive: it blocks
+  # script *sources* the page never loads, forbids eval, pins base-uri, and
+  # stops plugin/object embedding and form posts to other origins. A
+  # nonce-based policy would need a server; a hash list would have to be
+  # regenerated on every build and would silently break the first inline script
+  # that lands outside it.
+  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self'; connect-src 'self'; media-src 'self'; worker-src 'self' blob:; manifest-src 'self'; object-src 'none'; frame-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; upgrade-insecure-requests
+
+  # Isolate the browsing context: a page opened from here cannot reach back into
+  # the opener's window object.
+  Cross-Origin-Opener-Policy: same-origin
+
+  # No cross-domain policy files are served (the long-dead Flash/PDF rule).
+  X-Permitted-Cross-Domain-Policies: none
+
+  # The old reflected-XSS auditor is gone from modern browsers and where it
+  # still exists it introduces vulnerabilities of its own; 0 is the OWASP
+  # recommendation, not an omission.
+  X-XSS-Protection: 0
+
+# The media admin (a client-side tool, not a page) is deliberately absent from
+# robots.txt — listing it there would publish the path. This header keeps it out
+# of search results for any crawler that reaches it another way, which a
+# Disallow cannot do once a URL has inbound links. `_headers` only covers static
+# responses, which is exactly what /admin is; the /api/* JSON routes behind it
+# answer 401 without the token and carry no indexable content.
+/admin*
+  X-Robots-Tag: noindex, nofollow
+
 # Hashed build output. The hash is in the name, so this is safe to pin for a
 # year and never revalidate.
 /_next/static/*
@@ -31,3 +122,9 @@
   Cache-Control: public, max-age=0, must-revalidate
 /robots.txt
   Cache-Control: public, max-age=0, must-revalidate
+
+# RFC 9116 says a security.txt should not be cached for long: the contact has to
+# be retireable. One hour is short enough to matter and long enough to avoid an
+# origin hit per request.
+/.well-known/security.txt
+  Cache-Control: public, max-age=3600
