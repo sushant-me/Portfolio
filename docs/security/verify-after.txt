@@ -1,0 +1,104 @@
+# Security verification: AFTER state (code fixes deployed; DNS records outstanding)
+#
+# Target       : https://sushantpoudel2028.com.np
+# Scan         : HybridSec-QA 12b22277123d (2026-11-03)
+# Deploy       : Cloudflare Pages, commit 05d2264 (previous deploy: 78cf407)
+# Captured     : 2026-11-03T05:20:43Z (UTC) with Python 3.14.7
+# Expected     : 18/20. The only failures are dns.spf and dns.dmarc.
+#
+#                SPF and DMARC are Cloudflare DNS TXT records, not repository
+#                code. The Cloudflare account that owns the
+#                sushantpoudel2028.com.np zone was not accessible from the
+#                environment that made the code fixes, so those two records
+#                were never published. Read this file as "code fixes verified
+#                live, DNS incomplete" -- not as 20/20 and not as "fully fixed".
+#
+# Command      : python3 scripts/verify-security.py
+#
+
+Security verification
+  target  : https://sushantpoudel2028.com.np
+  domain  : sushantpoudel2028.com.np
+  checked : 2026-11-03T05:20:43+00:00
+
+RESULT  CHECK                                   DETAIL
+------  --------------------------------------  ----------------------------------------------------------------------
+PASS    HSTS header on /                        max-age=63072000 (>= 15552000), includesubdomains, preload
+PASS    X-Frame-Options on /                    DENY; CSP frame-ancestors also set
+PASS    X-Content-Type-Options on /             nosniff
+PASS    Referrer-Policy on /                    strict-origin-when-cross-origin
+PASS    Permissions-Policy on /                 accelerometer=(), autoplay=(), browsing-topics=(), camera=(), display-
+                                                capture=(), encrypted-media=(), fullscreen=(self), geolocation=(), gyroscope=(),
+                                                magnetometer=(), microphone=(), midi=(), payment=(), picture-in-picture=(),
+                                                publickey-credentials-get=(), screen-wake-lock=(), usb=(), xr-spatial-
+                                                tracking=()
+PASS    Content-Security-Policy on /            frame-ancestors, base-uri and object-src present
+PASS    HSTS header on /writing                 max-age=63072000 (>= 15552000), includesubdomains, preload
+PASS    X-Frame-Options on /writing             DENY; CSP frame-ancestors also set
+PASS    X-Content-Type-Options on /writing      nosniff
+PASS    Referrer-Policy on /writing             strict-origin-when-cross-origin
+PASS    Permissions-Policy on /writing          accelerometer=(), autoplay=(), browsing-topics=(), camera=(), display-
+                                                capture=(), encrypted-media=(), fullscreen=(self), geolocation=(), gyroscope=(),
+                                                magnetometer=(), microphone=(), midi=(), payment=(), picture-in-picture=(),
+                                                publickey-credentials-get=(), screen-wake-lock=(), usb=(), xr-spatial-
+                                                tracking=()
+PASS    Content-Security-Policy on /writing     frame-ancestors, base-uri and object-src present
+PASS    HTTP to HTTPS redirect                  301 -> https://sushantpoudel2028.com.np/
+PASS    security.txt published                  /.well-known/security.txt=200, /security.txt=404
+PASS    security.txt has Contact and Expires    2 Contact field(s), Expires: 2027-05-01T00:00:00Z, 178 day(s) remaining (via
+                                                /.well-known/security.txt)
+FAIL    SPF record on apex                      no TXT record starting v=spf1 at sushantpoudel2028.com.np; add `v=spf1 -all` if
+                                                the domain sends no mail
+FAIL    DMARC record at _dmarc                  NXDOMAIN at _dmarc.sushantpoudel2028.com.np; add `v=DMARC1; p=reject` (see
+                                                runbook for rua caveat)
+PASS    robots.txt served                       HTTP 200, text/plain; contains a Cloudflare-managed block (rules below it are
+                                                the origin's)
+PASS    robots.txt not used for access control  no sensitive path is being 'protected' by Disallow; Disallow paths present: /
+                                                (amazonbot, anthropic-ai, applebot-extended, +29 more)
+PASS    robots.txt advertises a sitemap         https://sushantpoudel2028.com.np/sitemap.xml
+
+SUMMARY: 20 checks: 18 passed, 2 failed  (0.4s)
+RESULT: FAIL (2 failing check(s); see docs/security/README.md)
+
+#
+# Command exit code: 1
+#
+# SUMMARY: 20 checks: 18 passed, 2 failed  (0.4s)
+# RESULT: FAIL (2 failing check(s); see docs/security/README.md)
+#
+# Failing checks (both DNS, not code):
+#   dns.spf     no TXT record starting v=spf1 at sushantpoudel2028.com.np
+#   dns.dmarc   NXDOMAIN at _dmarc.sushantpoudel2028.com.np
+#
+# Progress log (stderr, same run):
+#
+[verify] fetching homepage headers from https://sushantpoudel2028.com.np/
+[verify] finding an HTML subpage to check
+[verify] checking subpage /writing
+[verify] checking http://sushantpoudel2028.com.np/ redirect
+[verify] checking security.txt (RFC 9116)
+[verify] /.well-known/security.txt -> 200
+[verify] /security.txt -> 404
+[verify] querying DNS-over-HTTPS at cloudflare-dns.com for sushantpoudel2028.com.np TXT records
+[verify] checking robots.txt
+[verify] done in 0.4s; exit 1
+
+#
+# What this run proves is live (all PASS in the table above):
+#   - HSTS max-age=63072000; includeSubDomains; preload, X-Frame-Options DENY,
+#     X-Content-Type-Options nosniff, Referrer-Policy, Permissions-Policy and
+#     an enforcing Content-Security-Policy with frame-ancestors/base-uri/
+#     object-src, on both / and /writing
+#   - HTTP -> HTTPS 301 redirect
+#   - /.well-known/security.txt = 200 with Contact and a future Expires
+#   - robots.txt = 200, absolute Sitemap: line, and no sensitive path in the
+#     origin's Disallow rules. The Cloudflare-managed AI-crawler block is still
+#     injected above the origin rules; the verifier groups it so it is not
+#     mistaken for this repository's configuration.
+#
+# The only remaining work is DNS and needs a human with access to the zone:
+#   Type TXT  Name @        Content v=spf1 -all                  TTL Auto
+#   Type TXT  Name _dmarc   Content v=DMARC1; p=reject; sp=reject TTL Auto
+# After publishing them, re-run this script and capture a 20/20
+# verify-after.txt; see docs/security/README.md section 3.4 for the rua caveat
+# before adding any aggregate-report address.
