@@ -13,11 +13,23 @@
 
 const PREFIX = "uploads/";
 const MAX_BYTES = 24 * 1024 * 1024; // KV values cap at 25 MiB
+const MAX_MB = Math.round(MAX_BYTES / 1048576);
+
+// Multipart framing (boundaries, part headers, the other form fields) is a few
+// hundred bytes; 64 KiB is a generous allowance for the early Content-Length
+// gate below without rejecting a legal 24 MB file.
+const BODY_OVERHEAD_ALLOWANCE = 64 * 1024;
 
 const json = (body, status = 200) =>
   new Response(JSON.stringify(body), {
     status,
-    headers: { "content-type": "application/json; charset=utf-8" },
+    headers: {
+      "content-type": "application/json; charset=utf-8",
+      // An authenticated, state-changing response must not be stored by a
+      // browser or an intermediary.
+      "cache-control": "no-store",
+      "x-content-type-options": "nosniff",
+    },
   });
 
 function safeName(name) {
@@ -56,6 +68,16 @@ export async function onRequestPost({ request, env }) {
     );
   }
 
+  // Reject an obviously oversized body before request.formData() buffers it.
+  // formData() parses the whole multipart body into memory first, so the exact
+  // file.size check below only runs after Cloudflare has already accepted and
+  // buffered everything up to the platform limit (100 MB on Workers). This is a
+  // cheap first gate; the exact check still happens on the parsed File.
+  const declared = Number(request.headers.get("content-length") || "0");
+  if (Number.isFinite(declared) && declared > MAX_BYTES + BODY_OVERHEAD_ALLOWANCE) {
+    return json({ error: `file is larger than ${MAX_MB} MB` }, 413);
+  }
+
   let form;
   try {
     form = await request.formData();
@@ -70,13 +92,22 @@ export async function onRequestPost({ request, env }) {
   if (file.size === 0) return json({ error: "file is empty" }, 400);
   if (file.size > MAX_BYTES) {
     return json(
-      { error: `file is larger than ${Math.round(MAX_BYTES / 1048576)} MB` },
+      { error: `file is larger than ${MAX_MB} MB` },
       413
     );
   }
 
   const name = safeName(file.name);
-  const type = file.type || "application/octet-stream";
+  // The browser-supplied type is stored and later echoed as the Content-Type of
+  // /api/file/<key>, so it is attacker-controlled input. Accept only a bare
+  // `type/subtype` token and lower-case it (the file route decides inline-vs-
+  // download from it); anything else is stored as an opaque download. This is
+  // not a type allowlist — legitimate PDFs, certificates, archives, images and
+  // video all pass — it only keeps the stored value a safe header value.
+  const declaredType = String(file.type || "").trim();
+  const type = /^[a-z0-9!#$&^_.+-]+\/[a-z0-9!#$&^_.+-]+$/i.test(declaredType)
+    ? declaredType.toLowerCase().slice(0, 120)
+    : "application/octet-stream";
   const key = `${PREFIX}${Date.now()}-${Math.random()
     .toString(36)
     .slice(2, 8)}-${name}`;

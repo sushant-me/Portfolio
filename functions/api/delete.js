@@ -10,6 +10,7 @@ const json = (body, status = 200) =>
     headers: {
       "content-type": "application/json; charset=utf-8",
       "cache-control": "no-store",
+      "x-content-type-options": "nosniff",
     },
   });
 
@@ -44,6 +45,18 @@ export async function onRequestPost({ request, env }) {
   }
 
   const key = String(body && body.key ? body.key : "");
+  // The key is an opaque KV key, not a filesystem path, so ".." and encoded
+  // slashes cannot traverse anything. What is worth rejecting is anything that
+  // is not a plausible upload key: an empty key deletes nothing, and a key over
+  // KV's 512-byte limit makes the KV call throw (a 500) instead of answering.
+  // The prefix check is the namespace boundary: this token may delete uploads,
+  // never anything else that might share the namespace.
+  if (!key || key.length > 512) {
+    return json({ error: "a valid key is required" }, 400);
+  }
+  if (/[\u0000-\u001f\u007f]/.test(key)) {
+    return json({ error: "invalid key" }, 400);
+  }
   if (!key.startsWith("uploads/")) {
     return json({ error: "refusing to delete outside uploads/" }, 400);
   }
