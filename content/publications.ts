@@ -28,10 +28,40 @@
 export type Paper = {
   slug: string;
   title: string;
+  /**
+   * The title as it is safe to put in a search-result snippet.
+   *
+   * `title` is the paper's full title, printed as it appears on the PDF, and it is
+   * what the page's <h1> must say. Several of them run past 120 characters, and a
+   * <title> that long is cut off mid-phrase in every search result, which loses
+   * the part that identifies the paper. These are the same paper, named the way a
+   * reader would refer to it in a sentence; the pattern the page appends is
+   * "— paper by Sushant Poudel", which keeps the byline without repeating a title
+   * nobody can read in full.
+   */
+  shortTitle: string;
   authors: string[];
   venue: string;
   status: "accepted" | "presented" | "manuscript";
   abstract: string;
+  /**
+   * One-sentence description used for the meta description, Open Graph and the
+   * structured data. Written here rather than cut from `abstract` because an
+   * abstract's first sentence is frequently 300 characters and describes the
+   * problem before it says what the paper found.
+   */
+  summary: string;
+  /** Year printed on the paper or its venue. Used for the BibTeX entry. */
+  year: number;
+  /**
+   * Full ISO date, only where the site states one: the presentation date for a
+   * paper the venue's programme dates, or a publication date in a public record.
+   * Omitted otherwise - a year alone is not a valid `datePublished`, and inventing
+   * a day to fill the field would be worse than leaving it out.
+   */
+  date?: string;
+  /** Resolvable DOI, where one exists. */
+  doi?: string;
   pdf: string;
   repo: string;
   artifact: "public-reproducible" | "not-released" | "not-empirical";
@@ -44,6 +74,10 @@ export type Paper = {
 export const PAPERS: Paper[] = [
   {
     slug: "agentic-verification",
+    shortTitle: "Edge-Native Semantic Firewall",
+    summary:
+      "A 3.8B model on a consumer laptop verifies agent actions against policy: requiring reasoning cut hard-denial approvals from 71 to 6, and 6 of 208 got through.",
+    year: 2026,
     title: "Edge-Native Semantic Firewall for Autonomous LLM Agents: A Structured Chain-of-Thought Verification Framework",
     authors: ["Sushant Poudel", "Rakhee Pandey", "Aashika Pandey"],
     venue: "Accepted; camera-ready in progress",
@@ -55,6 +89,10 @@ export const PAPERS: Paper[] = [
   },
 {
     slug: "prebas",
+    shortTitle: "PREBAS: WebRTC over LEO satellites",
+    summary:
+      "A 1,537-parameter 1D-CNN predicts LEO handoffs 200–500 ms ahead and scales WebRTC bitrate down early: 79% fewer frame freezes at 8.9% of average bitrate.",
+    year: 2026,
     title: "PREBAS: Preemptive Bandwidth Scaling for WebRTC in LEO Satellite Networks Using Lightweight Neural Prediction",
     authors: ["Sushant Poudel"],
     venue: "2026 IEEE RTC — Chicago, USA",
@@ -66,6 +104,12 @@ export const PAPERS: Paper[] = [
   },
 {
     slug: "hcg",
+    shortTitle: "HCG-MAF: guarding agent swarms",
+    summary:
+      "A causal safety enforcer between LLM output and motor control caught 98.5% of injection-driven commands across 400 adversarial trials, offline, at 42 ms.",
+    year: 2026,
+    // Presented virtually on the first day of AIMS 2026, per its programme.
+    date: "2026-07-23",
     title: "A Hybrid Causal-Generative Multi-Agent Framework for Secure Autonomous Mechatronics: Mitigating Real-Time Prompt Injections in Edge-Deployed Disaster Recovery Networks",
     authors: ["Aashika Pandey", "Sushant Poudel"],
     venue: "AIMS 2026 — 23–24 July 2026; IEEE Xplore",
@@ -78,6 +122,11 @@ export const PAPERS: Paper[] = [
   },
 {
     slug: "okf-dfir",
+    shortTitle: "OKF v0.1 for multi-agent DFIR",
+    summary:
+      "Google's OKF v0.1 as a traversable alternative to JSON telemetry for multi-agent DFIR: 81.1% hallucination suppression and 33.6% less token overhead.",
+    year: 2026,
+    date: "2026-10-07",
     title: "Evaluating Google's Open Knowledge Format (OKF v0.1) for Multi-Agent Threat Intelligence: A Proof-of-Concept in Digital Forensics",
     authors: ["Sushant Poudel", "Rakhee Pandey"],
     venue: "IC-AICSE 2026 — Everest Engineering College, Nepal; 7 October 2026",
@@ -89,6 +138,11 @@ export const PAPERS: Paper[] = [
   },
 {
     slug: "wifi-sensing",
+    shortTitle: "Wi-Fi sensing attacks and RF-Guard",
+    summary:
+      "A commodity Wi-Fi card and an LSTM recovered keystrokes at 85.4% F1; firmware-level CSI obfuscation cut the observer's accuracy to 9.8% across three testbeds.",
+    year: 2026,
+    date: "2026-10-07",
     title: "Evaluating Wi-Fi Sensing Attack Vectors: AI-Driven Covert Threat Detection and Deterministic Mitigation in Mobile and Edge Ecosystems",
     authors: ["Sushant Poudel"],
     venue: "Manuscript",
@@ -100,6 +154,10 @@ export const PAPERS: Paper[] = [
   },
 {
     slug: "leo-d2d",
+    shortTitle: "Direct-to-device 5G NTN for Nepal",
+    summary:
+      "A four-layer design that lets an ordinary 5G-NTN phone reach LEO satellites directly: 12.3 dB link margin and a worked case for Nepal's terrain.",
+    year: 2026,
     title: "Direct-to-Device LEO Satellite Communication: A System Architecture for Universal 5G NTN Connectivity with Focus on Nepal",
     authors: ["Sushant Poudel", "Aashika Pandey"],
     venue: "Space Con 2026",
@@ -111,6 +169,10 @@ export const PAPERS: Paper[] = [
   },
 {
     slug: "swayam",
+    shortTitle: "Project Swayam: offline municipal AI",
+    summary:
+      "An offline municipal AI stack: a deterministic gatekeeper that blocked all 1,700 extraction attempts, and a radio mesh holding 88% delivery after 40% node loss.",
+    year: 2026,
     title: "Project Swayam: The Unbreakable Municipality — Building Nepal's First Fully Offline, Sovereign AI Governance System",
     authors: ["Sushant Poudel", "Aashika Pandey"],
     venue: "Municipal AI Governance Conference 2026, Budhanilkantha Municipality, Nepal",
@@ -122,6 +184,11 @@ export const PAPERS: Paper[] = [
   },
 {
     slug: "embodiedos",
+    shortTitle: "EmbodiedOS: offline robotics stack",
+    summary:
+      "EmbodiedOS v0.1.0: an offline, four-phase robotics stack pairing a C++ real-time control layer with local LLM decision-making and RAG-backed episodic memory.",
+    // The report itself is dated 2025 in its footer, not 2026 like the conference papers.
+    year: 2025,
     title: "EmbodiedOS: Embodied Intelligence — A Practical Software Architecture for Real-Time Robotic Decision Making",
     authors: ["Sushant Poudel"],
     venue: "Technical report, v0.1.0",
@@ -134,6 +201,10 @@ export const PAPERS: Paper[] = [
   },
 {
     slug: "data-center",
+    shortTitle: "Nepal as a green data-center hub",
+    summary:
+      "A case-study assessment of Nepal as a South Asian data-center hub: hydropower and climate advantages measured against seismic risk, market size and data access.",
+    year: 2026,
     title: "Feasibility Study for Establishing Nepal as a Data Center Hub of South Asia",
     authors: ["Sulav Timalsina", "Sushant Poudel"],
     venue: "Manuscript",

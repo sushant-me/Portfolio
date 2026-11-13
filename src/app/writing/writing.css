@@ -147,3 +147,56 @@
 }
 
 .post-source a { color: #7cb0ff; text-decoration: none; }
+
+/* ── related posts + onward links ──
+   Added because every post ended in a dead end: the source footnote pointed off-site
+   and nothing pointed at the related notes, the papers, or the fact that the author
+   takes work. Kept visually quieter than the body so it reads as an index, not as
+   more article. */
+.post-related {
+  margin-top: 44px;
+  padding-top: 22px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.post-related h2 {
+  font-size: 13px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #6f7a90;
+  margin: 0 0 14px;
+}
+
+.post-related ul { list-style: none; padding: 0; margin: 0; }
+
+.post-related li { padding: 9px 0; }
+
+.post-related a {
+  display: block;
+  color: #dfe5f0;
+  font-size: 16px;
+  font-weight: 550;
+  line-height: 1.4;
+  text-decoration: none;
+  margin-bottom: 4px;
+}
+
+.post-related a:hover { color: #7cb0ff; }
+
+.post-next {
+  margin-top: 34px;
+  padding: 16px 18px;
+  border: 1px solid rgba(124, 176, 255, 0.22);
+  border-radius: 8px;
+  background: rgba(124, 176, 255, 0.05);
+  font-size: 14.5px;
+  line-height: 1.65;
+  color: #b9c4d6;
+}
+
+.post-next a { color: #7cb0ff; text-decoration: none; }
+.post-next a:hover { text-decoration: underline; }
+
+.post .xnav { margin-top: 36px; }

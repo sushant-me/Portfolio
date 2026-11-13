@@ -1,8 +1,11 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import JsonLd from "@/components/JsonLd";
+import CrossNav from "@/components/CrossNav";
+import { SITE, breadcrumbList, pageNode } from "@/lib/site";
 import "./press.css";
 
-const BASE = "https://sushantpoudel2028.com.np";
+const BASE = SITE;
 
 /**
  * Editors ask the same four things before they commission anything: who is this, what can they
@@ -16,7 +19,7 @@ const BASE = "https://sushantpoudel2028.com.np";
 export const metadata: Metadata = {
   title: "Press & Author — Sushant Poudel",
   description:
-    "Author and expert-comment details for Sushant Poudel: AI agent security, LLM evaluation and verification, MCP tool shadowing, and memory safety. Bio, headshot and checkable work.",
+    "Author and expert-comment details for Sushant Poudel: AI agent security, LLM evaluation and verification, MCP tool shadowing, and memory safety.",
   alternates: { canonical: `${BASE}/press` },
   openGraph: {
     title: "Press & Author — Sushant Poudel",
@@ -24,6 +27,14 @@ export const metadata: Metadata = {
       "Bio, headshot and checkable work for commissioning or quoting on AI agent security and LLM verification.",
     url: `${BASE}/press`,
     type: "profile",
+    images: [{ url: "/og.png", width: 1200, height: 630, alt: "Sushant Poudel" }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Press & Author — Sushant Poudel",
+    description:
+      "Bio, headshot and checkable work for commissioning or quoting on AI agent security and LLM verification.",
+    images: ["/og.png"],
   },
 };
 
@@ -90,6 +101,33 @@ const WORK: { name: string; url: string; what: string }[] = [
 export default function PressPage() {
   return (
     <main className="pr">
+      {/* A CollectionPage whose mainEntity lists the selected work: the links below
+          are the page's substance, and stating them as a list is what makes this a
+          page about a body of work rather than a page that happens to contain links. */}
+      <JsonLd
+        data={pageNode({
+          type: "CollectionPage",
+          url: "/press",
+          name: "Press & Author — Sushant Poudel",
+          description:
+            "Press and author page for Sushant Poudel: bio, headshot, expert topics and selected checkable work.",
+          mainEntity: {
+            "@type": "ItemList",
+            itemListElement: WORK.map((work, index) => ({
+              "@type": "ListItem",
+              position: index + 1,
+              name: work.name,
+              url: work.url,
+            })),
+          },
+        })}
+      />
+      <JsonLd
+        data={breadcrumbList([
+          { name: "Home", path: "/" },
+          { name: "Press", path: "/press" },
+        ])}
+      />
       <div className="pr-wrap">
         <Link href="/" className="pr-back">
           ← sushantpoudel2028.com.np
@@ -190,8 +228,12 @@ export default function PressPage() {
         <p className="pr-foot">
           For commissioning or a quote, email{" "}
           <a href="mailto:sushant.poudel2028@gmail.com">sushant.poudel2028@gmail.com</a>. See also{" "}
-          <Link href="/writing">writing</Link> and <Link href="/publications">publications</Link>.
+          <Link href="/writing">writing</Link>, <Link href="/publications">publications</Link> and
+          the <Link href="/about">about page</Link> for the longer record. If you are hiring
+          rather than commissioning, <Link href="/hire">what I do</Link> is the one-page version.
         </p>
+
+        <CrossNav current="/press" />
       </div>
     </main>
   );

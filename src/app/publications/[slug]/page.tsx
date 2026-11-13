@@ -1,10 +1,20 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import JsonLd from "@/components/JsonLd";
+import CrossNav from "@/components/CrossNav";
 import { PAPERS } from "../../../../content/publications";
+import {
+  SITE,
+  WEBSITE_ID,
+  PERSON_ID,
+  authorNode,
+  breadcrumbList,
+  metaDescription,
+} from "@/lib/site";
 import "../publications.css";
 
-const BASE = "https://sushantpoudel2028.com.np";
+const BASE = SITE;
 
 export function generateStaticParams() {
   return PAPERS.map((p) => ({ slug: p.slug }));
@@ -24,6 +34,7 @@ export function generateStaticParams() {
  * papers carried Type 3 fonts, which break text extraction, and linking it here
  * would have made the paper silently unindexable.
  */
+
 export async function generateMetadata({
   params,
 }: {
@@ -35,31 +46,48 @@ export async function generateMetadata({
 
   const url = `${BASE}/publications/${p.slug}`;
   const pdf = `${BASE}${p.pdf}`;
+  // The full title is the page's <h1>; the <title> is the short name plus the
+  // byline, because the printed titles run 107–167 characters and a title tag that
+  // long is truncated before it reaches the part that names the paper.
+  const title = `${p.shortTitle} — paper by Sushant Poudel`;
+  const description = metaDescription(p.summary);
 
-  /* eslint-disable @typescript-eslint/naming-convention */
   const citation: Record<string, string | string[]> = {
     citation_title: p.title,
     // One meta tag per author, which is what the scheme expects.
     citation_author: p.authors,
-    citation_publication_date: "2026",
+    // Only where the site states a date. A year on its own is not a date in the
+    // scheme, and the previous hardcoded "2026" was wrong for the 2025 report.
+    ...(p.date ? { citation_publication_date: p.date } : {}),
     citation_pdf_url: pdf,
     citation_abstract_html_url: url,
     citation_language: "en",
-    citation_technical_report_institution: "Nepal Engineering College",
   };
-  /* eslint-enable @typescript-eslint/naming-convention */
 
   return {
-    title: `${p.title} — Sushant Poudel`,
-    description: p.abstract.slice(0, 300),
+    title,
+    description,
     alternates: { canonical: url },
     openGraph: {
-      title: p.title,
-      description: p.abstract.slice(0, 200),
+      title,
+      description,
       url,
       type: "article",
+      images: [
+        {
+          url: "/og.png",
+          width: 1200,
+          height: 630,
+          alt: p.title,
+        },
+      ],
     },
-    twitter: { card: "summary_large_image", title: p.title },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images: ["/og.png"],
+    },
     other: citation,
   };
 }
@@ -142,16 +170,56 @@ export default async function Paper({ params }: { params: Promise<{ slug: string
   const p = PAPERS.find((x) => x.slug === slug);
   if (!p) notFound();
 
+  const url = `${BASE}/publications/${p.slug}`;
+
   const bib = `@misc{${uniqueKey(p)},
   title  = {${p.title}},
   author = {${p.authors.join(" and ")}},
-  year   = {2026},
+  year   = {${p.year}},
   note   = {${p.venue}},
   url    = {${BASE}${p.pdf}}
 }`;
 
+  /**
+   * ScholarlyArticle rather than Article: the work is a paper, and the type is what
+   * an academic index uses to decide whether a page is a paper's landing page. The
+   * author list is emitted in the order printed on the PDF, with this site's owner
+   * pointing at the shared Person node so the page resolves to the same entity as
+   * the rest of the site instead of a second "Sushant Poudel" string.
+   *
+   * `datePublished` appears only for papers that carry a real date. Omitting it is
+   * better than a fabricated one, and both remaining conference papers state a
+   * venue year rather than a date.
+   */
+  const articleSchema: Record<string, unknown> = {
+    "@context": "https://schema.org",
+    "@type": "ScholarlyArticle",
+    "@id": `${url}#article`,
+    headline: p.title,
+    name: p.title,
+    description: p.summary,
+    ...(p.abstract ? { abstract: p.abstract } : {}),
+    author: p.authors.map((name) => authorNode(name)),
+    url,
+    mainEntityOfPage: { "@type": "WebPage", "@id": url },
+    isPartOf: { "@id": WEBSITE_ID },
+    publisher: { "@id": PERSON_ID },
+    isAccessibleForFree: true,
+    inLanguage: "en",
+    ...(p.date ? { datePublished: p.date } : {}),
+    ...(p.doi ? { sameAs: `https://doi.org/${p.doi}` } : {}),
+  };
+
   return (
     <main className="pub">
+      <JsonLd data={articleSchema} />
+      <JsonLd
+        data={breadcrumbList([
+          { name: "Home", path: "/" },
+          { name: "Publications", path: "/publications" },
+          { name: p.shortTitle, path: `/publications/${p.slug}` },
+        ])}
+      />
       <div className="pub-wrap paper">
         <Link href="/publications" className="pub-back">
           ← All publications
@@ -171,10 +239,22 @@ export default async function Paper({ params }: { params: Promise<{ slug: string
           {p.venue}
         </div>
 
-        {p.abstract && (
+        {p.abstract ? (
           <>
             <div className="abstract-label">Abstract</div>
             <p className="abstract">{p.abstract}</p>
+          </>
+        ) : (
+          <>
+            <div className="abstract-label">Summary</div>
+            <p className="abstract">{p.summary}</p>
+            {/* This report is a technical reference rather than a conference paper,
+                and it prints no abstract. Saying so is more useful than presenting a
+                page-written summary as if it were the report's own words. */}
+            <p className="artifact-note">
+              This technical report prints no abstract. The summary above is drawn from the
+              report&rsquo;s own contents, which the PDF below is the primary source for.
+            </p>
           </>
         )}
 
@@ -206,6 +286,16 @@ export default async function Paper({ params }: { params: Promise<{ slug: string
         <div className="abstract-label">Cite this</div>
         <pre className="bibtex">{bib}</pre>
 
+        {/* The landing page for a paper is also where a reader decides whether to
+            trust its author. Both links exist so that check is one click rather
+            than a search. */}
+        <p className="footnote">
+          Sushant Poudel is an AI security engineer in Nepal; the{" "}
+          <Link href="/about">about page</Link> has the longer record and the{" "}
+          <Link href="/press">press page</Link> has the short bio and headshot. The other papers
+          are on the <Link href="/publications">publications index</Link>.
+        </p>
+
         <p className="footnote">
           Claims about his own work that the ledger covers are re-checked weekly against their
           public source by{" "}
@@ -214,6 +304,8 @@ export default async function Paper({ params }: { params: Promise<{ slug: string
           every manuscript listed here. The reproducibility note above is part of that record: where
           no artifact exists, the page says so instead of implying one.
         </p>
+
+        <CrossNav current="/publications" />
       </div>
     </main>
   );

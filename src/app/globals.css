@@ -78,3 +78,41 @@ html.lenis body {
     transition: none;
   }
 }
+
+/* ── Cross-page navigation ────────────────────────────────────────────────
+   The inner pages (writing, publications, press) each carry their own small
+   stylesheet for their own layout, but the footer navigation is identical on every
+   one of them, so it lives here instead of being copied three more times. The
+   selectors are class-qualified (`.xnav a.xnav-link`) so a page stylesheet that
+   styles bare `a` elements cannot repaint them. */
+.xnav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 16px;
+  margin-top: 44px;
+  padding-top: 18px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 12.5px;
+  letter-spacing: 0.02em;
+}
+
+.xnav a.xnav-link {
+  color: #8d97ad;
+  text-decoration: none;
+}
+
+.xnav a.xnav-link:hover {
+  color: #c7d2e4;
+}
+
+/* Marking the current page, rather than removing it from the row, keeps the row
+   the same length everywhere so a reader can learn where things are. */
+.xnav a.xnav-link[aria-current="page"] {
+  color: #eef1f7;
+}
+
+.xnav a.xnav-mail {
+  margin-left: auto;
+  color: #7cb0ff;
+}

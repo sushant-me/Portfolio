@@ -64,6 +64,22 @@ export function getPosts(): PostMeta[] {
     .sort((a, b) => (a.date < b.date ? 1 : a.date > b.date ? -1 : 0));
 }
 
+/**
+ * The page already has its one <h1>: the post title, rendered above the article.
+ * Some bodies produce another one, because a plain-text code snippet that begins
+ * with "# comment" is indistinguishable from a Markdown heading, and several posts
+ * in the synced corpus contain snippets written that way — one of them renders five
+ * <h1> elements, which tells a crawler the page is five documents.
+ *
+ * The body Markdown is generated from the writeups repository, so the fix belongs at
+ * render time rather than in files the sync overwrites. Only <h1> is demoted: the
+ * posts that use "##" for their real sections keep their hierarchy, and the page's
+ * own title is still the only top-level heading.
+ */
+function demoteBodyH1(html: string): string {
+  return html.replace(/<h1(\s[^>]*)?>([\s\S]*?)<\/h1>/gi, "<h2$1>$2</h2>");
+}
+
 export function getPost(slug: string): Post | null {
   const file = path.join(DIR, `${slug}.md`);
   if (!fs.existsSync(file)) return null;
@@ -78,7 +94,7 @@ export function getPost(slug: string): Post | null {
     source: meta.source ?? "",
     words,
     minutes: readingMinutes(body),
-    html: marked.parse(body, { async: false }) as string,
+    html: demoteBodyH1(marked.parse(body, { async: false }) as string),
   };
 }
 
@@ -105,4 +121,81 @@ export function formatDate(iso: string): string {
 export function ogImageFor(slug: string): string {
   const card = path.join(process.cwd(), "public", "og", `${slug}.png`);
   return fs.existsSync(card) ? `/og/${slug}.png` : "/og.png";
+}
+
+/**
+ * Related posts, chosen from the words a post already uses.
+ *
+ * There are no tags in the synced frontmatter, and adding them would mean editing
+ * generated files that the sync overwrites. Titles and summaries do share the
+ * vocabulary of their subject — "MCP", "detector", "coverage", "benchmark" — so
+ * overlap in those fields is a decent proxy for "same kind of problem".
+ *
+ * The fallback matters as much as the score: a post that shares no words still
+ * gets the newest posts rather than an empty section, and ties break on date so
+ * the choice is stable across builds (a section that reshuffles on every deploy is
+ * a section a reader cannot trust).
+ */
+const STOPWORDS = new Set([
+  "about", "after", "again", "against", "already", "another", "because", "before",
+  "being", "between", "could", "every", "first", "found", "from", "have", "into",
+  "itself", "just", "like", "made", "make", "many", "more", "most", "much", "must",
+  "never", "only", "other", "over", "same", "should", "since", "some", "still",
+  "such", "than", "that", "their", "them", "then", "there", "these", "they", "this",
+  "those", "through", "under", "until", "very", "want", "were", "what", "when",
+  "where", "which", "while", "with", "would", "your", "write", "wrote", "post",
+  "check", "checks", "checking", "thing", "things", "part", "went", "came",
+]);
+
+function words(text: string): Set<string> {
+  return new Set(
+    text
+      .toLowerCase()
+      .split(/[^a-z0-9]+/)
+      .filter((w) => w.length >= 4 && !STOPWORDS.has(w)),
+  );
+}
+
+export function relatedPosts(posts: PostMeta[], slug: string, limit = 3): PostMeta[] {
+  const current = posts.find((p) => p.slug === slug);
+  if (!current) return posts.slice(0, limit);
+
+  const subject = words(`${current.title} ${current.summary}`);
+  const scored = posts
+    .filter((p) => p.slug !== slug)
+    .map((p) => {
+      const candidate = words(`${p.title} ${p.summary}`);
+      let shared = 0;
+      for (const word of candidate) if (subject.has(word)) shared += 1;
+      return { post: p, shared };
+    })
+    .sort((a, b) => b.shared - a.shared || (a.post.date < b.post.date ? 1 : -1));
+
+  return scored.slice(0, limit).map((entry) => entry.post);
+}
+
+/**
+ * The section a post belongs to, for the BlogPosting `articleSection`.
+ *
+ * Google does not require it, but it is what a reader (and an aggregator) uses to
+ * tell a CTF write-up apart from an evaluation note. The frontmatter has no section
+ * field — the sync generates it — so it is derived from the post's own words. The
+ * order of the tests is the editorial decision: a benchmark post that mentions
+ * agents is still about testing, so testing is checked before agents.
+ */
+export function sectionFor(post: Pick<PostMeta, "title" | "summary">): string {
+  const text = `${post.title} ${post.summary}`.toLowerCase();
+  if (/ctf|writeup|qualifier|pwn|reverse engineering|\bflag\b/.test(text)) {
+    return "CTF write-ups";
+  }
+  if (/addresssanitizer|sanitizer|use-after-free|memory|crash|reproducer|\bcve\b/.test(text)) {
+    return "Memory safety and debugging";
+  }
+  if (/verif|test|check|benchmark|coverage|detector|false positive|harness|linter|\bci\b/.test(text)) {
+    return "Verification and testing";
+  }
+  if (/agent|mcp|\bllm\b|prompt|tool|safety|evaluat|model/.test(text)) {
+    return "AI agent security";
+  }
+  return "Engineering notes";
 }

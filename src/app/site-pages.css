@@ -1,0 +1,278 @@
+/* Shared styles for the pages that exist to answer a question rather than to be
+   scrolled: /hire, /about, /contact and /search.
+ *
+ * The writing, publications and press sections each keep their own stylesheet
+ * because their layouts are genuinely different (a post body, a paper landing page,
+ * a press kit). These four are one document shape — heading, prose, lists — so they
+ * share one, and the palette is the same #08090f / #eef1f7 / #7cb0ff the rest of
+ * the site uses. The prefix is `pg` for the page shell and a second prefix per page
+ * for the parts only that page has, so a page cannot accidentally restyle another.
+ */
+
+.pg {
+  min-height: 100vh;
+  background: #08090f;
+  color: #eef1f7;
+  font-family: var(--font-geist-sans), system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+  padding: 56px 22px 96px;
+}
+
+.pg-wrap { max-width: 760px; margin: 0 auto; }
+
+.pg-back {
+  display: inline-block;
+  font-size: 13px;
+  color: #8d97ad;
+  text-decoration: none;
+  margin-bottom: 30px;
+}
+
+.pg-back:hover { color: #eef1f7; }
+
+.pg h1 {
+  font-size: 34px;
+  line-height: 1.16;
+  letter-spacing: -0.02em;
+  margin: 0 0 12px;
+  font-weight: 650;
+}
+
+.pg .lead {
+  color: #a7b0c2;
+  font-size: 16px;
+  line-height: 1.7;
+  margin: 0 0 10px;
+}
+
+.pg .meta {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 11.5px;
+  letter-spacing: 0.03em;
+  color: #6f7a90;
+  margin: 0 0 34px;
+}
+
+.pg h2 {
+  font-size: 18px;
+  letter-spacing: -0.01em;
+  color: #eef1f7;
+  margin: 40px 0 12px;
+}
+
+.pg h3 { font-size: 15.5px; margin: 24px 0 6px; color: #eef1f7; }
+
+.pg p { color: #a7b0c2; font-size: 15px; line-height: 1.72; margin: 0 0 13px; }
+
+.pg a { color: #7cb0ff; text-decoration: none; }
+.pg a:hover { text-decoration: underline; }
+
+.pg ul, .pg ol { color: #a7b0c2; font-size: 15px; line-height: 1.7; padding-left: 20px; margin: 0 0 16px; }
+.pg li { margin-bottom: 7px; }
+
+.pg strong { color: #eef1f7; font-weight: 600; }
+
+/* ── service lines ── */
+.pg-svc { list-style: none; padding: 0; margin: 0 0 8px; }
+
+.pg-svc li {
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 18px 0;
+  margin: 0;
+}
+
+.pg-svc li:last-child { border-bottom: 1px solid rgba(255, 255, 255, 0.08); }
+
+.pg-svc h3 { margin: 0 0 6px; font-size: 16.5px; }
+
+.pg-svc p { margin: 0; }
+
+.pg-svc .deliverable {
+  display: block;
+  margin-top: 8px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 11.5px;
+  letter-spacing: 0.02em;
+  color: #6f7a90;
+}
+
+/* ── numbered process ── */
+.pg-steps { list-style: none; padding: 0; margin: 0; counter-reset: step; }
+
+.pg-steps li {
+  counter-increment: step;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 16px 0 16px 40px;
+  position: relative;
+  margin: 0;
+}
+
+.pg-steps li:last-child { border-bottom: 1px solid rgba(255, 255, 255, 0.08); }
+
+.pg-steps li::before {
+  content: counter(step);
+  position: absolute;
+  left: 0;
+  top: 16px;
+  width: 24px;
+  height: 24px;
+  border: 1px solid rgba(124, 176, 255, 0.34);
+  border-radius: 50%;
+  color: #7cb0ff;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 12px;
+  line-height: 23px;
+  text-align: center;
+}
+
+.pg-steps strong { display: block; margin-bottom: 3px; }
+
+/* ── proof / link lists ── */
+.pg-proof { list-style: none; padding: 0; margin: 0; }
+
+.pg-proof li {
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 13px 0;
+  margin: 0;
+}
+
+.pg-proof li:last-child { border-bottom: 1px solid rgba(255, 255, 255, 0.08); }
+
+.pg-proof a { display: block; font-weight: 600; margin-bottom: 3px; }
+
+.pg-proof span { display: block; color: #98a3b8; font-size: 13.5px; line-height: 1.6; }
+
+/* ── FAQ ── */
+.pg-faq { margin: 0 0 8px; }
+
+.pg-faq details {
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 12px 0;
+}
+
+.pg-faq details:last-child { border-bottom: 1px solid rgba(255, 255, 255, 0.08); }
+
+.pg-faq summary {
+  cursor: pointer;
+  color: #dfe5f0;
+  font-weight: 600;
+  font-size: 15px;
+}
+
+.pg-faq details p { margin: 9px 0 0; }
+
+/* ── call to action ── */
+.pg-cta {
+  margin: 40px 0 0;
+  padding: 22px 22px 20px;
+  border: 1px solid rgba(124, 176, 255, 0.26);
+  border-radius: 10px;
+  background: rgba(124, 176, 255, 0.05);
+}
+
+.pg-cta h2 { margin: 0 0 8px; font-size: 17px; }
+.pg-cta p { margin: 0 0 14px; }
+
+/* Doubled class on purpose: `.pg a` is more specific than `.pg-btn`, so a bare
+   `.pg-btn` rule lost the colour and the button rendered as an empty blue pill —
+   light-blue text on a light-blue background. */
+.pg a.pg-btn {
+  display: inline-block;
+  padding: 10px 18px;
+  border-radius: 7px;
+  background: #7cb0ff;
+  color: #08090f;
+  font-weight: 650;
+  font-size: 14.5px;
+  text-decoration: none;
+}
+
+.pg a.pg-btn:hover { background: #a3c8ff; text-decoration: none; color: #08090f; }
+
+/* ── note / aside ── */
+.pg-note {
+  font-size: 13.5px;
+  line-height: 1.65;
+  color: #8d97ad;
+  border-left: 2px solid rgba(255, 255, 255, 0.12);
+  padding-left: 14px;
+  margin: 18px 0;
+}
+
+/* ── search ── */
+.search { margin: 26px 0 0; }
+
+.search-label {
+  display: block;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 11.5px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #6f7a90;
+  margin-bottom: 8px;
+}
+
+.search-input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 12px 14px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 8px;
+  background: #0d0f16;
+  color: #eef1f7;
+  font-size: 16px; /* 16px keeps iOS from zooming the whole page on focus. */
+  font-family: inherit;
+}
+
+.search-input:focus {
+  outline: 2px solid rgba(124, 176, 255, 0.5);
+  outline-offset: 1px;
+  border-color: rgba(124, 176, 255, 0.45);
+}
+
+.search-count {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 11.5px;
+  letter-spacing: 0.02em;
+  color: #6f7a90;
+  margin: 14px 0 0;
+}
+
+.search-results { list-style: none; padding: 0; margin: 20px 0 0; }
+
+.search-results li {
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 16px 0;
+  margin: 0;
+}
+
+.search-results li:last-child { border-bottom: 1px solid rgba(255, 255, 255, 0.08); }
+
+.search-kind {
+  display: inline-block;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 10.5px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: #7cb0ff;
+  border: 1px solid rgba(124, 176, 255, 0.28);
+  border-radius: 4px;
+  padding: 1px 6px;
+  margin-bottom: 7px;
+}
+
+.search-results a {
+  display: block;
+  font-size: 17px;
+  font-weight: 600;
+  line-height: 1.4;
+  margin-bottom: 4px;
+}
+
+.search-results p { margin: 0 0 5px; font-size: 14px; }
+
+.search-meta {
+  display: block;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 11px;
+  color: #6f7a90;
+}

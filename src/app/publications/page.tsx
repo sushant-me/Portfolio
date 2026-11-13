@@ -1,21 +1,41 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import JsonLd from "@/components/JsonLd";
+import CrossNav from "@/components/CrossNav";
 import { PAPERS } from "../../../content/publications";
+import {
+  SITE,
+  breadcrumbList,
+  metaDescription,
+  pageNode,
+} from "@/lib/site";
 import "./publications.css";
 
-const BASE = "https://sushantpoudel2028.com.np";
+const BASE = SITE;
+
+const TITLE = "Publications — AI security papers by Sushant Poudel";
+const DESCRIPTION = metaDescription(
+  "Papers on AI agent security, prompt-injection defences, edge verification and satellite networking — full abstracts, PDFs, and what can and cannot be reproduced.",
+);
 
 export const metadata: Metadata = {
-  title: "Publications — Sushant Poudel",
-  description:
-    "Papers on AI agent security, LLM prompt-injection defences, edge verification, and satellite networking — with abstracts and full PDFs.",
+  title: TITLE,
+  description: DESCRIPTION,
   alternates: { canonical: `${BASE}/publications` },
   openGraph: {
-    title: "Publications — Sushant Poudel",
-    description:
-      "Papers on AI agent security, LLM prompt-injection defences, edge verification, and satellite networking.",
+    title: TITLE,
+    description: DESCRIPTION,
     url: `${BASE}/publications`,
     type: "website",
+    // A child `openGraph` replaces the layout's rather than merging into it, so the
+    // shared card has to be repeated here or this page unfurls with no image.
+    images: [{ url: "/og.png", width: 1200, height: 630, alt: "Publications — Sushant Poudel" }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: TITLE,
+    description: DESCRIPTION,
+    images: ["/og.png"],
   },
 };
 
@@ -46,6 +66,33 @@ const ARTIFACT_LABEL: Record<string, { short: string; title: string }> = {
 export default function PublicationsIndex() {
   return (
     <main className="pub">
+      {/* A collection of papers, with the list as its mainEntity. The ItemList is
+          what tells a crawler these nine URLs are the same kind of thing, rather
+          than nine unrelated pages that happen to link to each other. */}
+      <JsonLd
+        data={pageNode({
+          type: "CollectionPage",
+          url: "/publications",
+          name: TITLE,
+          description: DESCRIPTION,
+          mainEntity: {
+            "@type": "ItemList",
+            numberOfItems: PAPERS.length,
+            itemListElement: PAPERS.map((p, index) => ({
+              "@type": "ListItem",
+              position: index + 1,
+              url: `${BASE}/publications/${p.slug}`,
+              name: p.shortTitle,
+            })),
+          },
+        })}
+      />
+      <JsonLd
+        data={breadcrumbList([
+          { name: "Home", path: "/" },
+          { name: "Publications", path: "/publications" },
+        ])}
+      />
       <div className="pub-wrap">
         <Link href="/" className="pub-back">
           ← sushantpoudel2028.com.np
@@ -88,8 +135,11 @@ export default function PublicationsIndex() {
         <p className="footnote">
           Acceptance status is the author&rsquo;s own claim and is not independently checkable from a
           public source. Where it rests on a notification rather than a public record, the paper&rsquo;s
-          page says so.
+          page says so. The <Link href="/about">about page</Link> has the author&rsquo;s record and
+          the <Link href="/press">press page</Link> the short bio for commissioning.
         </p>
+
+        <CrossNav current="/publications" />
       </div>
     </main>
   );

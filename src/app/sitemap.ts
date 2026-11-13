@@ -28,6 +28,11 @@ const BASE = "https://sushantpoudel2028.com.np";
  *
  * Posts carry a real publication date, so they keep one, and /writing inherits the
  * newest of them because that is what actually changes on that page.
+ *
+ * Not listed: /search. It is marked `noindex` (its content already exists at the
+ * URLs it returns), and a sitemap entry for a page that asks not to be indexed is a
+ * contradiction. /admin is absent for the same reason it always was — it is a
+ * private tool with a `noindex` header, not a page anyone should land on.
  */
 export default function sitemap(): MetadataRoute.Sitemap {
   const posts = getPosts();
@@ -43,6 +48,25 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 1,
     },
     {
+      // The page a hiring manager or a client needs: services, process and a
+      // contact route. Ranked alongside the homepage now that conversion, not just
+      // discovery, is the job.
+      url: `${BASE}/hire`,
+      changeFrequency: "monthly",
+      priority: 0.9,
+    },
+    {
+      // The E-E-A-T page: identity, education, awards and the checkable record.
+      url: `${BASE}/about`,
+      changeFrequency: "monthly",
+      priority: 0.9,
+    },
+    {
+      url: `${BASE}/contact`,
+      changeFrequency: "yearly",
+      priority: 0.7,
+    },
+    {
       url: `${BASE}/writing`,
       lastModified: newestPost,
       changeFrequency: "weekly",
@@ -56,11 +80,10 @@ export default function sitemap(): MetadataRoute.Sitemap {
     },
     {
       // The page an editor or journalist should land on: bio, headshot, topics and checkable
-      // work in one URL. Ranked above an individual paper because it is the entry point for
-      // commissioning rather than a destination for readers.
+      // work in one URL.
       url: `${BASE}/press`,
       changeFrequency: "monthly",
-      priority: 0.9,
+      priority: 0.8,
     },
     ...PAPERS.map((p) => ({
       url: `${BASE}/publications/${p.slug}`,

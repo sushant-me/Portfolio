@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import JsonLd from "../components/JsonLd";
+import { ENTITY_GRAPH, SITE } from "../lib/site";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -12,9 +14,8 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-const SITE = "https://sushantpoudel2028.com.np";
 const DESCRIPTION =
-  "Portfolio of Sushant Poudel — AI Researcher, Full-Stack Engineer, Cybersecurity Specialist from Nepal. Aspire Leaders Finalist, 2x Hult Prize Runner-Up.";
+  "Sushant Poudel is an AI security engineer in Nepal working on agent tool boundaries, LLM evaluation and memory safety. Open to security and engineering roles.";
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE),
@@ -25,8 +26,29 @@ export const metadata: Metadata = {
       "application/rss+xml": [{ url: "/feed.xml", title: "Sushant Poudel — Writing" }],
     },
   },
-  title: "Sushant Poudel — AI | Security | Engineering",
+  // The name leads the title because that is the query this page has to win, and a
+  // role after it tells a reader who has never heard the name why they should click.
+  title: "Sushant Poudel — AI Security Engineer in Nepal",
   description: DESCRIPTION,
+  authors: [{ name: "Sushant Poudel", url: SITE }],
+  creator: "Sushant Poudel",
+  publisher: "Sushant Poudel",
+  category: "technology",
+  applicationName: "Sushant Poudel",
+  // The site is meant to be indexed everywhere and quoted at length; the site's
+  // own copy is the best answer to "who is Sushant Poudel", so the snippet limit
+  // is left to the search engine rather than capped here.
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+      "max-video-preview": -1,
+    },
+  },
   // Small derivatives: the source photo is 7 MB, which as a favicon is a
   // download nobody asked for. See scripts/optimize-images.py.
   icons: {
@@ -38,9 +60,9 @@ export const metadata: Metadata = {
   // rather than a bare URL.
   openGraph: {
     type: "profile",
-    url: SITE,
+    url: `${SITE}/`,
     siteName: "Sushant Poudel",
-    title: "Sushant Poudel — AI | Security | Engineering",
+    title: "Sushant Poudel — AI Security Engineer in Nepal",
     description: DESCRIPTION,
     images: [
       {
@@ -53,58 +75,26 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Sushant Poudel — AI | Security | Engineering",
+    title: "Sushant Poudel — AI Security Engineer in Nepal",
     description: DESCRIPTION,
     images: ["/og.png"],
   },
 };
 
-// Structured data so search engines can read the credentials on the page as
-// facts about a person rather than as prose. Every field here is stated on the
-// page itself.
-const PERSON_SCHEMA = {
-  "@context": "https://schema.org",
-  "@type": "Person",
-  name: "Sushant Poudel",
-  url: SITE,
-  image: `${SITE}/og.png`,
-  jobTitle: "AI Security Engineer",
-  description:
-    "AI security engineer working on agent failure modes, with a merged security patch in google/go-github and memory-safety issues filed against google/s2geometry.",
-  alumniOf: {
-    "@type": "CollegeOrUniversity",
-    name: "Nepal Engineering College",
-  },
-  worksFor: { "@type": "Organization", name: "Atmos SoftTech" },
-  address: {
-    "@type": "PostalAddress",
-    addressLocality: "Bhaktapur",
-    addressCountry: "NP",
-  },
-  sameAs: [
-    "https://github.com/sushant-me",
-    "https://linkedin.com/in/sushant-poudel2028",
-    "https://hackerone.com/nofear976",
-    "https://github.com/sushant-me/reputation",
-  ],
-  knowsAbout: [
-    // Ordered so the most distinctive specialisms come first. These are the queries a
-    // reader, a recruiter or a committee would actually use to look for this work, and
-    // each one is demonstrated by a public artefact rather than asserted.
-    "AI safety evaluation",
-    "Agentic system security",
-    "Model Context Protocol security",
-    "AI security",
-    "Cybersecurity",
-    "Penetration testing",
-    "Reverse engineering",
-    "Software assurance and verification",
-    "Full-stack engineering",
-    "Flutter",
-  ],
-  email: "mailto:sushant.poudel2028@gmail.com",
-};
-
+/**
+ * One structured-data graph for the whole site.
+ *
+ * A single `@graph` with stable `@id`s means the Person, the WebSite and the
+ * homepage are one entity with cross-references, rather than a fresh Person object
+ * on every page that a search engine has to reconcile. Subpages add their own
+ * `WebPage`/`Article` nodes and point back at these ids with `isPartOf`, `about` and
+ * `author`.
+ *
+ * Nothing here is inferred. Every field is stated on the site: the name, role,
+ * location and known specialisms on the homepage and /about; the awards and
+ * education on /about; and the `sameAs` profiles are the same accounts linked from
+ * /contact.
+ */
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -113,10 +103,7 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${geistSans.variable} ${geistMono.variable}`}>
       <body className="min-h-full antialiased">
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(PERSON_SCHEMA) }}
-        />
+        <JsonLd data={ENTITY_GRAPH} />
         {children}
       </body>
     </html>
