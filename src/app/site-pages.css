@@ -339,3 +339,12 @@
 }
 
 .cv-view:hover { color: #dfe5f0 !important; }
+
+/* A link inside running text has to be distinguishable without colour (WCAG 1.4.1).
+   This is the same rule the homepage summary uses; the standalone link lists and
+   buttons keep their own styling. Detected by Lighthouse on /cv, where the prose
+   links to /about, /hire, /contact and the reputation ledger. */
+.pg p a {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
