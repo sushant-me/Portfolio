@@ -27,6 +27,20 @@ import { useScrollProgress } from "../components/useScrollProgress";
  *  so the rendered text stays a single readable string. */
 const NAME_WORDS = ["Sushant", "Poudel"];
 
+/**
+ * Deterministic, still irregular values for the decorative particles.
+ *
+ * These were `Math.random()` inside render. The page is statically rendered, so the
+ * server HTML and the hydrating client produced different percentages and durations;
+ * React then threw the mismatch away and re-rendered that subtree on the client. A
+ * fixed hash keeps the scatter but makes the two renders identical, which removes a
+ * hydration repair from the main thread on a page that is already JS-heavy.
+ */
+const particleSeed = (index: number, salt: number) => {
+  const x = Math.sin((index + 1) * (12.9898 + salt * 7.233)) * 43758.5453;
+  return x - Math.floor(x);
+};
+
 const ROLES = ["AI Security Engineer","Vulnerability Researcher","Agent Safety Researcher","AI Researcher","Cybersecurity Specialist","Full-Stack Developer"];
 
 /**
@@ -929,10 +943,10 @@ function PortfolioBody() {
         <div className="particles" style={{ opacity: loaded ? 0.4 : 0 }}>
           {Array.from({ length: 20 }).map((_, i) => (
             <div key={i} className="particle" style={{
-              left: `${Math.random() * 100}%`,
-              top: `${Math.random() * 100}%`,
-              animationDelay: `${Math.random() * 8}s`,
-              animationDuration: `${6 + Math.random() * 6}s`,
+              left: `${particleSeed(i, 1) * 100}%`,
+              top: `${particleSeed(i, 2) * 100}%`,
+              animationDelay: `${particleSeed(i, 3) * 8}s`,
+              animationDuration: `${6 + particleSeed(i, 4) * 6}s`,
             }} />
           ))}
         </div>
@@ -2473,17 +2487,14 @@ function PortfolioBody() {
             #b6c2d8 72%,
             #ffffff 100%
           );
-          background-size: 220% 220%;
+          background-size: 100% 100%;
           -webkit-background-clip: text;
           background-clip: text;
           -webkit-text-fill-color: transparent;
-          animation: nameShimmer 11s ease-in-out infinite;
-        }
-
-        @keyframes nameShimmer {
-          0%,
-          100% { background-position: 0% 50%; }
-          50% { background-position: 100% 50%; }
+          /* No shimmer animation. The gradient is painted as text-clipped
+             background, and an infinite background-position animation meant the
+             browser kept repainting the LCP element; the first static paint is what
+             the metric needs, and the moving highlight was invisible at 11s anyway. */
         }
 
         .hero-avatar { position: relative; }

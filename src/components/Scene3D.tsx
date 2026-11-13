@@ -1,20 +1,35 @@
 "use client";
 
 import React, { useEffect, useRef } from "react";
-import type {
+// Named imports rather than `await import("three")` with a namespace object: a
+// namespace access is not statically analysable, so the bundler had to ship all of
+// three (~183 KB compressed) even though this file uses 21 classes. Named imports
+// let the unused majority be dropped. The component itself is only loaded after
+// first paint (see HomeClient), so none of this is on the critical path.
+import {
+  AdditiveBlending,
+  BufferAttribute,
+  BufferGeometry,
+  CanvasTexture,
+  Color,
+  EdgesGeometry,
+  EllipseCurve,
   Group,
+  IcosahedronGeometry,
   LineBasicMaterial,
   LineLoop,
   LineSegments,
   Mesh,
+  MeshBasicMaterial,
   PerspectiveCamera,
   Points,
+  PointsMaterial,
   Scene,
+  SphereGeometry,
+  Vector3,
   WebGLRenderer,
 } from "three";
 import { useScroll } from "./ScrollProvider";
-
-type ThreeModule = typeof import("three");
 
 /**
  * The 3D backdrop: a particle shell around a wireframe core, with orbit rings.
@@ -51,15 +66,14 @@ export default function Scene3D({ accent }: { accent: string }) {
       target.y = (e.clientY / window.innerHeight) * 2 - 1;
     };
 
-    (async () => {
-      const THREE: ThreeModule = await import("three");
+    (() => {
       if (disposed) return;
 
       const mobile = window.innerWidth < 760;
       const shellCount = mobile ? 700 : 1700;
       const dustCount = mobile ? 140 : 340;
 
-      const renderer: WebGLRenderer = new THREE.WebGLRenderer({
+      const renderer: WebGLRenderer = new WebGLRenderer({
         canvas,
         alpha: true,
         antialias: false,
@@ -67,8 +81,8 @@ export default function Scene3D({ accent }: { accent: string }) {
       });
       renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, mobile ? 1.25 : 1.6));
 
-      const scene: Scene = new THREE.Scene();
-      const camera: PerspectiveCamera = new THREE.PerspectiveCamera(
+      const scene: Scene = new Scene();
+      const camera: PerspectiveCamera = new PerspectiveCamera(
         58,
         window.innerWidth / window.innerHeight,
         0.1,
@@ -76,12 +90,12 @@ export default function Scene3D({ accent }: { accent: string }) {
       );
       camera.position.set(0, 0, 6.6);
 
-      const root: Group = new THREE.Group();
+      const root: Group = new Group();
       scene.add(root);
 
       // ── accent-driven materials ──────────────────────────────────────────
-      const startColor = new THREE.Color(accentRef.current);
-      const accentTarget = new THREE.Color(accentRef.current);
+      const startColor = new Color(accentRef.current);
+      const accentTarget = new Color(accentRef.current);
 
       // Soft round sprite, so points read as bokeh rather than squares.
       const spriteCanvas = document.createElement("canvas");
@@ -95,7 +109,7 @@ export default function Scene3D({ accent }: { accent: string }) {
         ctx.fillStyle = g;
         ctx.fillRect(0, 0, 64, 64);
       }
-      const sprite = new THREE.CanvasTexture(spriteCanvas);
+      const sprite = new CanvasTexture(spriteCanvas);
 
       // ── particle shell (fibonacci sphere, jittered radius) ───────────────
       const shellPos = new Float32Array(shellCount * 3);
@@ -110,19 +124,19 @@ export default function Scene3D({ accent }: { accent: string }) {
         shellPos[i * 3 + 1] = Math.cos(inclination) * r * 0.78 + jitter;
         shellPos[i * 3 + 2] = Math.sin(inclination) * Math.sin(azimuth) * r + jitter;
       }
-      const shellGeo = new THREE.BufferGeometry();
-      shellGeo.setAttribute("position", new THREE.BufferAttribute(shellPos, 3));
-      const shellMat = new THREE.PointsMaterial({
+      const shellGeo = new BufferGeometry();
+      shellGeo.setAttribute("position", new BufferAttribute(shellPos, 3));
+      const shellMat = new PointsMaterial({
         size: 0.055,
         map: sprite,
         color: startColor.clone(),
         transparent: true,
         opacity: 0.85,
         depthWrite: false,
-        blending: THREE.AdditiveBlending,
+        blending: AdditiveBlending,
         sizeAttenuation: true,
       });
-      const shell: Points = new THREE.Points(shellGeo, shellMat);
+      const shell: Points = new Points(shellGeo, shellMat);
       root.add(shell);
 
       // ── near dust, one depth layer in front ─────────────────────────────
@@ -132,35 +146,35 @@ export default function Scene3D({ accent }: { accent: string }) {
         dustPos[i * 3 + 1] = (Math.random() - 0.5) * 5;
         dustPos[i * 3 + 2] = 1.6 + Math.random() * 3.2;
       }
-      const dustGeo = new THREE.BufferGeometry();
-      dustGeo.setAttribute("position", new THREE.BufferAttribute(dustPos, 3));
-      const dustMat = new THREE.PointsMaterial({
+      const dustGeo = new BufferGeometry();
+      dustGeo.setAttribute("position", new BufferAttribute(dustPos, 3));
+      const dustMat = new PointsMaterial({
         size: 0.035,
         map: sprite,
         color: 0xffffff,
         transparent: true,
         opacity: 0.32,
         depthWrite: false,
-        blending: THREE.AdditiveBlending,
+        blending: AdditiveBlending,
         sizeAttenuation: true,
       });
-      const dust: Points = new THREE.Points(dustGeo, dustMat);
+      const dust: Points = new Points(dustGeo, dustMat);
       root.add(dust);
 
       // ── wireframe core, with an opaque core sphere for real occlusion ────
-      const coreGeo = new THREE.IcosahedronGeometry(1.3, 1);
-      const coreEdges = new THREE.EdgesGeometry(coreGeo);
-      const coreMat = new THREE.LineBasicMaterial({
+      const coreGeo = new IcosahedronGeometry(1.3, 1);
+      const coreEdges = new EdgesGeometry(coreGeo);
+      const coreMat = new LineBasicMaterial({
         color: startColor.clone(),
         transparent: true,
         opacity: 0.5,
       });
-      const core: LineSegments = new THREE.LineSegments(coreEdges, coreMat);
+      const core: LineSegments = new LineSegments(coreEdges, coreMat);
       root.add(core);
 
-      const occluder = new THREE.Mesh(
-        new THREE.SphereGeometry(1.24, 40, 40),
-        new THREE.MeshBasicMaterial({ color: 0x0a0a0f })
+      const occluder = new Mesh(
+        new SphereGeometry(1.24, 40, 40),
+        new MeshBasicMaterial({ color: 0x0a0a0f })
       );
       const coreMesh: Mesh = occluder;
       root.add(coreMesh);
@@ -174,17 +188,17 @@ export default function Scene3D({ accent }: { accent: string }) {
         { r: 3.7, rx: 1.5, ry: -0.5, opacity: 0.07 },
       ];
       ringSpec.forEach((spec) => {
-        const curve = new THREE.EllipseCurve(0, 0, spec.r, spec.r, 0, Math.PI * 2);
+        const curve = new EllipseCurve(0, 0, spec.r, spec.r, 0, Math.PI * 2);
         const pts = curve
           .getPoints(96)
-          .map((p: { x: number; y: number }) => new THREE.Vector3(p.x, p.y, 0));
-        const geo = new THREE.BufferGeometry().setFromPoints(pts);
-        const mat = new THREE.LineBasicMaterial({
+          .map((p: { x: number; y: number }) => new Vector3(p.x, p.y, 0));
+        const geo = new BufferGeometry().setFromPoints(pts);
+        const mat = new LineBasicMaterial({
           color: startColor.clone(),
           transparent: true,
           opacity: spec.opacity,
         });
-        const ring: LineLoop = new THREE.LineLoop(geo, mat);
+        const ring: LineLoop = new LineLoop(geo, mat);
         ring.rotation.x = spec.rx;
         ring.rotation.y = spec.ry;
         rings.push(ring);
