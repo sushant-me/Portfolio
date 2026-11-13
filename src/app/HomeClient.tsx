@@ -44,7 +44,7 @@ const SECTIONS = [
 const STATS = [
   { value: 1, suffix: "", label: "Security patch merged into google/go-github" },
   { value: 5, suffix: "", label: "Memory-safety issues filed in google/s2geometry" },
-  { value: 177, suffix: "", label: "Flags on the HackingHub Q3 2026 board — rank #1" },
+  { value: 210, suffix: "", label: "Flags on HackingHub's all-time board — rank 7" },
   { value: 2, suffix: "", label: "Papers accepted, one at an IEEE conference" },
   { value: 2, suffix: "", label: "Years as a full-time AI engineer" },
   { value: 6, suffix: "", label: "Security tools released and CI-tested" },
@@ -141,9 +141,9 @@ const RESEARCH: Research[] = [
   },
   {
     title: "MCP tool shadowing in Google's agent frameworks",
-    venue: "Open pull requests — adk-go, adk-java, adk-python",
+    venue: "Upstream: adk-python merged, adk-go open, adk-java closed",
     venueType: "conference",
-    desc: "Fixes and reports for framework-reserved tool names that a server-supplied MCP tool can occupy, bypassing the duplicate-name guard: an in-model built-in such as google_search, or the terminal tool set_model_response. Reproduced in Go and Java against the real frameworks, with the reserved sets corrected against each port rather than copied between them.",
+    desc: "Fixes and reports for framework-reserved tool names that a server-supplied MCP tool can occupy, bypassing the duplicate-name guard: an in-model built-in such as google_search, or the terminal tool set_model_response. Reproduced against the Go and Java frameworks, with the reserved sets checked against each port rather than copied between them. The outcome, stated plainly: the Python side landed via Copybara, the Go pull request is still open, and the Java pull request was closed unmerged.",
     tags: ["MCP", "Agent security", "Tool boundaries"],
     color: "#22c55e",
     file: "https://github.com/google/adk-go/pull/1606",
@@ -974,6 +974,12 @@ function PortfolioBody() {
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg>
                 GitHub
               </a>
+              {/* The one button a visitor who wants to hire should not have to hunt
+                  for: the rest of the page is evidence, this is the ask. */}
+              <a href="/hire" className="meta-link meta-link-hire">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M20 7h-3V5a2 2 0 0 0-2-2H9a2 2 0 0 0-2 2v2H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"/><path d="M9 7V5h6v2"/><path d="M2 12h20"/></svg>
+                Work with me
+              </a>
             </div>
 
             <div className="hero-scroll-cue" style={{ opacity: loaded ? 1 : 0 }}>
@@ -1019,7 +1025,7 @@ function PortfolioBody() {
                   AI security engineer working on the failure mode where an autonomous agent does something a human would have blocked.
                   A patch of mine is merged into google/go-github; five memory-safety issues I filed against google/s2geometry are open, including a 2.4 GiB allocation reachable from a 28-byte input, with standalone reproducers for each.
                   Two papers accepted — one on local policy verification for agents (ICICSET 2026), one on predictive bandwidth scaling for WebRTC over LEO satellite links (IEEE RTC 2026, whose research track is published in IEEE Xplore).
-                  Ranked #1 on the HackingHub Q3 2026 global leaderboard (177 flags, 18,125 XP).
+                  Ranked 7th all-time on HackingHub's global leaderboard (210 flags, 21,785 XP, read from the public leaderboard API in November 2026).
                   Two years as a full-time AI engineer at Atmos SoftTech, building production ML systems, full-stack products and offline-first agent pipelines.
                 </p>
                 <p className="summary-text" style={{ marginTop: 12 }}>
@@ -1033,10 +1039,10 @@ function PortfolioBody() {
               <div className="honors-grid stagger">
                 {[
                   { title: "A maintainer independently reproduced a finding of mine before accepting it", desc: "Auditing six AI-action rules in sisaku-security/sisakulint surfaced defects in five. Instead of taking the premise on trust, maintainer on-keyday built both revisions of the rule and ran them over the same inputs, then wrote \"the gap is real and the direction you took to it is a reasonable one\" and filed three tracked issues from the audit. The pull request was closed for review capacity, not for being wrong. The quotation is machine-checked in my reputation repository — edit that comment and the claim goes red." },
-                  { title: "Rank #1 — HackingHub Q3 2026 global leaderboard", desc: "177 flags and 18,125 XP, with 1 gold, 2 silver and 2 bronze awards; the next-ranked account holds 97 flags. Public leaderboard API." },
-                  { title: "Security patch authored, merged, then generalised into google/go-github", desc: "My PR #4556 stopped a release-asset upload being sent to an off-host URL. The maintainer merged it, then replaced it the next day with the broader PR #4564 — \"credentials are sent only to configured origins\" — which is what master implements today and which carries the commit \"Address feedback from sushant-me\". My name is in the project's AUTHORS file on master." },
+                  { title: "Rank 7 all-time on HackingHub's global leaderboard", desc: "210 flags and 21,785 XP, with 1 gold, 4 silver and 3 bronze awards, read from the public leaderboard API in November 2026. The claim is pinned to the all-time board rather than a single quarter’s, because a period board cannot be re-read once it rolls over." },
+                  { title: "Security patch authored, merged, then generalised into google/go-github", desc: "My PR #4556 stopped a release-asset upload being sent to an off-host URL. The maintainer merged it, then replaced it the next day with the broader PR #4564 — \"credentials are sent only to configured origins\" — which is what master implements today. #4564's own commit list includes a commit titled \"Address feedback from sushant-me\"; it was squash-merged, so the commit on master does not carry that message. My name is in the project's AUTHORS file on master, added by #4579, and the v93.0.0 release notes name me." },
                   { title: "Five memory-safety issues in google/s2geometry", desc: "A NULL dereference on the library's documented traversal path, an out-of-bounds read, a 16 GiB allocation from a 117-byte input, and a 2.4 GiB allocation reachable from a 28-byte input. Two hardening pull requests are under review by the maintainer. The maintainer's reply to these, quoted rather than paraphrased: \"It's not really a DoS since these are assumed to only operate on trusted data. We should document the assumptions better.\" — a disagreement about severity and threat model, not about whether the reads are out of bounds." },
-                  { title: "An OSS-Fuzz harness that was testing nothing", desc: "google/libphonenumber's as-you-type formatter asserted 0.00% line coverage of the code it targeted because it never generated valid input; the corrected harness reaches 93%." },
+                  { title: "An OSS-Fuzz harness that was testing nothing", desc: "google/libphonenumber's as-you-type formatter asserted 0.00% line coverage of the code it targeted because it never generated valid input; the corrected harness reaches 93% in a local rebuild. The fix is proposed in pull request #4079, which is still open." },
                   { title: "Two-time Hult Prize 1st Runner-Up", desc: "Recognized consecutive years (2024 & 2025) for social entrepreneurship and business models addressing global challenges." },
                   { title: "Aspire Leaders Program — Global Finalist (2025)", desc: "Selected as one of roughly 10,000 finalists from 54,000+ applicants worldwide, completing leadership training co-created by Harvard Business School faculty." },
                   { title: "NEC IT Club — Joint Secretary (2024–2025)", desc: "Logistics, executive administration and student engagement for department-level technical events and hackathons at Nepal Engineering College." },
@@ -1145,10 +1151,32 @@ function PortfolioBody() {
             </Section>
           </main>
 
+          {/* Conversion strip. The homepage is the strongest page on the site and it
+              used to end in a mailto only — a reader convinced by the record had no
+              page to go to that says what the work would be. */}
+          <section className="hire-strip" aria-label="Work with Sushant Poudel">
+            <div>
+              <div className="hire-kicker">// Available for work</div>
+              <p className="hire-copy">
+                AI security reviews for agentic systems, MCP tool-boundary audits, security-focused
+                code review and full-stack builds — plus open to full-time security and AI
+                engineering roles, remote or Kathmandu-based.
+              </p>
+            </div>
+            <a href="/hire" className="hire-link">
+              What I do &amp; how it runs →
+            </a>
+          </section>
+
           {/* FOOTER */}
           <footer className="portfolio-footer">
             <p>Built with <span style={{ color: ambientColor }}>Next.js</span> &mdash; Sushant Poudel &mdash; Bhaktapur, Nepal &mdash; 2026</p>
             <div className="footer-links">
+              <a href="/about">About</a>
+              <a href="/hire">Hire</a>
+              <a href="/press">Press</a>
+              <a href="/contact">Contact</a>
+              <a href="/search">Search</a>
               <a href="/writing">Writing</a>
               <a href="/publications">Publications</a>
               <a href="https://github.com/sushant-me" target="_blank" rel="noopener noreferrer">GitHub</a>
@@ -1439,6 +1467,68 @@ function PortfolioBody() {
           border-color: var(--text-primary);
           color: var(--text-primary);
           background: var(--surface-raised);
+          transform: translateY(-1px);
+        }
+
+        /* The hire link is the only accent-coloured button in the hero row: it is
+           an ask, and the other three are references. */
+        .meta-link-hire {
+          border-color: rgba(59, 130, 246, 0.45);
+          color: #93c5fd;
+        }
+
+        .meta-link-hire:hover {
+          border-color: #3b82f6;
+          color: #dbeafe;
+          background: rgba(59, 130, 246, 0.12);
+        }
+
+        /* ── HIRE STRIP ── */
+        .hire-strip {
+          display: flex;
+          gap: 22px;
+          align-items: center;
+          justify-content: space-between;
+          flex-wrap: wrap;
+          max-width: 1080px;
+          margin: 0 auto;
+          padding: 26px 24px;
+          border-top: 1px solid var(--border);
+          border-bottom: 1px solid var(--border);
+          background: linear-gradient(180deg, rgba(59, 130, 246, 0.05), transparent);
+        }
+
+        .hire-kicker {
+          font-family: var(--font-mono);
+          font-size: 11.5px;
+          letter-spacing: 0.05em;
+          text-transform: uppercase;
+          color: var(--accent);
+          margin-bottom: 7px;
+        }
+
+        .hire-copy {
+          margin: 0;
+          max-width: 620px;
+          font-size: 14.5px;
+          line-height: 1.65;
+          color: var(--text-secondary);
+        }
+
+        .hire-link {
+          flex: 0 0 auto;
+          padding: 11px 20px;
+          border-radius: 8px;
+          background: var(--accent);
+          color: #0a0a0f;
+          font-size: 14px;
+          font-weight: 650;
+          text-decoration: none;
+          transition: all var(--t-fast) ease;
+        }
+
+        .hire-link:hover {
+          background: #60a5fa;
           transform: translateY(-1px);
         }
 
