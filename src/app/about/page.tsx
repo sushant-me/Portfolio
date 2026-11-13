@@ -176,7 +176,7 @@ export default function AboutPage() {
           I am finishing my degree and working remotely, part-time, as a software developer at
           Arvion, on its mobile and web products. Alongside that I am open to full-time security
           and AI-engineering roles — remote or Kathmandu-based — and to focused freelance reviews of
-          agentic systems. I wrote a paper on local policy verification for agents
+          agentic systems. I published a paper on local policy verification for agents
           (ICICSET 2026), a paper on predictive bandwidth scaling for WebRTC over LEO satellite
           links (IEEE RTC 2026), and several others on agent and network security; the{" "}
           <Link href="/publications">publications index</Link> says what is checkable about each.

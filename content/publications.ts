@@ -42,7 +42,7 @@ export type Paper = {
   shortTitle: string;
   authors: string[];
   venue: string;
-  status: "accepted" | "presented" | "manuscript";
+  status: "published" | "accepted" | "presented" | "manuscript";
   abstract: string;
   /**
    * One-sentence description used for the meta description, Open Graph and the
@@ -62,6 +62,14 @@ export type Paper = {
   date?: string;
   /** Resolvable DOI, where one exists. */
   doi?: string;
+  /** Page range as printed, e.g. "228-235". */
+  pagination?: string;
+  /**
+   * The journal or proceedings a published paper appears in, with its ISSN(s).
+   * Present only where a public record names them - this is what makes the paper
+   * citable as a publication rather than a manuscript with a DOI.
+   */
+  periodical?: { name: string; issn: string[] };
   pdf: string;
   repo: string;
   artifact: "public-reproducible" | "not-released" | "not-empirical";
@@ -78,10 +86,20 @@ export const PAPERS: Paper[] = [
     summary:
       "A 3.8B model on a consumer laptop verifies agent actions against policy: requiring reasoning cut hard-denial approvals from 71 to 6, and 6 of 208 got through.",
     year: 2026,
+    // Published, not merely accepted: Crossref records type journal-article,
+    // published 2026-10-02, and the DOI resolves to the publisher's landing page.
+    date: "2026-10-02",
+    doi: "10.65091/icicset.v3i1.75",
+    pagination: "228-235",
+    periodical: {
+      name:
+        "Proceedings of International Conference on Innovation in Computing, Science, Engineering and Technology",
+      issn: ["3102-0682", "3102-0674"],
+    },
     title: "Edge-Native Semantic Firewall for Autonomous LLM Agents: A Structured Chain-of-Thought Verification Framework",
     authors: ["Sushant Poudel", "Rakhee Pandey", "Aashika Pandey"],
-    venue: "Accepted; camera-ready in progress",
-    status: "accepted",
+    venue: "ICICSET 2026 — Vol. 3, No. 1, pp. 228–235",
+    status: "published",
     abstract: "An autonomous agent that executes actions rather than proposing them sits outside the reach of role-based access control, which authenticates an identity but has nothing to say about whether a given action should happen. Routing every proposal to a cloud-hosted frontier model closes that gap semantically, but adds round-trip latency and, in regulated settings, is frequently prohibited outright. We describe an edge-native semantic firewall: a 3.8B-parameter Phi-3-mini model, 4-bit quantized and held under a 4.2 GiB VRAM ceiling, occupying the evaluator stage of a Generator–Evaluator pipeline on a single consumer laptop. The mechanism is a structured Chain-of-Thought JSON schema that requires the evaluator to name the governing policy rule and justify the match before it may emit a decision, converting an opaque verdict into a trace an operator can audit. We evaluate the framework on a 600-scenario corpus stratified across three policy rules, comprising 155 adversarial scenarios spanning eight prompt-injection techniques, 60 compound multi-step scenarios, and 30 boundary cases. All 1,800 generations of a three-condition comparison were executed on the model itself at temperature 0, with no cloud calls at any stage. The results invert a natural assumption. Constraining the output format without requiring the reasoning step produced the least safe evaluator of the three: the JSON-only arm approved 46.2% of the proposals the policy would have blocked or sent to human review, which is worse than the unconstrained free-form arm at 17.2%. The full schema cut that to 23.5% and raised decision accuracy from 52.3% to 66.3%. On the irreversible class, where a wrong answer cannot be recalled, accuracy runs 62.5% under JSON-only, 72.1% under free-form, and 90.8% under the proposed schema, and approvals of hard-denial actions fall from 71 to 6. The gain is real, and it is not sufficient. The best configuration still approved 6 of 208 hard-denial actions, and it was more permissive than free-form on ambiguous proposals that should have reached a human. Peak VRAM was 3.95 GiB and median evaluation latency was 2.55 s, both consistent with edge operation. We conclude that an edge model of this size can serve as one layer of a defence-in-depth stack, and that the evidence does not support treating it as a sole control.",
     pdf: "/papers/agentic-verification.pdf",
     repo: "https://github.com/sushant-me/Edge-Native_Semantic_Firewall_",
@@ -145,8 +163,8 @@ export const PAPERS: Paper[] = [
     date: "2026-10-07",
     title: "Evaluating Wi-Fi Sensing Attack Vectors: AI-Driven Covert Threat Detection and Deterministic Mitigation in Mobile and Edge Ecosystems",
     authors: ["Sushant Poudel"],
-    venue: "Manuscript",
-    status: "manuscript",
+    venue: "IC-AICSE 2026 — abstract book p. 33",
+    status: "presented",
     abstract: "Wi-Fi was designed to move data. Paired with modern deep learning, it has quietly become something else: a sensing fabric that detects motion, infers behavior, and reconstructs physical activity from signal reflections alone, using hardware cheaper than a home router. Enterprise and IoT security was never built for this pairing, creating a significant, largely invisible attack surface. This paper presents a rigorous empirical evaluation of covert Wi-Fi sensing attacks in realistic, interference-prone IoT environments, built around a bidirectional LSTM trained to correlate Channel State Information (CSI) sequences with keystroke signatures. A passive adversary with only commodity hardware and this learned model can extract finegrained keystroke intelligence, including PIN entries, without network authentication, physical access, or a single injected packet. The attack reaches an F₁ score of 85.4% in enterprise line-of-sight conditions. It still reaches an F₁ of 61.2% through a standard 15 cm drywall partition — over six times the 10% floor of a ten-class random guess. To neutralize this threat at its source, we introduce RF-Guard: a deterministic, stateful CSI obfuscation framework at the firmware level that gives the attacking model nothing stable to learn from. RF-Guard collapses adversarial accuracy to 9.8% across three IoT testbeds, with gray-box retraining recovering only to 14.3% F₁; a fully adaptive neural adversary remains untested and is named as future work. It adds under 4.2% throughput overhead on a standard ESP32 microcontroller during a continuous 24-hour stress test. No hardware replacement is required.",
     pdf: "/papers/wifi-sensing.pdf",
     repo: "",

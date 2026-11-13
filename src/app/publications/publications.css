@@ -70,8 +70,24 @@
   color: #9fb0cc;
 }
 
+/* Published is the stronger green than accepted, and it is the only status here
+   with a DOI behind it. */
+.pub-venue .tag.published { border-color: rgba(45, 212, 191, 0.45); color: #5eead4; }
 .pub-venue .tag.accepted { border-color: rgba(74, 222, 128, 0.4); color: #86efac; }
 .pub-venue .tag.presented { border-color: rgba(96, 165, 250, 0.4); color: #93c5fd; }
+
+/* The publication line: date and resolving DOI. Its own row because it is the one
+   fact on the page that is checkable without trusting the site. */
+.pub-doi {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 11.5px;
+  letter-spacing: 0.02em;
+  color: #8d97ad;
+  margin-top: 8px;
+}
+
+.pub-doi a { color: #7cb0ff; text-decoration: none; }
+.pub-doi a:hover { text-decoration: underline; }
 
 /* What a reader can actually check. Muted on purpose: it is a disclosure, not a badge. */
 .pub-artifact {

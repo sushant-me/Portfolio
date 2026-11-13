@@ -25,12 +25,17 @@ export const ORG_ID = `${SITE}/#org`;
 /**
  * Profiles that are unambiguously the same person.
  *
- * Only three, deliberately. A `sameAs` is a claim that the URL is the same entity,
- * so it is not a place for every account that exists: an empty or negative-reputation
- * security profile is a link that argues against the page, and an ORCID that has not
- * been confirmed against the record is a claim not yet earned. The reputation
- * repository is included because it is the site's own verifiable claim ledger, not a
- * social profile.
+ * A `sameAs` is a claim that the URL *is* this entity, so every entry is a page
+ * whose own title or public record names him: the GitHub account the work is under,
+ * the LinkedIn profile, the ORCID record whose API returns his name and affiliation,
+ * the X account whose page title is his name, the Semantic Scholar author page the
+ * publications cluster under, the HackingHub leaderboard account, and the reputation
+ * ledger that verifies the claims about his own work.
+ *
+ * One absence is deliberate. HackerOne is not here: the public profile is empty
+ * with negative reputation, and a `sameAs` to it argues against the page rather than
+ * for it. A profile earns a place by being checkable in the same direction as
+ * everything else here.
  *
  * `www.linkedin.com` is the address LinkedIn itself canonicalises to — the
  * no-www form redirects, and a redirect in `sameAs` is a weaker signal.
@@ -38,6 +43,10 @@ export const ORG_ID = `${SITE}/#org`;
 export const SAME_AS: string[] = [
   "https://github.com/sushant-me",
   "https://www.linkedin.com/in/sushant-poudel2028/",
+  "https://orcid.org/0009-0008-7732-3269",
+  "https://x.com/nofear976",
+  "https://www.semanticscholar.org/author/2507334053",
+  "https://app.hackinghub.io/p/nofear976",
   "https://github.com/sushant-me/reputation",
 ];
 
@@ -85,6 +94,20 @@ export const PERSON_SCHEMA: Record<string, unknown> = {
   description:
     "AI security engineer in Bhaktapur, Nepal, working on the boundary where an LLM's output becomes an action: agent tool boundaries, local policy verification and memory safety. Author of papers on agent security, with a security patch merged into google/go-github.",
   email: `mailto:${EMAIL}`,
+  // Confirmed against the ORCID public API: the record returns his name, the Nepal
+  // Engineering College (Pokhara University) affiliation and the ICICSET paper.
+  identifier: {
+    "@type": "PropertyValue",
+    propertyID: "ORCID",
+    value: "0009-0008-7732-3269",
+  },
+  // The employer the GitHub profile's company field names, and the role /about
+  // describes. The session at Atmos SoftTech ended in March 2026, so it is no longer
+  // the correct answer to "where does this person work".
+  worksFor: {
+    "@type": "Organization",
+    name: "Arvion",
+  },
   address: {
     "@type": "PostalAddress",
     addressLocality: "Bhaktapur",
@@ -95,9 +118,6 @@ export const PERSON_SCHEMA: Record<string, unknown> = {
     name: "Nepal Engineering College",
     url: "https://www.nec.edu.np",
   },
-  // No `worksFor`. The last employer on the homepage ended in March 2026 and the
-  // current arrangement is part-time and remote; stating either as "works for" in
-  // machine-readable form would be a claim the site does not make in prose.
   sameAs: SAME_AS,
   knowsAbout: KNOWS_ABOUT,
   award: AWARDS,

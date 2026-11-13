@@ -123,9 +123,9 @@ const RESEARCH: Research[] = [
   },
   {
     title: "Edge-Native Semantic Firewall for Autonomous LLM Agents",
-    venue: "ICICSET 2026 — accepted with revision, camera-ready in progress",
+    venue: "ICICSET 2026 — published, Vol. 3, No. 1, pp. 228–235",
     venueType: "conference",
-    desc: "Accepted. A structured Chain-of-Thought verification framework that asks whether a small, locally served model can enforce policy for an agent that executes actions rather than proposing them. 600 policy scenarios per condition on Phi-3-mini (3.8B, 4-bit) on one consumer laptop inside a 4.2 GiB VRAM budget, with no cloud inference. The result contradicted our hypothesis: constraining output to JSON without a reasoning field was the least safe of the four arms — it approved 46.2% of the 600 proposals it was shown, against 17.2% for unconstrained text, while a mandated reasoning field cut false accepts of irreversible hard-denial commands from 71 to 6. The residual failures are reported rather than rounded away.",
+    desc: "Published in ICICSET 2026 (DOI 10.65091/icicset.v3i1.75). A structured Chain-of-Thought verification framework that asks whether a small, locally served model can enforce policy for an agent that executes actions rather than proposing them. 600 policy scenarios per condition on Phi-3-mini (3.8B, 4-bit) on one consumer laptop inside a 4.2 GiB VRAM budget, with no cloud inference. The result contradicted our hypothesis: constraining output to JSON without a reasoning field was the least safe of the four arms — it approved 46.2% of the 600 proposals it was shown, against 17.2% for unconstrained text, while a mandated reasoning field cut false accepts of irreversible hard-denial commands from 71 to 6. The residual failures are reported rather than rounded away.",
     tags: ["AI security", "Agent safety", "Local inference", "Evaluation"],
     color: "#3b82f6",
     file: "https://github.com/sushant-me/Edge-Native_Semantic_Firewall_",
@@ -195,9 +195,9 @@ const RESEARCH: Research[] = [
   },
   {
     title: "Wi-Fi Sensing Attack Vectors: Covert Threat Detection",
-    venue: "Manuscript 2026",
-    venueType: "preprint",
-    desc: "Conducted offensive security research on covert surveillance via Wi-Fi Channel State Information (CSI). Proposed deterministic mitigation protocols for enterprise IoT environments against Wi-Fi sensing-based attacks.",
+    venue: "IC-AICSE 2026 — abstract book p. 33",
+    venueType: "conference",
+    desc: "Presented at IC-AICSE 2026. Offensive security research on covert surveillance via Wi-Fi Channel State Information (CSI), and deterministic mitigation protocols for enterprise IoT environments against Wi-Fi sensing-based attacks.",
     tags: ["IoT Security", "Offensive Sec", "CSI"],
     color: "#ef4444",
     file: "/publications/wifi-sensing",
@@ -1024,7 +1024,7 @@ function PortfolioBody() {
                 <p className="summary-text">
                   AI security engineer working on the failure mode where an autonomous agent does something a human would have blocked.
                   A patch of mine is merged into google/go-github; five memory-safety issues I filed against google/s2geometry are open, including a 2.4 GiB allocation reachable from a 28-byte input, with standalone reproducers for each.
-                  Two papers accepted — one on local policy verification for agents (ICICSET 2026), one on predictive bandwidth scaling for WebRTC over LEO satellite links (IEEE RTC 2026, whose research track is published in IEEE Xplore).
+                  Two papers accepted, one now published — local policy verification for agents (ICICSET 2026, DOI 10.65091/icicset.v3i1.75) and predictive bandwidth scaling for WebRTC over LEO satellite links (IEEE RTC 2026, whose research track is published in IEEE Xplore).
                   Ranked 7th all-time on HackingHub's global leaderboard (210 flags, 21,785 XP, read from the public leaderboard API in November 2026).
                   Two years as a full-time AI engineer at Atmos SoftTech, building production ML systems, full-stack products and offline-first agent pipelines.
                 </p>

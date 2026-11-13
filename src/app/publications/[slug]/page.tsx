@@ -62,6 +62,21 @@ export async function generateMetadata({
     citation_pdf_url: pdf,
     citation_abstract_html_url: url,
     citation_language: "en",
+    // Journal fields only where a public record names the container. Highwire
+    // distinguishes a journal article from a conference paper through these, and
+    // leaving them off a published paper is how it gets indexed as a preprint.
+    ...(p.periodical
+      ? {
+          citation_journal_title: p.periodical.name,
+          citation_issn: p.periodical.issn,
+        }
+      : {}),
+    ...(p.pagination
+      ? {
+          citation_firstpage: p.pagination.split("-")[0],
+          citation_lastpage: p.pagination.split("-")[1],
+        }
+      : {}),
   };
 
   return {
@@ -98,11 +113,11 @@ export async function generateMetadata({
 // support — the same failure the reproducibility checker exists to catch, one level up.
 const NUMBER_NOTES: Record<string, string[]> = {
   "agentic-verification": [
-    "The 46.2% and 17.2% are rates over all 600 scenarios the evaluator was shown, not over the subset the policy blocks or escalates. Of those 600, the JSON-only arm approved 277 and free-form approved 103. Restricted to the 449 scenarios whose ground truth is block-or-escalate, the rates are 61.7% and 22.9%. The abstract above carries the same conflation and is reproduced here unaltered, because it is the paper's own text; the paper's body states the denominator correctly, and this is logged for the camera-ready rather than silently rewritten on a web page.",
+    "The 46.2% and 17.2% are rates over all 600 scenarios the evaluator was shown, not over the subset the policy blocks or escalates. Of those 600, the JSON-only arm approved 277 and free-form approved 103. Restricted to the 449 scenarios whose ground truth is block-or-escalate, the rates are 61.7% and 22.9%. The abstract above carries the same conflation and is reproduced here unaltered, because it is the paper's own text; the paper's body states the denominator correctly, and this is logged rather than silently rewritten on a web page; the paper's published text is the reference.",
     "The proposed schema is the most accurate arm, but it is not the safest on the abstract's headline measure. Free-form scored 17.2% unsafe accepts against the schema's 23.5%, and 64.5% decision accuracy against 66.3% — a 1.8-point gain whose confidence intervals overlap (free-form 60.6–68.2, schema 62.4–69.9). Where it does win is the irreversible class: 6 of 208 hard denials, against 11 for free-form and 71 for JSON-only.",
     "The repository holds 3,000 generations, not 1,800. The abstract describes the paper's three-condition comparison; the committed results also include a fourth condition, cot_av (600), and a 200-scenario replication of three conditions (600). The fourth condition reaches 96.0% rule attribution against the proposed arm's 86.5% and matches it on hard denials, which is why it is reported rather than dropped.",
     "One figure in the abstract is not checker-derived. Peak VRAM is a declared recorded constant rather than a value computed from the raw outputs, and the abstract states 3.95 GiB while the measurement file records 3,947 MiB (3.85 GiB). The repository flags the unit question as unresolved; it is recorded here rather than quietly reconciled.",
-    "Status: accepted with revision at ICICSET 2026, hosted at NCIT. The acceptance arrived by email from the conference's submission system; it is not independently checkable from a public source, and the reproducibility record for this paper verifies only that a public repository exists, which is a different claim. It is not an IEEE paper — the IEEE acceptance in this record belongs to the PREBAS paper at RTC 2026.",
+    "Status: published, not merely accepted. ICICSET 2026, Vol. 3, No. 1, pp. 228–235 (2026), ISSN 3102-0682 e / 3102-0674 print, published 2 October 2026; the DOI above resolves to the publisher's landing page and Crossref records the same date and page range. The publisher is Nepal College of Information Technology, not IEEE — the IEEE acceptance in this record belongs to the PREBAS paper at RTC 2026.",
   ],
   prebas: [
     "Status: accepted for the 2026 IEEE RTC in Chicago. The acceptance rests on the organiser's notification, which is available on request; the submission portal row is not a public URL, so it cannot be checked from this page.",
@@ -177,7 +192,7 @@ export default async function Paper({ params }: { params: Promise<{ slug: string
   author = {${p.authors.join(" and ")}},
   year   = {${p.year}},
   note   = {${p.venue}},
-  url    = {${BASE}${p.pdf}}
+  url    = {${BASE}${p.pdf}}${p.doi ? `,\n  doi    = {${p.doi}}` : ""}
 }`;
 
   /**
@@ -202,12 +217,35 @@ export default async function Paper({ params }: { params: Promise<{ slug: string
     author: p.authors.map((name) => authorNode(name)),
     url,
     mainEntityOfPage: { "@type": "WebPage", "@id": url },
-    isPartOf: { "@id": WEBSITE_ID },
+    // A published paper belongs to its journal or proceedings, not only to this
+    // site: `isPartOf` names the container (with its ISSN) so the citation can be
+    // resolved without this page, and still points at the WebSite it is published
+    // on. Before publication it is only part of the site.
+    isPartOf: p.periodical
+      ? [
+          {
+            "@type": "Periodical",
+            name: p.periodical.name,
+            issn: p.periodical.issn,
+          },
+          { "@id": WEBSITE_ID },
+        ]
+      : { "@id": WEBSITE_ID },
     publisher: { "@id": PERSON_ID },
     isAccessibleForFree: true,
     inLanguage: "en",
+    ...(p.pagination ? { pagination: p.pagination } : {}),
     ...(p.date ? { datePublished: p.date } : {}),
-    ...(p.doi ? { sameAs: `https://doi.org/${p.doi}` } : {}),
+    ...(p.doi
+      ? {
+          identifier: {
+            "@type": "PropertyValue",
+            propertyID: "DOI",
+            value: p.doi,
+          },
+          sameAs: `https://doi.org/${p.doi}`,
+        }
+      : {}),
   };
 
   return (
@@ -238,6 +276,23 @@ export default async function Paper({ params }: { params: Promise<{ slug: string
           <span className={`tag ${p.status}`}>{p.status}</span>
           {p.venue}
         </div>
+        {p.date && (
+          <div className="pub-doi">
+            Published{" "}
+            {new Date(`${p.date}T00:00:00Z`).toLocaleDateString("en-GB", {
+              day: "numeric",
+              month: "long",
+              year: "numeric",
+              timeZone: "UTC",
+            })}
+            {p.doi && (
+              <>
+                {" · DOI "}
+                <a href={`https://doi.org/${p.doi}`}>{p.doi}</a>
+              </>
+            )}
+          </div>
+        )}
 
         {p.abstract ? (
           <>
@@ -277,6 +332,7 @@ export default async function Paper({ params }: { params: Promise<{ slug: string
           <a href={p.pdf} download>
             Download
           </a>
+          {p.doi && <a href={`https://doi.org/${p.doi}`}>Published version (DOI)</a>}
           {p.repo && <a href={p.repo}>Code, corpus and raw outputs</a>}
         </div>
 

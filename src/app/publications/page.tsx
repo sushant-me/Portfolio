@@ -40,6 +40,7 @@ export const metadata: Metadata = {
 };
 
 const STATUS_LABEL: Record<string, string> = {
+  published: "published",
   accepted: "accepted",
   presented: "presented",
   manuscript: "manuscript",
@@ -133,10 +134,11 @@ export default function PublicationsIndex() {
           which it is rather than presenting either as reproducible.
         </p>
         <p className="footnote">
-          Acceptance status is the author&rsquo;s own claim and is not independently checkable from a
-          public source. Where it rests on a notification rather than a public record, the paper&rsquo;s
-          page says so. The <Link href="/about">about page</Link> has the author&rsquo;s record and
-          the <Link href="/press">press page</Link> the short bio for commissioning.
+          Status is stated with its evidence: the published paper links a resolving DOI and its
+          journal record, while acceptances that rest on an organiser&rsquo;s notification say so on the
+          paper&rsquo;s page because they cannot be checked from a public source. The{" "}
+          <Link href="/about">about page</Link> has the author&rsquo;s record and the{" "}
+          <Link href="/press">press page</Link> the short bio for commissioning.
         </p>
 
         <CrossNav current="/publications" />

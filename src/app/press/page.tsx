@@ -172,8 +172,8 @@ export default function PressPage() {
           team should inspect in an MCP server before connecting it.
         </p>
         <p>
-          He reports negative results as readily as positive ones. His evaluation &mdash; accepted,
-          camera-ready in progress &mdash; found that constraining a model&rsquo;s output to JSON,
+          He reports negative results as readily as positive ones. His evaluation &mdash; published at
+          ICICSET 2026 &mdash; found that constraining a model&rsquo;s output to JSON,
           without requiring it to state its reasoning first, made the safety check less safe: the
           constrained version approved 46.2% of the 600 proposals it was shown, against 17.2% for
           plain text. Requiring the reasoning made it the most accurate configuration and much the
@@ -187,8 +187,8 @@ export default function PressPage() {
           He has reported memory-safety defects in widely used libraries and defects in agent
           toolkits, and he maintains a public repository in which each claim it covers carries the
           public source it came from and is re-checked automatically. Coverage is stated rather than
-          implied: the ledger currently holds 27 claims and does not yet extend to every manuscript
-          on this site.
+          implied: the ledger currently holds 28 claims (20 re-checked live, 8 documented on request)
+          and does not yet extend to every manuscript on this site.
         </p>
 
         <h2>Topics he can write about or comment on</h2>

@@ -10,6 +10,9 @@
 
 - [GitHub](https://github.com/sushant-me) — the code, merged upstream patches and tool releases.
 - [LinkedIn](https://www.linkedin.com/in/sushant-poudel2028/) — conventional recruiter channel.
+- [ORCID 0009-0008-7732-3269](https://orcid.org/0009-0008-7732-3269) — publication record, independent of this site.
+- [X](https://x.com/nofear976) — short notes.
+- [Semantic Scholar](https://www.semanticscholar.org/author/2507334053) — author profile the publications cluster under.
 - [HackingHub](https://app.hackinghub.io/p/nofear976) — the leaderboard account.
 - [reputation](https://github.com/sushant-me/reputation) — claim ledger: each checkable claim about
   his own work, with the public source it is re-checked against weekly by a script.
@@ -32,7 +35,8 @@ Name variants in use: Sushant Poudel (public name), sushant-me (GitHub), nofear9
 
 - AI security engineer; final-year Computer Engineering student at Nepal Engineering College,
   Bhaktapur. Two years full-time as an AI engineer at Atmos SoftTech (Mar 2024 – Mar 2026),
-  building production ML systems and offline-first agent pipelines.
+  building production ML systems and offline-first agent pipelines; now a remote, part-time
+  software developer at Arvion, alongside the final year of the degree.
 - Security patches merged in google/go-github: [#4556](https://github.com/google/go-github/pull/4556)
   rejects an upload URL whose host differs from the configured upload host; the maintainer replaced
   it with the broader [#4564](https://github.com/google/go-github/pull/4564), "send credentials only
@@ -63,11 +67,13 @@ Name variants in use: Sushant Poudel (public name), sushant-me (GitHub), nofear9
 Nine papers, each on its own page with abstract and PDF. Reproducibility status is stated per paper.
 
 - Edge-Native Semantic Firewall for Autonomous LLM Agents — https://sushantpoudel2028.com.np/publications/agentic-verification
-  (code, 600-scenario corpus and all raw model outputs are public and a checker re-derives every number)
+  (published in ICICSET 2026, Vol. 3, No. 1, pp. 228–235, DOI 10.65091/icicset.v3i1.75; code,
+  600-scenario corpus and all raw model outputs are public and a checker re-derives every number)
 - PREBAS: Preemptive Bandwidth Scaling for WebRTC in LEO Satellite Networks — https://sushantpoudel2028.com.np/publications/prebas
 - HCG-MAF: Hybrid Causal-Generative Multi-Agent Framework for Secure Autonomous Mechatronics — https://sushantpoudel2028.com.np/publications/hcg
 - Evaluating Google's Open Knowledge Format (OKF v0.1) for Multi-Agent Threat Intelligence — https://sushantpoudel2028.com.np/publications/okf-dfir
 - Evaluating Wi-Fi Sensing Attack Vectors and RF-Guard Mitigation — https://sushantpoudel2028.com.np/publications/wifi-sensing
+  (presented at IC-AICSE 2026; abstract book p. 33)
 - Direct-to-Device LEO Satellite Communication for Nepal — https://sushantpoudel2028.com.np/publications/leo-d2d
 - Project Swayam: Offline, Sovereign Municipal AI Governance — https://sushantpoudel2028.com.np/publications/swayam
 - EmbodiedOS: Embodied Intelligence for Real-Time Robotic Decision Making — https://sushantpoudel2028.com.np/publications/embodiedos

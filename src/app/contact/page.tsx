@@ -56,6 +56,21 @@ const ELSEWHERE: { label: string; href: string; note: string }[] = [
     note: "The conventional channel for recruiters; the work record there is shorter than the one on this site.",
   },
   {
+    label: "ORCID — 0009-0008-7732-3269",
+    href: "https://orcid.org/0009-0008-7732-3269",
+    note: "The publication record, independent of this site; the ICICSET paper is listed there.",
+  },
+  {
+    label: "Semantic Scholar — author 2507334053",
+    href: "https://www.semanticscholar.org/author/2507334053",
+    note: "Where the publications cluster as an author profile.",
+  },
+  {
+    label: "X — nofear976",
+    href: "https://x.com/nofear976",
+    note: "Short notes; the long version of anything here is on the writing page.",
+  },
+  {
     label: "HackingHub — nofear976",
     href: "https://app.hackinghub.io/p/nofear976",
     note: "The leaderboard account behind the rank on the about page.",
