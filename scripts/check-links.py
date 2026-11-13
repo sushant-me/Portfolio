@@ -60,7 +60,11 @@ def main() -> int:
     links: dict[str, set[str]] = collections.defaultdict(set)
     for page in OUT.rglob("*.html"):
         html = page.read_text(encoding="utf-8", errors="replace")
-        for href in re.findall(r'href="(/[^"#?]*)"', html):
+        # Match real `href` attributes only. With `experimental.inlineCss` the inlined
+        # stylesheet carries `data-href="<chunk1> <chunk2>"`, a React bookkeeping
+        # attribute that is not a URL — the old pattern read it as a link and reported
+        # a dead path. The lookbehind excludes any attribute ending in `-` (data-href).
+        for href in re.findall(r'(?<![\w-])href="(/[^"#?]*)"', html):
             links[href].add("/" + str(page.relative_to(OUT)))
 
     dead = {
