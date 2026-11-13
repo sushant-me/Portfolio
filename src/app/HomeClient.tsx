@@ -202,15 +202,6 @@ const RESEARCH: Research[] = [
     color: "#ef4444",
     file: "/publications/wifi-sensing",
   },
-  {
-    title: "Real-Time Verification for Agentic Decisions",
-    venue: "Manuscript 2026",
-    venueType: "preprint",
-    desc: "Architected a theoretical framework for bounding and actively verifying LLM-driven autonomous agent decisions in real-time. Effectively mitigates unsafe state transitions in multi-agent collaborative environments.",
-    tags: ["AI Safety", "Verification", "Autonomous"],
-    color: "#22c55e",
-    file: "/publications/agentic-verification",
-  },
 ];
 
 const ADVISORIES = [
