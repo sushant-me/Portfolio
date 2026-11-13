@@ -123,6 +123,15 @@
 
 /cv/*
   Cache-Control: public, max-age=3600
+# Explicit rules for the three PDFs as well: on the live deployment the wildcard
+# applied to text files under /cv (probed at 3600) but the PDFs kept the Pages
+# default 14400, so the exact path is set to remove any ambiguity.
+/cv/Sushant_Poudel_CV.pdf
+  Cache-Control: public, max-age=3600
+/cv/Sushant_Poudel_CV_AISecurity.pdf
+  Cache-Control: public, max-age=3600
+/cv/Sushant_Poudel_University_Resume.pdf
+  Cache-Control: public, max-age=3600
 
 # The /cv page links the PDFs with a ?v=<content-hash> query, so a replaced CV is a
 # new cache key; the short TTL covers the bare path, which old bookmarks and search
