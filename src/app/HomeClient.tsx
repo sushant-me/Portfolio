@@ -855,38 +855,70 @@ function PortfolioBody() {
   }, []);
 
   /**
-   * Mount the 3D backdrop after the first paint, not before it.
+   * Mount the 3D backdrop only after the browser has painted its largest content.
    *
-   * Two rAFs guarantee a painted frame of the hero; the idle callback then runs the
-   * three.js import and scene setup when the main thread has nothing more important
-   * to do, with a timeout so a busy thread still gets the scene rather than never.
-   * Under `prefers-reduced-motion` it is never mounted at all — the scene opts out
-   * of rendering in that mode anyway, so downloading it would be pure cost.
+   * Moving the import behind an idle callback was not enough: on a throttled CPU the
+   * idle callback could fire before the hero had painted, and three.js then owned the
+   * main thread while the LCP paint was still waiting — the LCP element's render delay
+   * varied between ~0.7s and ~2.2s across runs for exactly that reason.
+   *
+   * So the trigger is the largest-contentful-paint entry itself (observed, not
+   * assumed), then two frames, then an idle callback. A 3.5s fallback keeps the
+   * scene from never appearing if LCP is stopped by an early interaction or the
+   * observer is unavailable. Under `prefers-reduced-motion` it is never mounted at
+   * all — the scene opts out of rendering in that mode, so the download would be
+   * pure cost.
    */
   useEffect(() => {
-    if (reducedMotion) return;
-    if (showScene) return;
+    if (reducedMotion || showScene) return;
 
+    let cancelled = false;
     let idleHandle: number | undefined;
     let frame1 = 0;
     let frame2 = 0;
-    let cancelled = false;
+    let started = false;
+    let observer: PerformanceObserver | undefined;
+    let fallback = 0;
+
     const mount = () => {
       if (!cancelled) setShowScene(true);
     };
     const schedule = () => {
-      if (typeof window.requestIdleCallback === "function") {
-        idleHandle = window.requestIdleCallback(mount, { timeout: 2500 });
-      } else {
-        idleHandle = window.setTimeout(mount, 600);
-      }
+      frame1 = requestAnimationFrame(() => {
+        frame2 = requestAnimationFrame(() => {
+          if (typeof window.requestIdleCallback === "function") {
+            idleHandle = window.requestIdleCallback(mount, { timeout: 2000 });
+          } else {
+            idleHandle = window.setTimeout(mount, 400);
+          }
+        });
+      });
     };
-    frame1 = requestAnimationFrame(() => {
-      frame2 = requestAnimationFrame(schedule);
-    });
+    const begin = () => {
+      if (started || cancelled) return;
+      started = true;
+      observer?.disconnect();
+      schedule();
+    };
+
+    if (typeof PerformanceObserver !== "undefined") {
+      observer = new PerformanceObserver((list) => {
+        if (list.getEntries().length > 0) begin();
+      });
+      try {
+        observer.observe({ type: "largest-contentful-paint", buffered: true });
+      } catch {
+        begin();
+      }
+      fallback = window.setTimeout(begin, 3500);
+    } else {
+      begin();
+    }
 
     return () => {
       cancelled = true;
+      observer?.disconnect();
+      window.clearTimeout(fallback);
       cancelAnimationFrame(frame1);
       cancelAnimationFrame(frame2);
       if (idleHandle !== undefined) {
