@@ -3,6 +3,7 @@ import crypto from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
 import Link from "next/link";
+import { CV_PDFS } from "@/lib/cv";
 import JsonLd from "@/components/JsonLd";
 import CrossNav from "@/components/CrossNav";
 import {
@@ -91,7 +92,7 @@ const RAW_DOCUMENTS: {
   {
     id: "document-general",
     name: "Curriculum Vitae — general",
-    file: "/cv/Sushant_Poudel_CV.pdf",
+    file: CV_PDFS.general,
     pages: 4,
     reader: "Send for software, AI and security roles.",
     body:
@@ -100,7 +101,7 @@ const RAW_DOCUMENTS: {
   {
     id: "document-ai-security",
     name: "Curriculum Vitae — AI security",
-    file: "/cv/Sushant_Poudel_CV_AISecurity.pdf",
+    file: CV_PDFS.aiSecurity,
     pages: 3,
     reader: "Send for AI-security, agent-security and vulnerability-research roles.",
     body:
@@ -109,7 +110,7 @@ const RAW_DOCUMENTS: {
   {
     id: "document-research",
     name: "University / research CV",
-    file: "/cv/Sushant_Poudel_University_Resume.pdf",
+    file: CV_PDFS.university,
     pages: 4,
     reader: "Send for academic programmes, research groups and scholarships.",
     body:

@@ -141,7 +141,11 @@ def sitemap_routes() -> set[str] | None:
     return routes
 
 
-def audit(pages: dict[str, dict], sitemap: set[str] | None) -> list[str]:
+def audit(
+    pages: dict[str, dict],
+    sitemap: set[str] | None,
+    emitted: set[str] | None = None,
+) -> list[str]:
     """Every rule, as a pure function so --self-test can call it."""
     problems: list[str] = []
     titles: dict[str, str] = {}
@@ -240,13 +244,28 @@ def audit(pages: dict[str, dict], sitemap: set[str] | None) -> list[str]:
 
     if sitemap is not None:
         for route in sorted(sitemap):
-            if route not in pages and route.rstrip("/") not in pages:
-                problems.append(f"sitemap lists {route} but the build emitted no such page")
+            if route in pages or route.rstrip("/") in pages:
+                continue
+            # A sitemap may legitimately list a non-HTML document — the CV PDFs are
+            # crawled and indexed in their own right. Accept it when the build emitted
+            # the file; anything else is a URL that would 404.
+            if emitted is not None and route in emitted:
+                continue
+            problems.append(f"sitemap lists {route} but the build emitted no such page")
 
     return problems
 
 
-def collect() -> tuple[dict[str, dict], set[str] | None]:
+def emitted_files() -> set[str]:
+    """Every emitted file as a site-relative route, for non-HTML sitemap entries."""
+    routes: set[str] = set()
+    for path in OUT.rglob("*"):
+        if path.is_file():
+            routes.add("/" + str(path.relative_to(OUT)))
+    return routes
+
+
+def collect() -> tuple[dict[str, dict], set[str] | None, set[str]]:
     if not OUT.is_dir():
         print(f"no build output at {OUT} — run the build first", file=sys.stderr)
         raise SystemExit(1)
@@ -258,7 +277,7 @@ def collect() -> tuple[dict[str, dict], set[str] | None]:
         if route in ("/404", "/_not-found"):
             continue
         pages[route] = parse_page(path.read_text(encoding="utf-8", errors="replace"))
-    return pages, sitemap_routes()
+    return pages, sitemap_routes(), emitted_files()
 
 
 def self_test() -> int:
@@ -321,6 +340,20 @@ def self_test() -> int:
             True,
         ),
         (
+            "a sitemap PDF that exists as an emitted file is accepted",
+            {"/": dict(good)},
+            {"/", "/cv/Sushant_Poudel_CV.pdf"},
+            False,
+            {"/cv/Sushant_Poudel_CV.pdf"},
+        ),
+        (
+            "a sitemap PDF with no emitted file is caught",
+            {"/": dict(good)},
+            {"/", "/cv/Sushant_Poudel_CV.pdf"},
+            True,
+            set(),
+        ),
+        (
             "a noindex page is exempt from sitemap coverage",
             {
                 "/": dict(good),
@@ -338,8 +371,10 @@ def self_test() -> int:
     ]
 
     failures = 0
-    for label, pages, sitemap, expect_problem in cases:
-        found = bool(audit(pages, sitemap))
+    for case in cases:
+        label, pages, sitemap, expect_problem = case[:4]
+        emitted = case[4] if len(case) == 5 else None
+        found = bool(audit(pages, sitemap, emitted))
         ok = found == expect_problem
         print(f"  {'ok  ' if ok else 'FAIL'}  {label}")
         if not ok:
@@ -363,7 +398,7 @@ def main() -> int:
     if args.self_test:
         return self_test()
 
-    pages, sitemap = collect()
+    pages, sitemap, emitted = collect()
     if not pages:
         print("build output has no html pages; a check over nothing is not a pass", file=sys.stderr)
         return 1
@@ -371,7 +406,7 @@ def main() -> int:
         print("out/sitemap.xml is missing or advertises another origin", file=sys.stderr)
         return 1
 
-    problems = audit(pages, sitemap)
+    problems = audit(pages, sitemap, emitted)
     if problems:
         print(f"{len(problems)} SEO problem(s) — refusing to ship:\n", file=sys.stderr)
         for problem in problems:

@@ -1,6 +1,7 @@
 import type { MetadataRoute } from "next";
 import { getPosts } from "@/lib/writing";
 import { CV_UPDATED, HOME_UPDATED } from "@/lib/site";
+import { CV_PDF_PATHS } from "@/lib/cv";
 import { PAPERS } from "../../content/publications";
 
 // Required under `output: export` — generated at build time from committed content.
@@ -29,6 +30,13 @@ const BASE = "https://sushantpoudel2028.com.np";
  *
  * Posts carry a real publication date, so they keep one, and /writing inherits the
  * newest of them because that is what actually changes on that page.
+ *
+ * The three CV PDFs are listed directly, not only through /cv. PDFs are crawlable
+ * documents in their own right and index quickly, and the recruiter query they
+ * answer is exactly the kind of thing a PDF ranks for. They are listed bare, without
+ * the `?v=` hash the page uses for cache-busting: that query is browser cache
+ * behaviour, not document identity, and a sitemap should contain one URL per
+ * document. `lastmod` is the day the corrected files were published.
  *
  * Not listed: /search. It is marked `noindex` (its content already exists at the
  * URLs it returns), and a sitemap entry for a page that asks not to be indexed is a
@@ -76,6 +84,14 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: "yearly",
       priority: 0.8,
     },
+    ...CV_PDF_PATHS.map((path) => ({
+      url: `${BASE}${path}`,
+      lastModified: new Date(`${CV_UPDATED}T00:00:00Z`),
+      changeFrequency: "yearly" as const,
+      // Below the page that explains them: the PDFs are the destination, but /cv is
+      // the entry point that says which one is for which reader.
+      priority: 0.7,
+    })),
     {
       url: `${BASE}/writing`,
       lastModified: newestPost,
