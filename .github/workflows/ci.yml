@@ -69,7 +69,12 @@ jobs:
             exit 1
           fi
 
-      # Belt and braces: run the link check explicitly, so its result is attributable
-      # as its own step rather than folded into the build's exit code.
+      # Belt and braces: run the output checks explicitly, so each result is
+      # attributable as its own step rather than folded into the build's exit code.
       - name: Internal link check over the emitted output
         run: npm run check:links
+
+      # Titles, descriptions, canonicals, headings, JSON-LD parse and sitemap
+      # coverage. The build already runs it as postbuild; this step names it.
+      - name: SEO check over the emitted output
+        run: npm run check:seo

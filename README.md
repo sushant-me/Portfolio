@@ -130,3 +130,47 @@ requires a subscription on this account (verified: the R2 page redirects to a
 plan signup), so KV is the free path that works today.
 
 
+
+## Search, entity and conversion pages
+
+The site is one personal entity spread over several page types, and the metadata is built
+so a search engine can tell that rather than seeing a dozen unrelated pages.
+
+- **`src/lib/site.ts`** is the single source of the entity facts: the `Person` node, its
+  `@id`, the `sameAs` profiles, the `WebSite` with the `SearchAction`, and the
+  `ProfilePage` for the homepage. `src/app/layout.tsx` emits them as one `@graph`, and
+  every subpage references those ids (`isPartOf`, `about`, `author`) instead of
+  re-declaring a person. `JsonLd` renders the script tag and escapes `<`, because a
+  `</script>` inside a JSON string closes the tag early.
+- **Page types** carry their own structured data: `CollectionPage` + `ItemList` on
+  `/writing`, `/publications` and `/press`; `ScholarlyArticle` on every paper (full
+  printed title in `headline`, date only where a real date exists) with the Highwire
+  `citation_*` tags kept alongside; `BlogPosting` with `articleSection` on every post;
+  `FAQPage` and `Service` on `/hire`; `BreadcrumbList` everywhere below the root.
+- **`/about`, `/hire`, `/contact`, `/search`** are the pages the record was missing:
+  the long-form identity page, the services-and-process page, one contact page, and a
+  client-side search over the writing and papers (which is what makes the `SearchAction`
+  honest). The homepage, the writing and publication indexes and the paper pages all link
+  into them, and every inner page carries the same footer navigation.
+- **`public/llms.txt`** summarises the site for answer engines, with the canonical
+  profile URLs and the claims that have a public source behind them. It is maintained by
+  hand next to the content it describes.
+- **`scripts/check-seo.py`** runs as `postbuild` (and as a CI step): it reads `out/`,
+  requires a unique title and a 70–165-character description per page, one `<h1>`, a
+  canonical, `og:image`/`og:url`/`twitter:card`, parseable JSON-LD naming schema.org, the
+  Person node with `@id` and `sameAs`, the per-route types above, and sitemap coverage in
+  both directions. It has a `--self-test` that feeds it the defects each rule exists for.
+- **Titles are SERP-sized.** Publication titles are the full printed titles in the
+  `<h1>` and a short name plus “paper by Sushant Poudel” in the `<title>`
+  (`shortTitle`/`summary` in `content/publications.ts`). Post titles come from the
+  writeups repository; the byline is appended only when it still fits the snippet, and any
+  `<h1>` a body produces is demoted so a post page has exactly one.
+- **Related posts** at the end of each post are chosen by word overlap between the post's
+  title/summary and the others, with the newest as the tie-break — deterministic across
+  builds because the synced frontmatter has no tags to use instead.
+
+When adding a page: export `metadata` with a unique title, a 140–160-character
+description, a canonical, and `openGraph.images` + `twitter` (a child `openGraph` replaces
+the layout's, image included), give it one `<h1>`, add breadcrumb + page JSON-LD, add the
+route to `sitemap.ts` unless it is `noindex`, and run `npm run build`. The postbuild
+checks will refuse a page that misses any of those.

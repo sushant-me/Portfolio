@@ -14,8 +14,12 @@ here=$(dirname "$0")
 sh "$here/check-security-output.sh"
 
 if command -v python3 >/dev/null 2>&1; then
-  exec python3 "$here/check-links.py"
+  # Sequential rather than `exec`, because both checks have to run: linking and
+  # search. A failure in either still fails the build through `set -e`.
+  python3 "$here/check-links.py"
+  exec python3 "$here/check-seo.py"
 fi
 
-echo "link check SKIPPED: python3 is not available in this environment" >&2
-echo "  (the check did not run, so this build is not evidence that links resolve)" >&2
+echo "output checks SKIPPED: python3 is not available in this environment" >&2
+echo "  (the link and SEO checks did not run, so this build is not evidence that" >&2
+echo "   links resolve or that the pages are well described)" >&2
