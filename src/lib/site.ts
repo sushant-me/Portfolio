@@ -48,9 +48,12 @@ export const ORG_ID = `${SITE}/#org`;
  * whose own title or public record names him: the GitHub account the work is under,
  * the LinkedIn profile, the ORCID record whose API returns his name and affiliation,
  * the Google Scholar profile (verified as the owner's, and whose Homepage field
- * points back here), the X account whose page title is his name, the Semantic
- * Scholar author page the publications cluster under, the HackingHub leaderboard
- * account, and the reputation ledger that verifies the claims about his own work.
+ * points back here), the dev.to and Medium profiles (each article published there
+ * carries its canonical URL back to the matching page on this site, so the profiles
+ * point at the same content rather than copying it), the X account whose page title
+ * is his name, the Semantic Scholar author page the publications cluster under, the
+ * HackingHub leaderboard account, and the reputation ledger that verifies the claims
+ * about his own work.
  *
  * One absence is deliberate. HackerOne is not here: the public profile is empty
  * with negative reputation, and a `sameAs` to it argues against the page rather than
@@ -67,6 +70,8 @@ export const SAME_AS: string[] = [
   // i1K2YykAAAAJ is the correct profile; BRr26UkAAAAJ is a Lamar University
   // namesake working on concrete and glass, not this person.
   "https://scholar.google.com/citations?user=i1K2YykAAAAJ&hl=en",
+  "https://dev.to/sushant-me",
+  "https://medium.com/@sushant.poudel2028",
   "https://x.com/nofear976",
   "https://www.semanticscholar.org/author/2507334053",
   "https://app.hackinghub.io/p/nofear976",

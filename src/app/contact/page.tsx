@@ -66,6 +66,16 @@ const ELSEWHERE: { label: string; href: string; note: string }[] = [
     note: "The citation profile: his papers, with the ICICSET one listed; its Homepage field points at this site.",
   },
   {
+    label: "dev.to — sushant-me",
+    href: "https://dev.to/sushant-me",
+    note: "Two syndicated posts, each with its canonical URL pointing back to the matching page here.",
+  },
+  {
+    label: "Medium — @sushant.poudel2028",
+    href: "https://medium.com/@sushant.poudel2028",
+    note: "One story, whose canonical URL is the ICICSET paper page on this site.",
+  },
+  {
     label: "Semantic Scholar — author 2507334053",
     href: "https://www.semanticscholar.org/author/2507334053",
     note: "Where the publications cluster as an author profile.",

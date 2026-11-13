@@ -12,6 +12,8 @@
 - [LinkedIn](https://www.linkedin.com/in/sushant-poudel2028/) — conventional recruiter channel.
 - [ORCID 0009-0008-7732-3269](https://orcid.org/0009-0008-7732-3269) — publication record, independent of this site.
 - [Google Scholar](https://scholar.google.com/citations?user=i1K2YykAAAAJ&hl=en) — citation profile (its Homepage field points here).
+- [dev.to](https://dev.to/sushant-me) — syndicated posts, canonical URLs back to this site.
+- [Medium](https://medium.com/@sushant.poudel2028) — one story, canonical URL to the ICICSET paper page here.
 - [X](https://x.com/nofear976) — short notes.
 - [Semantic Scholar](https://www.semanticscholar.org/author/2507334053) — author profile the publications cluster under.
 - [HackingHub](https://app.hackinghub.io/p/nofear976) — the leaderboard account.
