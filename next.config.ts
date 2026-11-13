@@ -5,15 +5,11 @@ const nextConfig: NextConfig = {
   images: {
     unoptimized: true,
   },
-  experimental: {
-    // Measured experiment: inline each route's CSS into its HTML instead of emitting
-    // a render-blocking stylesheet request. The stylesheet is tiny (~4 KB) but it is
-    // discovered only after the document parses and was arriving ~500 ms after the
-    // HTML on a throttled connection, which is directly in front of first paint — and
-    // therefore of the LCP text paint. Revert if the live Lighthouse median gets
-    // worse; the cost is a larger document.
-    inlineCss: true,
-  },
+  // `experimental.inlineCss` was measured here and reverted: three live runs gave a
+  // median performance of 71 (unchanged) but a median LCP of 3.23 s against 2.88 s,
+  // and a median element render delay of 745 ms against 699 ms, while the document
+  // grew 28.4 KB → 33.1 KB. The CSS round trip it removed was not the bottleneck it
+  // looked like. Left as a note so the experiment is not repeated blind.
 };
 
 export default nextConfig;
