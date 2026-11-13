@@ -120,6 +120,7 @@
   Cache-Control: public, max-age=604800
 /press/*
   Cache-Control: public, max-age=604800
+
 # The /cv page links these PDFs with a ?v=<content-hash> query (computed at build
 # time), so a replaced CV is a new cache key — the same pattern as a content-hashed
 # build asset. That alone is not enough: the bare path is what an old bookmark, an
