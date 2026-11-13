@@ -1,4 +1,7 @@
 import type { Metadata } from "next";
+import crypto from "node:crypto";
+import fs from "node:fs";
+import path from "node:path";
 import Link from "next/link";
 import JsonLd from "@/components/JsonLd";
 import CrossNav from "@/components/CrossNav";
@@ -47,6 +50,25 @@ export const metadata: Metadata = {
 };
 
 /**
+ * A content-addressed URL for a file in `public/cv/`.
+ *
+ * The PDFs are replaced at the same path when the CV is re-rendered, and
+ * `_headers` caches `/cv/*` for a week — which is correct for a file whose URL
+ * includes its content but wrong for one whose URL does not. That is not theory: the
+ * first replacement deploy left the old PDFs on the edge cache (`cf-cache-status:
+ * HIT`, `age: 449`) while the repo had the corrected bytes.
+ *
+ * Hashing the file at build time and appending the digest gives every version its own
+ * URL, so the page (and its structured data) can never point at a stale cached copy,
+ * and a replacement needs no manual cache-buster bump.
+ */
+function versionedPdf(publicPath: string): string {
+  const absolute = path.join(process.cwd(), "public", publicPath.replace(/^\//, ""));
+  const digest = crypto.createHash("sha256").update(fs.readFileSync(absolute)).digest("hex");
+  return `${publicPath}?v=${digest.slice(0, 12)}`;
+}
+
+/**
  * The three documents, with the reason each one exists.
  *
  * They are the same record rendered for three readers, not three different claims:
@@ -54,7 +76,7 @@ export const metadata: Metadata = {
  * ICICSET paper, the go-github pull requests, the s2geometry issues and the
  * competition results. The difference is which parts are in front.
  */
-const DOCUMENTS: {
+const RAW_DOCUMENTS: {
   id: string;
   name: string;
   file: string;
@@ -91,6 +113,8 @@ const DOCUMENTS: {
   },
 ];
 
+const DOCUMENTS = RAW_DOCUMENTS.map((doc) => ({ ...doc, href: versionedPdf(doc.file) }));
+
 /**
  * One ProfilePage for this route, and a DigitalDocument per file.
  *
@@ -124,7 +148,7 @@ const CV_SCHEMA: Record<string, unknown> = {
       name: doc.name,
       description: doc.reader,
       encodingFormat: "application/pdf",
-      url: `${BASE}${doc.file}`,
+      url: `${BASE}${doc.href}`,
       dateModified: CV_UPDATED,
       about: { "@id": PERSON_ID },
       isPartOf: { "@id": PAGE_ID },
@@ -168,10 +192,10 @@ export default function CvPage() {
               <p className="cv-reader">{doc.reader}</p>
               <p>{doc.body}</p>
               <div className="cv-actions">
-                <a className="pg-btn" href={doc.file} download>
+                <a className="pg-btn" href={doc.href} download>
                   Download PDF
                 </a>
-                <a className="cv-view" href={doc.file}>
+                <a className="cv-view" href={doc.href}>
                   View in the browser
                 </a>
               </div>

@@ -120,6 +120,10 @@
   Cache-Control: public, max-age=604800
 /press/*
   Cache-Control: public, max-age=604800
+# The /cv page links these PDFs with a ?v=<content-hash> query (computed at build
+# time), so a replaced CV is a new cache key. The bare path can still be an old
+# cached copy until its max-age expires — which is why nothing on the site links it
+# bare. Without that, the first PDF replacement served stale bytes from the edge.
 /cv/*
   Cache-Control: public, max-age=604800
 
