@@ -277,7 +277,11 @@ def self_test() -> int:
             {
                 "@context": "https://schema.org",
                 "@graph": [
-                    {"@type": "Person", "@id": "https://x/#person", "sameAs": ["https://github.com/x"]}
+                    {"@type": "Person", "@id": "https://x/#person", "sameAs": ["https://github.com/x"]},
+                    # A subpage needs a breadcrumb as well; without it the "noindex page
+                    # is exempt" case failed for the wrong reason, which is exactly the
+                    # kind of quiet self-test defect --self-test exists to prevent.
+                    {"@type": "BreadcrumbList", "itemListElement": []},
                 ],
             }
         ],
@@ -318,7 +322,16 @@ def self_test() -> int:
         ),
         (
             "a noindex page is exempt from sitemap coverage",
-            {"/": dict(good), "/search": {**good, "canonical": "https://sushantpoudel2028.com.np/search", "noindex": True}},
+            {
+                "/": dict(good),
+                "/search": {
+                    **good,
+                    "title": "Search — Sushant Poudel",
+                    "description": "Search every post and every paper on this site, filtered in the browser: agent security, verification, memory safety.",
+                    "canonical": "https://sushantpoudel2028.com.np/search",
+                    "noindex": True,
+                },
+            },
             {"/"},
             False,
         ),

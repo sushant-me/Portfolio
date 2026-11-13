@@ -17,6 +17,10 @@ if command -v python3 >/dev/null 2>&1; then
   # Sequential rather than `exec`, because both checks have to run: linking and
   # search. A failure in either still fails the build through `set -e`.
   python3 "$here/check-links.py"
+  # Prove the SEO rules fire before trusting a pass, the same way prebuild does for
+  # the post checks. It is a pure function over fixtures and costs milliseconds; a
+  # guard that has gone quiet is indistinguishable from clean output.
+  python3 "$here/check-seo.py" --self-test >&2
   exec python3 "$here/check-seo.py"
 fi
 
