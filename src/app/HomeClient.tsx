@@ -1,9 +1,15 @@
 "use client";
 
 import React, { useState, useEffect, useRef, useCallback } from "react";
+import dynamic from "next/dynamic";
 import Reveal from "../components/Reveal";
 import ScrollProvider, { useScroll } from "../components/ScrollProvider";
-import Scene3D from "../components/Scene3D";
+// three.js is the largest thing this page can download (~183 KB compressed) and its
+// bootup competes with the hero text for the main thread, which is what delayed the
+// LCP. The component is loaded as its own chunk instead, and mounted after first
+// paint on an idle callback (below), so the hero is readable and interactive before
+// the WebGL scene exists. The scene itself is unchanged.
+const Scene3D = dynamic(() => import("../components/Scene3D"), { ssr: false });
 import ScrollHud from "../components/ScrollHud";
 import SectionHeading from "../components/SectionHeading";
 import writingIndex from "../../content/writing-index.json";
@@ -814,8 +820,11 @@ export default function Portfolio() {
 }
 
 function PortfolioBody() {
-  const { active: activeSection, scrollTo } = useScroll();
+  const { active: activeSection, scrollTo, reducedMotion } = useScroll();
   const [loaded, setLoaded] = useState(false);
+  // False until the browser has painted the hero and then gone idle. Kept separate
+  // from `loaded` so the first paint never waits on the WebGL scene.
+  const [showScene, setShowScene] = useState(false);
   const [lightbox, setLightbox] = useState<{src: string; caption: string} | null>(null);
   const [statsRef, statsInView] = useInView<HTMLDivElement>({ threshold: 0.25 });
   const heroRef = useScrollProgress<HTMLDivElement>("pinExit");
@@ -831,6 +840,48 @@ function PortfolioBody() {
     return () => clearTimeout(t);
   }, []);
 
+  /**
+   * Mount the 3D backdrop after the first paint, not before it.
+   *
+   * Two rAFs guarantee a painted frame of the hero; the idle callback then runs the
+   * three.js import and scene setup when the main thread has nothing more important
+   * to do, with a timeout so a busy thread still gets the scene rather than never.
+   * Under `prefers-reduced-motion` it is never mounted at all — the scene opts out
+   * of rendering in that mode anyway, so downloading it would be pure cost.
+   */
+  useEffect(() => {
+    if (reducedMotion) return;
+    if (showScene) return;
+
+    let idleHandle: number | undefined;
+    let frame1 = 0;
+    let frame2 = 0;
+    let cancelled = false;
+    const mount = () => {
+      if (!cancelled) setShowScene(true);
+    };
+    const schedule = () => {
+      if (typeof window.requestIdleCallback === "function") {
+        idleHandle = window.requestIdleCallback(mount, { timeout: 2500 });
+      } else {
+        idleHandle = window.setTimeout(mount, 600);
+      }
+    };
+    frame1 = requestAnimationFrame(() => {
+      frame2 = requestAnimationFrame(schedule);
+    });
+
+    return () => {
+      cancelled = true;
+      cancelAnimationFrame(frame1);
+      cancelAnimationFrame(frame2);
+      if (idleHandle !== undefined) {
+        if (typeof window.cancelIdleCallback === "function") window.cancelIdleCallback(idleHandle);
+        else clearTimeout(idleHandle);
+      }
+    };
+  }, [reducedMotion, showScene]);
+
   const animateStats = statsInView;
 
   const scrollToSection = useCallback((id: string) => scrollTo(id), [scrollTo]);
@@ -843,8 +894,9 @@ function PortfolioBody() {
           Skip to content
         </a>
 
-        {/* 3D backdrop — the WebGL scene, driven by the page's scroll */}
-        <Scene3D accent={ambientColor} />
+        {/* 3D backdrop — the WebGL scene, driven by the page's scroll. Absent from
+            the first paint by design; it fades in once the browser is idle. */}
+        {showScene && <Scene3D accent={ambientColor} />}
 
         {/* Pointer light, between the scene and the content */}
         <CursorGlow />
@@ -930,13 +982,16 @@ function PortfolioBody() {
             <h1 className="hero-name">
               {NAME_WORDS.map((word, i) => (
                 <React.Fragment key={word}>
+                  {/* No entrance animation on the name. This span is the LCP node,
+                      and every version of the slam that moved the text made the
+                      browser report the paint later than it needed to — an opacity
+                      gate was the worst case (2.2s), a transform-only version still
+                      cost ~300ms of measured render delay. The name now paints with
+                      the first frame; the motion lives in the avatar, badge, scroll
+                      chrome and the rest of the page, not in the one thing that has to
+                      be readable immediately. */}
                   <span className="name-word">
-                    <span
-                      className="name-word-inner"
-                      style={{ animationDelay: `${0.3 + i * 0.13}s` }}
-                    >
-                      {word}
-                    </span>
+                    <span className="name-word-inner">{word}</span>
                   </span>
                   {i < NAME_WORDS.length - 1 ? " " : null}
                 </React.Fragment>
@@ -1214,7 +1269,10 @@ function PortfolioBody() {
           --border: #27273a;
           --text-primary: #f0f0f5;
           --text-secondary: #a0a0b0;
-          --text-tertiary: #6b6b80;
+          /* Was #6b6b80: 3.6:1 on the page background, which fails WCAG AA for the
+             11-12px mono labels, skill percentages and footer links it is used on.
+             #8e96aa keeps the quiet hierarchy at ~6.5:1. */
+          --text-tertiary: #8e96aa;
           --accent: #3b82f6;
           --font-sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
           --font-mono: "JetBrains Mono", "Fira Code", "SF Mono", Consolas, monospace;
@@ -1672,6 +1730,13 @@ function PortfolioBody() {
           font-size: 15px;
           line-height: 1.7;
           color: var(--text-secondary);
+        }
+
+        /* A link inside a paragraph has to be distinguishable without relying on
+           colour alone (WCAG 1.4.1). The underline is the non-colour cue. */
+        .summary-text a {
+          text-decoration: underline;
+          text-underline-offset: 3px;
         }
 
         .honors-grid {
@@ -2696,29 +2761,13 @@ function PortfolioBody() {
            KINETIC LAYER
            ══════════════════════════════════════════════════════════════ */
 
-        /* ── hero name impact entrance ──
-           Words, not letters: the rendered text stays one readable string while
-           each word slams in from below with blur and a scale overshoot. */
+        /* ── hero name ──
+           Deliberately static: it is the LCP element, and animating it meant the
+           largest content did not count as painted until the movement settled.
+           Keeping the spans (rather than one string) preserves the per-word markup
+           for the reduced-motion selectors and any future non-LCP treatment. */
         .name-word { display: inline-block; }
-
-        .name-word-inner {
-          display: inline-block;
-          animation: wordSlam 1.15s cubic-bezier(0.16, 1, 0.3, 1) backwards;
-        }
-
-        @keyframes wordSlam {
-          0% {
-            transform: translate3d(0, 66px, 0) scale(1.28) rotate(3.5deg);
-            opacity: 0;
-            filter: blur(13px);
-          }
-          60% {
-            transform: translate3d(0, -9px, 0) scale(0.982) rotate(-1.2deg);
-            opacity: 1;
-            filter: blur(0);
-          }
-          100% { transform: none; opacity: 1; filter: blur(0); }
-        }
+        .name-word-inner { display: inline-block; }
 
         /* ── avatar energy aura ──
            A masked arc rather than a blurred conic: the blur had to be
@@ -2896,7 +2945,6 @@ function PortfolioBody() {
         /* ── motion off: the dock switch, or the OS preference ──
            Everything decorative stops and every scrubbed value resolves to its
            final state, so nothing is left half-revealed or invisible. */
-        html[data-motion="off"] .name-word-inner,
         html[data-motion="off"] .hero-scroll-thumb,
         html[data-motion="off"] .hero-avatar::before,
         html[data-motion="off"] .hero-avatar::after,
