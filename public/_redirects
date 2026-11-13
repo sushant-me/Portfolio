@@ -1,0 +1,9 @@
+# Cloudflare Pages static redirects (Next's `output: export` cannot express a
+# server-side redirect, and a client-side bounce would be a soft 404 for a crawler).
+#
+# /resume is the URL shape recruiters and the competing namesake's page use. The
+# document lives at /cv, which keeps its canonical, so this is a permanent alias and
+# not a second page: no sitemap entry, no duplicate metadata. The trailing-slash form
+# is listed separately because Cloudflare matches the path literally.
+/resume /cv 301
+/resume/ /cv 301

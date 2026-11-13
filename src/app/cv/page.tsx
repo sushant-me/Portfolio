@@ -17,7 +17,11 @@ import {
 import "../site-pages.css";
 
 const BASE = SITE;
-const TITLE = "Sushant Poudel — CV (AI security, full-stack, research)";
+// Both spellings of the document name: "cv" and "resume" are searched with similar
+// frequency, and the page is genuinely a CV and a résumé of the same record. The
+// plain "resume" is in the title because that is the ASCII form people type;
+// "résumé" appears in the description and the page, where the accents are correct.
+const TITLE = "Sushant Poudel — CV and resume (PDF downloads)";
 // One formatted date for the page and its cards; the ISO value is what goes into
 // datetime/schema attributes, this is what a reader sees.
 const CV_DATE = new Date(`${CV_UPDATED}T00:00:00Z`).toLocaleDateString("en-GB", {
@@ -27,7 +31,7 @@ const CV_DATE = new Date(`${CV_UPDATED}T00:00:00Z`).toLocaleDateString("en-GB", 
   timeZone: "UTC",
 });
 const DESCRIPTION = metaDescription(
-  "Three downloadable CVs for Sushant Poudel: general software, AI and security; AI-security focused; and academic research. PDFs, updated 13 November 2026.",
+  "Downloadable CVs and résumés for Sushant Poudel: general software/AI/security, AI-security focused, academic research. Three PDFs, updated 13 November 2026.",
 );
 
 export const metadata: Metadata = {
@@ -173,10 +177,10 @@ export default function CvPage() {
         </Link>
         <h1>Curriculum vitae</h1>
         <p className="lead">
-          The same record in three documents. They differ in which part is in front, not in
-          what they claim: a general CV for engineering roles, a shorter AI-security version,
-          and a research CV for academic applications. All three are PDFs, updated{" "}
-          <time dateTime={CV_UPDATED}>{CV_DATE}</time>.
+          The same record as a CV and as a résumé, in three documents. They differ in which part
+          is in front, not in what they claim: a general CV for engineering roles, a shorter
+          AI-security version, and a research CV for academic applications. All three are PDFs,
+          updated <time dateTime={CV_UPDATED}>{CV_DATE}</time>.
         </p>
         <p className="meta">
           Updated {CV_DATE} · three PDFs · {EMAIL}
