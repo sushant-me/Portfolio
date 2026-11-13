@@ -321,7 +321,8 @@ export default function HirePage() {
             Prefer to read first? The <Link href="/about">about page</Link> has the longer record,
             the <Link href="/publications">papers</Link> show how the evaluation work is done, and
             the <Link href="/press">press page</Link> has the short bio and a headshot if you need
-            one.
+            one. Prefer a document? <Link href="/cv">Download the CV</Link> — general,
+            AI-security or research, as a PDF.
           </p>
         </div>
 

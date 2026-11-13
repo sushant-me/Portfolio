@@ -20,6 +20,7 @@ const SECTIONS = [
   { href: "/press", label: "Press" },
   { href: "/hire", label: "Hire" },
   { href: "/contact", label: "Contact" },
+  { href: "/cv", label: "CV" },
   { href: "/search", label: "Search" },
 ];
 

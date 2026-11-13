@@ -276,3 +276,66 @@
   font-size: 11px;
   color: #6f7a90;
 }
+
+/* ── CV downloads ──
+   Three cards, one per document. They are equal in weight on purpose: picking the
+   right document is the visitor's job, and a "recommended" badge would be guessing
+   at which reader is on the page. */
+.cv-grid {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+}
+
+.cv-card {
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  padding: 20px 20px 18px;
+  background: #0d0f16;
+  margin: 0;
+}
+
+.cv-card h2 {
+  margin: 0 0 4px;
+  font-size: 17px;
+}
+
+.cv-sub {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 11px;
+  letter-spacing: 0.03em;
+  color: #8d97ad;
+  margin-bottom: 10px;
+}
+
+.cv-reader {
+  color: #dfe5f0 !important;
+  font-weight: 550;
+  margin-bottom: 8px !important;
+}
+
+.cv-card p { margin: 0 0 6px; font-size: 14px; }
+
+.cv-actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 14px;
+}
+
+.cv-actions a.pg-btn { font-size: 13.5px; padding: 8px 15px; }
+
+.cv-view {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 11.5px;
+  color: #8d97ad !important;
+  text-decoration: none;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+  padding-bottom: 1px;
+}
+
+.cv-view:hover { color: #dfe5f0 !important; }

@@ -1,6 +1,6 @@
 import type { MetadataRoute } from "next";
 import { getPosts } from "@/lib/writing";
-import { HOME_UPDATED } from "@/lib/site";
+import { CV_UPDATED, HOME_UPDATED } from "@/lib/site";
 import { PAPERS } from "../../content/publications";
 
 // Required under `output: export` — generated at build time from committed content.
@@ -67,6 +67,14 @@ export default function sitemap(): MetadataRoute.Sitemap {
       url: `${BASE}/contact`,
       changeFrequency: "yearly",
       priority: 0.7,
+    },
+    {
+      // A document a recruiter can take away, which is the point of the page. The
+      // date is the one stamped on the PDFs themselves.
+      url: `${BASE}/cv`,
+      lastModified: new Date(`${CV_UPDATED}T00:00:00Z`),
+      changeFrequency: "yearly",
+      priority: 0.8,
     },
     {
       url: `${BASE}/writing`,

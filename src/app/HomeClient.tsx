@@ -1279,6 +1279,7 @@ function PortfolioBody() {
               <a href="/hire">Hire</a>
               <a href="/press">Press</a>
               <a href="/contact">Contact</a>
+              <a href="/cv">CV</a>
               <a href="/search">Search</a>
               <a href="/writing">Writing</a>
               <a href="/publications">Publications</a>

@@ -28,6 +28,14 @@ export const EMAIL = "sushant.poudel2028@gmail.com";
  */
 export const HOME_UPDATED = "2026-11-13";
 
+/**
+ * When the downloadable CVs in `public/cv/` were last rendered. Same reasoning as
+ * HOME_UPDATED: a hand-set date, bumped when the PDFs are replaced, so a deploy that
+ * does not touch them cannot claim a new CV. Feeds /cv's dateModified, the
+ * DigitalDocument entries and its sitemap lastmod.
+ */
+export const CV_UPDATED = "2026-11-13";
+
 export const PERSON_ID = `${SITE}/#person`;
 export const WEBSITE_ID = `${SITE}/#website`;
 export const PROFILE_PAGE_ID = `${SITE}/#profilepage`;

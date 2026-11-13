@@ -267,7 +267,9 @@ export default function AboutPage() {
             If you are hiring, or you have an agent or MCP server that needs a review,{" "}
             <Link href="/hire">the hire page</Link> covers what I do and how an engagement runs. If
             you just want to talk about the work, email{" "}
-            <a href={`mailto:${EMAIL}`}>{EMAIL}</a> — the same address is on every commit.
+            <a href={`mailto:${EMAIL}`}>{EMAIL}</a> — the same address is on every commit. Prefer a
+            document? The <Link href="/cv">CV page</Link> has the general, AI-security and research
+            versions as PDFs.
           </p>
           <a className="pg-btn" href={`mailto:${EMAIL}`}>Email me</a>
         </div>

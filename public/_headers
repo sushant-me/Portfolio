@@ -120,6 +120,8 @@
   Cache-Control: public, max-age=604800
 /press/*
   Cache-Control: public, max-age=604800
+/cv/*
+  Cache-Control: public, max-age=604800
 
 # The feed and the sitemap are how crawlers discover new work, so they stay
 # short-lived. A publish must be visible immediately rather than in four hours.
