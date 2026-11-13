@@ -14,8 +14,12 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+// Both job intents a name search carries: the security specialism that
+// differentiates him, and the full-stack role people also search for. 57 characters,
+// so neither half is cut off in a search result.
+const TITLE = "Sushant Poudel — AI Security & Full-Stack Engineer, Nepal";
 const DESCRIPTION =
-  "Sushant Poudel is an AI security engineer in Nepal working on agent tool boundaries, LLM evaluation and memory safety. Open to security and engineering roles.";
+  "Sushant Poudel is an AI security engineer and full-stack developer in Nepal: agent security, LLM evaluation and memory safety. Available for freelance work.";
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE),
@@ -28,7 +32,7 @@ export const metadata: Metadata = {
   },
   // The name leads the title because that is the query this page has to win, and a
   // role after it tells a reader who has never heard the name why they should click.
-  title: "Sushant Poudel — AI Security Engineer in Nepal",
+  title: TITLE,
   description: DESCRIPTION,
   authors: [{ name: "Sushant Poudel", url: SITE }],
   creator: "Sushant Poudel",
@@ -62,7 +66,7 @@ export const metadata: Metadata = {
     type: "profile",
     url: `${SITE}/`,
     siteName: "Sushant Poudel",
-    title: "Sushant Poudel — AI Security Engineer in Nepal",
+    title: TITLE,
     description: DESCRIPTION,
     images: [
       {
@@ -75,7 +79,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Sushant Poudel — AI Security Engineer in Nepal",
+    title: TITLE,
     description: DESCRIPTION,
     images: ["/og.png"],
   },

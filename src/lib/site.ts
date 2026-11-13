@@ -17,6 +17,17 @@ export const SITE = "https://sushantpoudel2028.com.np";
 export const EMAIL = "sushant.poudel2028@gmail.com";
 
 /** One node id per entity, so every page can point at the same node. */
+/**
+ * The date the homepage's own content last changed in a way a reader would notice.
+ *
+ * Deliberately a hand-set date rather than the build time: a deploy that only
+ * touches a header rule is not a content change, and a `dateModified` that moves on
+ * every build is the unreliable-freshness signal the sitemap note below warns about.
+ * Bump this when the homepage copy changes; it feeds the ProfilePage's
+ * `dateModified` and the homepage's sitemap entry.
+ */
+export const HOME_UPDATED = "2026-11-13";
+
 export const PERSON_ID = `${SITE}/#person`;
 export const WEBSITE_ID = `${SITE}/#website`;
 export const PROFILE_PAGE_ID = `${SITE}/#profilepage`;
@@ -169,6 +180,9 @@ export const PROFILE_PAGE_SCHEMA: Record<string, unknown> = {
   name: "Sushant Poudel — AI Security Engineer",
   description:
     "Profile, research and writing of Sushant Poudel, an AI security engineer in Nepal.",
+  // The homepage is the page this node describes; the date says when its copy last
+  // changed, which is the signal a search engine uses for freshness.
+  dateModified: HOME_UPDATED,
   isPartOf: { "@id": WEBSITE_ID },
   about: { "@id": PERSON_ID },
   mainEntity: { "@id": PERSON_ID },

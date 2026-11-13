@@ -1017,7 +1017,7 @@ function PortfolioBody() {
                   A patch of mine is merged into google/go-github; five memory-safety issues I filed against google/s2geometry are open, including a 2.4 GiB allocation reachable from a 28-byte input, with standalone reproducers for each.
                   Two papers accepted, one now published — local policy verification for agents (ICICSET 2026, DOI 10.65091/icicset.v3i1.75) and predictive bandwidth scaling for WebRTC over LEO satellite links (IEEE RTC 2026, whose research track is published in IEEE Xplore).
                   Ranked 7th all-time on HackingHub's global leaderboard (210 flags, 21,785 XP, read from the public leaderboard API in November 2026).
-                  Two years as a full-time AI engineer at Atmos SoftTech, building production ML systems, full-stack products and offline-first agent pipelines.
+                  Two years as a full-time AI engineer at Atmos SoftTech, building production ML systems, full-stack products and offline-first agent pipelines. I work as a full-stack developer alongside the security research, from Bhaktapur in the Kathmandu Valley, and I am available for freelance work.
                 </p>
                 <p className="summary-text" style={{ marginTop: 12 }}>
                   I would rather be checked than believed: the claims about my own technical work that the ledger covers are re-checked weekly against their public source by a script anyone can run —{" "}
@@ -1142,16 +1142,27 @@ function PortfolioBody() {
             </Section>
           </main>
 
-          {/* Conversion strip. The homepage is the strongest page on the site and it
-              used to end in a mailto only — a reader convinced by the record had no
-              page to go to that says what the work would be. */}
-          <section className="hire-strip" aria-label="Work with Sushant Poudel">
+          {/* Services strip. The page ends with what a visitor can actually buy,
+              named the way they search for it: the namesake ranking above this site
+              on a bare-name search has a Services block, and this page had the work
+              but not the offer in a form anyone could scan. Each line is a link to
+              the page that describes scope and process; no prices, no testimonials. */}
+          <section className="hire-strip" aria-label="Services and availability">
             <div>
-              <div className="hire-kicker">// Available for work</div>
+              <div className="hire-kicker">// Services</div>
+              <ul className="hire-services">
+                <li>
+                  <a href="/hire">AI &amp; agent security review</a>
+                </li>
+                <li>
+                  <a href="/hire">MCP tool-boundary review</a>
+                </li>
+                <li>
+                  <a href="/hire">Security-focused code review + full-stack builds</a>
+                </li>
+              </ul>
               <p className="hire-copy">
-                AI security reviews for agentic systems, MCP tool-boundary audits, security-focused
-                code review and full-stack builds — plus open to full-time security and AI
-                engineering roles, remote or Kathmandu-based.
+                Freelance work and full-time roles, remote or Kathmandu-based.
               </p>
             </div>
             <a href="/hire" className="hire-link">
@@ -1496,6 +1507,29 @@ function PortfolioBody() {
           text-transform: uppercase;
           color: var(--accent);
           margin-bottom: 7px;
+        }
+
+        .hire-services {
+          list-style: none;
+          padding: 0;
+          margin: 0 0 9px;
+          display: flex;
+          flex-wrap: wrap;
+          gap: 5px 20px;
+        }
+
+        .hire-services a {
+          color: var(--text-primary);
+          font-size: 14px;
+          text-decoration: none;
+          border-bottom: 1px solid rgba(59, 130, 246, 0.35);
+          padding-bottom: 2px;
+          transition: color var(--t-fast) ease, border-color var(--t-fast) ease;
+        }
+
+        .hire-services a:hover {
+          color: #93c5fd;
+          border-color: #3b82f6;
         }
 
         .hire-copy {

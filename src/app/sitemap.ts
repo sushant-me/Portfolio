@@ -1,5 +1,6 @@
 import type { MetadataRoute } from "next";
 import { getPosts } from "@/lib/writing";
+import { HOME_UPDATED } from "@/lib/site";
 import { PAPERS } from "../../content/publications";
 
 // Required under `output: export` — generated at build time from committed content.
@@ -41,9 +42,10 @@ export default function sitemap(): MetadataRoute.Sitemap {
   return [
     {
       url: BASE,
-      // The homepage is reordered by new work rather than edited, so the newest
-      // dated thing on it stands in for "last meaningfully changed".
-      lastModified: newestPost,
+      // The homepage's own copy now carries a hand-set revision date (HOME_UPDATED,
+      // in src/lib/site.ts); it is more accurate than the newest post, which changes
+      // without the page's copy changing.
+      lastModified: new Date(`${HOME_UPDATED}T00:00:00Z`),
       changeFrequency: "monthly",
       priority: 1,
     },
