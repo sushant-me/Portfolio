@@ -52,13 +52,19 @@ export async function generateMetadata({
   const title = `${p.shortTitle} — paper by Sushant Poudel`;
   const description = metaDescription(p.summary);
 
+  // A date is only a publication date once the work has appeared somewhere. An
+  // acceptance that names the venue's dates is not a publication, and emitting
+  // citation_publication_date for it tells a citation index the paper is out when
+  // the page's own badge says accepted.
+  const appearsInVenueRecord = p.status === "published" || p.status === "presented";
+
   const citation: Record<string, string | string[]> = {
     citation_title: p.title,
     // One meta tag per author, which is what the scheme expects.
     citation_author: p.authors,
-    // Only where the site states a date. A year on its own is not a date in the
-    // scheme, and the previous hardcoded "2026" was wrong for the 2025 report.
-    ...(p.date ? { citation_publication_date: p.date } : {}),
+    // A year on its own is not a date in the scheme, and the previous hardcoded
+    // "2026" was wrong for the 2025 report.
+    ...(p.date && appearsInVenueRecord ? { citation_publication_date: p.date } : {}),
     citation_pdf_url: pdf,
     citation_abstract_html_url: url,
     citation_language: "en",
@@ -186,6 +192,9 @@ export default async function Paper({ params }: { params: Promise<{ slug: string
   if (!p) notFound();
 
   const url = `${BASE}/publications/${p.slug}`;
+  // Same rule as the metadata: a date is only a publication date once the work has
+  // appeared in a venue record, not when an acceptance names future dates.
+  const appearsInVenueRecord = p.status === "published" || p.status === "presented";
 
   const bib = `@misc{${uniqueKey(p)},
   title  = {${p.title}},
@@ -202,9 +211,11 @@ export default async function Paper({ params }: { params: Promise<{ slug: string
    * pointing at the shared Person node so the page resolves to the same entity as
    * the rest of the site instead of a second "Sushant Poudel" string.
    *
-   * `datePublished` appears only for papers that carry a real date. Omitting it is
-   * better than a fabricated one, and both remaining conference papers state a
-   * venue year rather than a date.
+   * `datePublished` appears only once the work has appeared somewhere: a published
+   * paper's publication date or a presented paper's presentation date. An accepted
+   * paper with the venue's future dates is not published yet, so it gets no
+   * datePublished even though the page knows the dates; omitting it is better than
+   * a date a citation index would read as "out now".
    */
   const articleSchema: Record<string, unknown> = {
     "@context": "https://schema.org",
@@ -235,7 +246,7 @@ export default async function Paper({ params }: { params: Promise<{ slug: string
     isAccessibleForFree: true,
     inLanguage: "en",
     ...(p.pagination ? { pagination: p.pagination } : {}),
-    ...(p.date ? { datePublished: p.date } : {}),
+    ...(p.date && appearsInVenueRecord ? { datePublished: p.date } : {}),
     ...(p.doi
       ? {
           identifier: {
@@ -276,16 +287,19 @@ export default async function Paper({ params }: { params: Promise<{ slug: string
           <span className={`tag ${p.status}`}>{p.status}</span>
           {p.venue}
         </div>
-        {p.date && (
+        {/* The date line says what actually happened, not just that a date exists:
+            a paper that was presented was not published, and a paper accepted for a
+            future venue has no appeared-on date at all. */}
+        {(p.status === "published" || p.status === "presented") && p.date && (
           <div className="pub-doi">
-            Published{" "}
+            {p.status === "published" ? "Published" : "Presented"}{" "}
             {new Date(`${p.date}T00:00:00Z`).toLocaleDateString("en-GB", {
               day: "numeric",
               month: "long",
               year: "numeric",
               timeZone: "UTC",
             })}
-            {p.doi && (
+            {p.status === "published" && p.doi && (
               <>
                 {" · DOI "}
                 <a href={`https://doi.org/${p.doi}`}>{p.doi}</a>

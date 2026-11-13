@@ -61,6 +61,11 @@ const ELSEWHERE: { label: string; href: string; note: string }[] = [
     note: "The publication record, independent of this site; the ICICSET paper is listed there.",
   },
   {
+    label: "Google Scholar — Sushant Poudel",
+    href: "https://scholar.google.com/citations?user=i1K2YykAAAAJ&hl=en",
+    note: "The citation profile: his papers, with the ICICSET one listed; its Homepage field points at this site.",
+  },
+  {
     label: "Semantic Scholar — author 2507334053",
     href: "https://www.semanticscholar.org/author/2507334053",
     note: "Where the publications cluster as an author profile.",

@@ -28,9 +28,10 @@ export const ORG_ID = `${SITE}/#org`;
  * A `sameAs` is a claim that the URL *is* this entity, so every entry is a page
  * whose own title or public record names him: the GitHub account the work is under,
  * the LinkedIn profile, the ORCID record whose API returns his name and affiliation,
- * the X account whose page title is his name, the Semantic Scholar author page the
- * publications cluster under, the HackingHub leaderboard account, and the reputation
- * ledger that verifies the claims about his own work.
+ * the Google Scholar profile (verified as the owner's, and whose Homepage field
+ * points back here), the X account whose page title is his name, the Semantic
+ * Scholar author page the publications cluster under, the HackingHub leaderboard
+ * account, and the reputation ledger that verifies the claims about his own work.
  *
  * One absence is deliberate. HackerOne is not here: the public profile is empty
  * with negative reputation, and a `sameAs` to it argues against the page rather than
@@ -44,6 +45,9 @@ export const SAME_AS: string[] = [
   "https://github.com/sushant-me",
   "https://www.linkedin.com/in/sushant-poudel2028/",
   "https://orcid.org/0009-0008-7732-3269",
+  // i1K2YykAAAAJ is the correct profile; BRr26UkAAAAJ is a Lamar University
+  // namesake working on concrete and glass, not this person.
+  "https://scholar.google.com/citations?user=i1K2YykAAAAJ&hl=en",
   "https://x.com/nofear976",
   "https://www.semanticscholar.org/author/2507334053",
   "https://app.hackinghub.io/p/nofear976",
