@@ -121,18 +121,13 @@
 /press/*
   Cache-Control: public, max-age=604800
 
-# The /cv page links these PDFs with a ?v=<content-hash> query (computed at build
-# time), so a replaced CV is a new cache key — the same pattern as a content-hashed
-# build asset. That alone is not enough: the bare path is what an old bookmark, an
-# email or a search result points at, and a week-long TTL pinned the uncorrected CV
-# at the edge across one deploy. So the TTL is short as well. Long cache for the
-# versioned URL would be safe, but _headers cannot express that distinction, and
-# freshness matters more here than one origin hit per hour.
 /cv/*
   Cache-Control: public, max-age=3600
 
-# The feed and the sitemap are how crawlers discover new work, so they stay
-# short-lived. A publish must be visible immediately rather than in four hours.
+# The /cv page links the PDFs with a ?v=<content-hash> query, so a replaced CV is a
+# new cache key; the short TTL covers the bare path, which old bookmarks and search
+# results still point at.
+
 /feed.xml
   Cache-Control: public, max-age=0, must-revalidate
 /sitemap.xml
