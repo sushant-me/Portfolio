@@ -121,21 +121,18 @@
 /press/*
   Cache-Control: public, max-age=604800
 
-/cv/*
-  Cache-Control: public, max-age=3600
-# Explicit rules for the three PDFs as well: on the live deployment the wildcard
-# applied to text files under /cv (probed at 3600) but the PDFs kept the Pages
-# default 14400, so the exact path is set to remove any ambiguity.
-/cv/Sushant_Poudel_CV.pdf
-  Cache-Control: public, max-age=3600
-/cv/Sushant_Poudel_CV_AISecurity.pdf
-  Cache-Control: public, max-age=3600
-/cv/Sushant_Poudel_University_Resume.pdf
-  Cache-Control: public, max-age=3600
-
-# The /cv page links the PDFs with a ?v=<content-hash> query, so a replaced CV is a
-# new cache key; the short TTL covers the bare path, which old bookmarks and search
-# results still point at.
+# /cv PDFs are content-addressed: the page links each one as
+# /cv/<name>.pdf?v=<sha256[:12]>, computed from the file at build time, so a replaced
+# CV is a new cache key and the page (and its structured data) can never serve a
+# stale document. That is the durable fix for the stale-CV deploy.
+#
+# The bare path is left to Cloudflare Pages' default asset TTL (observed 14400s).
+# Explicit /cv/* and exact-path Cache-Control rules were tried and did not take
+# effect for these PDFs on the live deployment — text files under /cv did receive
+# the configured value, so the rules were being parsed — and a comment claiming a
+# one-hour TTL the edge does not return would be worse than none. Four hours is
+# bounded and acceptable for a URL nothing links to; the versioned URLs are the ones
+# users reach.
 
 /feed.xml
   Cache-Control: public, max-age=0, must-revalidate
